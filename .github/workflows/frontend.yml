@@ -1,12 +1,11 @@
-name: Run Frontend Tests
+name: Test and build frontend
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     defaults:
@@ -29,3 +28,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+
+  build:
+    needs: [test]
+    runs-on: ubuntu-latest
+    name: Build docker container
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker images
+        uses: docker/build-push-action@v4.0.0
+        with:
+          context: ./frontend
