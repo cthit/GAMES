@@ -1,0 +1,10 @@
+{
+	"name": "GAMES",
+	"version": "0.0.1",
+	"description": "A service for finding and browsing games in different mediums and formats",
+	"title": "Game Access Membership and Exchange Service",
+	"apidoc": {
+		"title": "GAMES API Documentation",
+		"url": "https://gasplund.github.io/GAMES/"
+	}
+}
