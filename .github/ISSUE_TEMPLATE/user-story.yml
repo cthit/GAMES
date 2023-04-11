@@ -3,8 +3,8 @@ description: Create a User Story
 title: 'As a ____, I want ____, so that I can ____'
 labels: []
 body:
-  - type: input
-    id: contact
+  - type: textarea
+    id: dod
     attributes:
       label: Definition of Done
       description: What needs to be done for this user story to be considered done?
@@ -13,4 +13,4 @@ body:
         - [ ] Flux capacitor charged
         - [ ] Can reach 88 MPH
     validations:
-      required: false
+      required: true
