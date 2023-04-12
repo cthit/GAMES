@@ -1,4 +1,5 @@
 import express from 'express';
+import gameRouter from './routers/gameRouter.js';
 
 const app = express();
 
@@ -18,6 +19,8 @@ const app = express();
 app.get('/', (req, res) => {
 	res.status(200).json({ message: 'Hello World' });
 });
+
+app.use('/api/v1/games', gameRouter);
 
 app.listen(8080, () => {
 	console.log('Server is running on port 8080');
