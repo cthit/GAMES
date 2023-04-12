@@ -1,0 +1,13 @@
+.gamesListHeader {
+	text-align: center;
+	margin-top: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+.gamesList {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 1rem;
+	list-style-type: none;
+}
