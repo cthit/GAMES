@@ -1,7 +1,18 @@
+import cors from 'cors';
+import { config } from 'dotenv';
 import express from 'express';
+
 import gameRouter from './routers/gameRouter.js';
 
+config(); // Load .env file
+
 const app = express();
+
+console.log('NODE_ENV: ', process.env.NODE_ENV);
+
+if (process.env.NODE_ENV === 'development') {
+	app.use(cors());
+}
 
 /**
  * @api {get} / Request Hello World
