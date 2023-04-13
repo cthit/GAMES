@@ -23,6 +23,8 @@ jobs:
       - name: Create documentation
         run: apidoc -i backend -o _site -c backend/apidoc.json
       - name: Upload GitHub Pages artifact
+        if: ${{ github.ref == 'ref/heads/main' }}
         uses: actions/upload-pages-artifact@v1.0.8
       - name: Deploy GitHub Pages
+        if: ${{ github.ref == 'ref/heads/main' }}
         uses: actions/deploy-pages@v1
