@@ -17,7 +17,9 @@ const gameRouter = Router();
  *    "id": 1,
  *   "name": "Game 1",
  *  "description": "Game 1 description",
- * 	"platform": "Steam"
+ * 	"platform": "Steam",
+ *	"release_date": "2023-04-13",
+ *	"playtime": "60"
  *  }
  * ]
  */
