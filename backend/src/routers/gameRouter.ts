@@ -16,7 +16,8 @@ const gameRouter = Router();
  *   {
  *    "id": 1,
  *   "name": "Game 1",
- *  "description": "Game 1 description"
+ *  "description": "Game 1 description",
+ * 	"platform": "Steam"
  *  }
  * ]
  */
@@ -25,17 +26,20 @@ gameRouter.get('/', (req, res) => {
 		{
 			id: 1,
 			name: 'Game 1',
-			description: 'Game 1 description'
+			description: 'Game 1 description',
+			platform: 'Boardgame'
 		},
 		{
 			id: 2,
 			name: 'Game 2',
-			description: 'Game 2 description'
+			description: 'Game 2 description',
+			platform: 'Steam'
 		},
 		{
 			id: 3,
 			name: 'Game 3',
-			description: 'Game 3 description'
+			description: 'Game 3 description',
+			platform: 'Playstation 4'
 		}
 	];
 
