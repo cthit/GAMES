@@ -28,6 +28,7 @@ gameRouter.get('/', (req, res) => {
 			name: 'Game 1',
 			description: 'Game 1 description',
 			platform: 'Boardgame',
+			release_date: '2019-01-01',
 			playtime: '60-90'
 		},
 		{
@@ -35,6 +36,7 @@ gameRouter.get('/', (req, res) => {
 			name: 'Game 2',
 			description: 'Game 2 description',
 			platform: 'Steam',
+			release_date: '2020-05-11',
 			playtime: '45-80'
 		},
 		{
@@ -42,6 +44,7 @@ gameRouter.get('/', (req, res) => {
 			name: 'Game 3',
 			description: 'Game 3 description',
 			platform: 'Playstation 4',
+			release_date: '2018-12-12',
 			playtime: '100-150'
 		}
 	];
