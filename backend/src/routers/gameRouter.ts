@@ -25,17 +25,20 @@ gameRouter.get('/', (req, res) => {
 		{
 			id: 1,
 			name: 'Game 1',
-			description: 'Game 1 description'
+			description: 'Game 1 description',
+			playtime: '60-90' // Playtime in minutes
 		},
 		{
 			id: 2,
 			name: 'Game 2',
-			description: 'Game 2 description'
+			description: 'Game 2 description',
+			playtime: '45-80'
 		},
 		{
 			id: 3,
 			name: 'Game 3',
-			description: 'Game 3 description'
+			description: 'Game 3 description',
+			playtime: '100-150'
 		}
 	];
 
