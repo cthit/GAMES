@@ -3,12 +3,12 @@ import { Router } from 'express';
 const gameRouter = Router();
 
 /**
- * @api {get} /api/v1/games
+ * @api {get} /api/v1/games Request Games
  * @apiName GetGames
  * @apiGroup Games
  * @apiDescription Get all public games
  *
- * @apiSuccess {{ id: number, name: string, description: string}[]} games List of games
+ * @apiSuccess {Object[]} games List of games
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
