@@ -11,21 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      -
-        uses: actions/checkout@v3
-      -
-        name: Setup node
+      - uses: actions/checkout@v3
+      - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      -
-        name: Setup dependencies
+      - name: Setup dependencies
         run: npm install apidoc -g
-      -
-        name: Compile documentation
+      - name: Compile documentation
         run: apidoc -i backend -o _site -c backend/apidoc.json
-      -
-        name: Cache documentation
+      - name: Cache documentation
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/cache/save@v3
         with:
@@ -44,15 +39,12 @@ jobs:
       id-token: write
 
     steps:
-    -
-      name: Fetch documentation cache
-      uses: actions/cache/restore@v3
-      with:
-        path: _site
-        key: docs-${{ github.sha }}
-    -
-      name: Upload GitHub Pages artifact
-      uses: actions/upload-pages-artifact@v1.0.8
-    -
-      name: Deploy GitHub Pages
-      uses: actions/deploy-pages@v1
+      - name: Fetch documentation cache
+        uses: actions/cache/restore@v3
+        with:
+          path: _site
+          key: docs-${{ github.sha }}
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v1.0.8
+      - name: Deploy GitHub Pages
+        uses: actions/deploy-pages@v1
