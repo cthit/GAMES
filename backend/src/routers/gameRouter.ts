@@ -27,19 +27,22 @@ gameRouter.get('/', (req, res) => {
 			id: 1,
 			name: 'Game 1',
 			description: 'Game 1 description',
-			platform: 'Boardgame'
+			platform: 'Boardgame',
+			playtime: '60-90'
 		},
 		{
 			id: 2,
 			name: 'Game 2',
 			description: 'Game 2 description',
-			platform: 'Steam'
+			platform: 'Steam',
+			playtime: '45-80'
 		},
 		{
 			id: 3,
 			name: 'Game 3',
 			description: 'Game 3 description',
-			platform: 'Playstation 4'
+			platform: 'Playstation 4',
+			playtime: '100-150'
 		}
 	];
 
