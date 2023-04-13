@@ -10,6 +10,7 @@ interface Game {
 	name: string;
 	description: string;
 	platform: string;
+	playtime: string;
 }
 
 const GamesList: FC<GamesListProps> = () => {
@@ -31,6 +32,7 @@ const GamesList: FC<GamesListProps> = () => {
 							name={game.name}
 							description={game.description}
 							platform={game.platform}
+							playtime={game.playtime}
 						/>
 					))}
 				</ul>
