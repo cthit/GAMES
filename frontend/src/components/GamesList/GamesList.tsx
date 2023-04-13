@@ -9,6 +9,7 @@ interface Game {
 	id: number;
 	name: string;
 	description: string;
+	platform: string;
 }
 
 const GamesList: FC<GamesListProps> = () => {
@@ -29,6 +30,7 @@ const GamesList: FC<GamesListProps> = () => {
 							key={game.id}
 							name={game.name}
 							description={game.description}
+							platform={game.platform}
 						/>
 					))}
 				</ul>
