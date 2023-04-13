@@ -8,7 +8,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
-    name: Publish latest API documentation
+    name: Compile API documentation
 
     permissions:
       pages: write
