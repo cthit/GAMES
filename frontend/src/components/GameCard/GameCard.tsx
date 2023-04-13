@@ -19,7 +19,7 @@ const GameCard: FC<GameCardProps> = ({
 			<h2>{name}</h2>
 			<p>{description}</p>
 			<p>Platform: {platform}</p>
-			<p>{playtime} minutes</p>
+			<p>Playtime: {playtime} mins</p>
 		</li>
 	);
 };
