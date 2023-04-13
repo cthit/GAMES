@@ -11,6 +11,7 @@ interface Game {
 	description: string;
 	platform: string;
 	playtime: string;
+	release_date: string;
 }
 
 const GamesList: FC<GamesListProps> = () => {
@@ -33,6 +34,7 @@ const GamesList: FC<GamesListProps> = () => {
 							description={game.description}
 							platform={game.platform}
 							playtime={game.playtime}
+							release_date={game.release_date}
 						/>
 					))}
 				</ul>

@@ -6,12 +6,14 @@ interface GameCardProps {
 	description: string;
 	platform: string;
 	playtime: string;
+	release_date: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
 	name,
 	description,
 	platform,
+	release_date,
 	playtime
 }) => {
 	return (
@@ -20,7 +22,7 @@ const GameCard: FC<GameCardProps> = ({
 			<p>{description}</p>
 			<p>Platform: {platform}</p>
 			<p>Playtime: {playtime} mins</p>
-
+			<p>Release date: {release_date}</p>
 		</li>
 	);
 };
