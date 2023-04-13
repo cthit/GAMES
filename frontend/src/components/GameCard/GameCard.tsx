@@ -20,6 +20,7 @@ const GameCard: FC<GameCardProps> = ({
 			<p>{description}</p>
 			<p>Platform: {platform}</p>
 			<p>Playtime: {playtime} mins</p>
+
 		</li>
 	);
 };
