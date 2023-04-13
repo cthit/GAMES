@@ -16,7 +16,8 @@ const gameRouter = Router();
  *   {
  *    "id": 1,
  *   "name": "Game 1",
- *  "description": "Game 1 description"
+ *  "description": "Game 1 description",
+ * 	"platform": "Steam"
  *  }
  * ]
  */
