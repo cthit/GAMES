@@ -54,4 +54,24 @@ gameRouter.get('/', (req, res) => {
 	res.status(200).json(games);
 });
 
+type AddGameRequestBody = {
+	gameName: String;
+	description: String;
+	platform: String;
+	dateReleased: String;
+	playerMin: Number;
+	playerMax: Number;
+	playtime: Number;
+};
+
+gameRouter.post('/add', (req, res) => {
+	if (!req.body) {
+		res.status(400).send();
+	}
+	const body: AddGameRequestBody = req.body;
+	if (!prisma.has(body.platform)) {
+		res.status(400).send();
+	}
+});
+
 export default gameRouter;
