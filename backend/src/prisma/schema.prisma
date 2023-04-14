@@ -18,8 +18,7 @@ model Game {
     //canBorrow Boolean
     playerMin    Int
     playerMax    Int
-    playtimeMin  Int // Stored in minutes
-    playtimeMax  Int
+    playtimeMax  Int // Stored in minutes
 }
 
 model Platform {
