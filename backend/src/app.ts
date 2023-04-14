@@ -7,6 +7,7 @@ import gameRouter from './routers/gameRouter.js';
 config(); // Load .env file
 
 const app = express();
+app.use(express.json());
 
 console.log('NODE_ENV: ', process.env.NODE_ENV);
 
