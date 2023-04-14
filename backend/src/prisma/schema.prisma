@@ -1,5 +1,5 @@
 datasource db {
-    url      = env("DATABASE_URL")
+    url      = env("DB_URL")
     provider = "postgresql"
 }
 
@@ -18,7 +18,7 @@ model Game {
     //canBorrow Boolean
     playerMin    Int
     playerMax    Int
-    playtimeMax  Int // Stored in minutes
+    playtime     Int // Stored in minutes
 }
 
 model Platform {
