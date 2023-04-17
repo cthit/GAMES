@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllPlatforms } from '../services/platformService';
+import { getAllPlatforms } from '../services/platformService.js';
 
 const platformRouter = Router();
 
@@ -24,3 +24,5 @@ platformRouter.get('/', async (req, res) => {
 
 	res.status(200).json(platforms);
 });
+
+export default platformRouter;
