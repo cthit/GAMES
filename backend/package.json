@@ -18,7 +18,9 @@
 		"cors": "^2.8.5",
 		"dotenv": "^16.0.3",
 		"express": "^4.18.2",
-		"prisma": "^4.12.0"
+		"prisma": "^4.12.0",
+		"zod": "^3.21.4",
+		"zod-express-middleware": "^1.4.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.21.4",
