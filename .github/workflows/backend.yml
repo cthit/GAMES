@@ -41,8 +41,4 @@ jobs:
           context: ./backend
           #push: ${{ github.ref == 'refs/heads/main' }}
           push: true
-          registry: ghcr.io
-          username: "GAsplund"
-          password: ${{ secrets.PAT }}
-          repository: GAsplund/games-backend
-          tags: latest
+          tags: GAsplund/games-backend:latest

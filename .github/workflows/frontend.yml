@@ -42,8 +42,4 @@ jobs:
           context: ./frontend
           #push: ${{ github.ref == 'refs/heads/main' }}
           push: true
-          registry: ghcr.io
-          username: "GAsplund"
-          password: ${{ secrets.PAT }}
-          repository: GAsplund/games-frontend
-          tags: latest
+          tags: GAsplund/games-frontend:latest
