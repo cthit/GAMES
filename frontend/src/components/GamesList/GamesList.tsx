@@ -10,7 +10,7 @@ interface Game {
 	name: string;
 	description: string;
 	platformName: string;
-	playtime: string;
+	playtimeMinutes: string;
 	releaseDate: string;
 }
 
@@ -33,8 +33,8 @@ const GamesList: FC<GamesListProps> = () => {
 							name={game.name}
 							description={game.description}
 							platform={game.platformName}
-							playtime={game.playtime}
-							release_date={game.releaseDate}
+							playtimeMinutes={game.playtimeMinutes}
+							releaseDate={game.releaseDate}
 						/>
 					))}
 				</ul>
