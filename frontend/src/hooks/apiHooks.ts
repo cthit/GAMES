@@ -7,6 +7,8 @@ export const useApiGet = <T>(apiPath: string) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
+			setLoading(true);
+			setError(null);
 			try {
 				const response = await fetch('http://localhost:8080/api/v1' + apiPath);
 
@@ -18,8 +20,6 @@ export const useApiGet = <T>(apiPath: string) => {
 				}
 
 				const data = await response.json();
-
-				console.log(data);
 
 				setData(data);
 			} catch (error: any) {
@@ -33,4 +33,36 @@ export const useApiGet = <T>(apiPath: string) => {
 	}, [apiPath]);
 
 	return { data, loading, error };
+};
+
+export const useApiPost = <T>(apiPath: string) => {
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+
+	const postData = async (body: any) => {
+		setLoading(true);
+		setError(null);
+		try {
+			const response = await fetch('http://localhost:8080/api/v1' + apiPath, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(body)
+			});
+
+			if (!response.ok) {
+				console.error(await response.text());
+				throw new Error(
+					'Error fetching data from server with status code: ' + response.status
+				);
+			}
+		} catch (error: any) {
+			setError(error.message);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return { loading, error, postData };
 };
