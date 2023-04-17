@@ -38,7 +38,7 @@ gameRouter.get('/', async (req, res) => {
 			description: game.description,
 			platformName: game.platformName,
 			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-			playtime: game.playtime
+			playtimeMinutes: game.playtimeMinutes
 		};
 	});
 
