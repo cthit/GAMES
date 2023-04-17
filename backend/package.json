@@ -8,6 +8,7 @@
 		"compile": "tsc --watch",
 		"watch": "nodemon dist/app.js",
 		"build": "tsc",
+		"start": "node dist/app.js",
 		"test": "jest",
 		"watchTest": "jest --watchAll"
 	},
