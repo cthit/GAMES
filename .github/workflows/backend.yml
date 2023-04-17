@@ -41,4 +41,4 @@ jobs:
           context: ./backend
           #push: ${{ github.ref == 'refs/heads/main' }}
           push: true
-          tags: GAsplund/games-backend:latest
+          tags: gasplund/games-backend:latest
