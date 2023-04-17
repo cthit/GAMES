@@ -16,7 +16,7 @@ Then you need to install pnpm by running `npm install -g pnpm`
 
 ## Starting the development database
 
-After this you need to start the database, you do this by running `docker compose up -f docker-compose.dev.yml -d` in the source-folder of the project.
+After this you need to start the database, you do this by running `docker compose -f docker-compose.dev.yml up -d` in the source-folder of the project.
 
 ## Running frontend
 
