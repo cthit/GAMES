@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { sendError, validateRequestBody } from 'zod-express-middleware';
+import { validateRequestBody } from 'zod-express-middleware';
 import { createGame, getAllGames } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
@@ -23,7 +23,7 @@ const gameRouter = Router();
  *    "name": "Game 1",
  *    "description": "Game 1 description",
  * 	  "platformName": "Steam",
- *	  "release_date": "2023-04-13",
+ *	  "releaseDate": "2023-04-13",
  *	  "playtime": "60"
  *   }
  * ]
@@ -31,7 +31,18 @@ const gameRouter = Router();
 gameRouter.get('/', async (req, res) => {
 	const games = await getAllGames();
 
-	res.status(200).json(games);
+	const formattedGames = games.map((game) => {
+		return {
+			id: game.id,
+			name: game.name,
+			description: game.description,
+			platformName: game.platformName,
+			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
+			playtime: game.playtime
+		};
+	});
+
+	res.status(200).json(formattedGames);
 });
 
 const addGameSchema = z.object({
@@ -80,18 +91,13 @@ gameRouter.post(
 		}
 
 		if (body.releaseDate > new Date().toISOString()) {
-			return sendError(
+			return sendApiValidationError(
+				res,
 				{
-					type: 'Body',
-					errors: z.ZodError.create([
-						{
-							path: ['releaseDate'],
-							message: 'Release date cannot be in the future',
-							code: 'custom'
-						}
-					])
+					path: 'releaseDate',
+					message: 'The release date cannot be in the future'
 				},
-				res
+				'Body'
 			);
 		}
 
