@@ -1,11 +1,10 @@
 import { Router } from 'express';
 
-import { Game } from '../types/Game';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { createGame, getAllGames } from '../services/gameService.js';
-import { platformExists } from '../services/platformService.js';
-import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { createGame, getAllGames } from '../services/gameService';
+import { platformExists } from '../services/platformService';
+import sendApiValidationError from '../utils/sendApiValidationError';
 
 const gameRouter = Router();
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllPlatforms } from '../services/platformService.js';
+import { getAllPlatforms } from '../services/platformService';
 
 const platformRouter = Router();
 

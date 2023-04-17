@@ -2,9 +2,8 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import express from 'express';
 
-
-import gameRouter from './routers/gameRouter.js';
-import platformRouter from './routers/platformRouter.js';
+import gameRouter from './routers/gameRouter';
+import platformRouter from './routers/platformRouter';
 
 config(); // Load .env file
 
