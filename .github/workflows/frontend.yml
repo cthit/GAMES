@@ -40,3 +40,10 @@ jobs:
         uses: docker/build-push-action@v4.0.0
         with:
           context: ./frontend
+          #push: ${{ github.ref == 'refs/heads/main' }}
+          push: true
+          registry: ghcr.io
+          username: "GAsplund"
+          password: ${{ secrets.PAT }}
+          repository: GAsplund/games-frontend
+          tags: latest
