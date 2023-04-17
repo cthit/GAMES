@@ -1,6 +1,5 @@
 version: '3.5'
 
-
 services:
   postgres:
     container_name: postgres_demo
@@ -8,12 +7,12 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 123
+      POSTGRES_DB: games
       PGDATA: /data/postgres
     volumes:
-       - postgres-db:/data/postgres
+      - postgres-db:/data/postgres
     ports:
-      - "5432:5432"
-
+      - '5432:5432'
 
 volumes:
   postgres-db:

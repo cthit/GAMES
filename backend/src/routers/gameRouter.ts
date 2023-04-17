@@ -1,4 +1,9 @@
 import { Router } from 'express';
+import { z } from 'zod';
+import { sendError, validateRequestBody } from 'zod-express-middleware';
+import { createGame } from '../services/gameService.js';
+import { platformExists } from '../services/platformService.js';
+import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const gameRouter = Router();
 
@@ -54,24 +59,77 @@ gameRouter.get('/', (req, res) => {
 	res.status(200).json(games);
 });
 
-type AddGameRequestBody = {
-	gameName: String;
-	description: String;
-	platform: String;
-	dateReleased: String;
-	playerMin: Number;
-	playerMax: Number;
-	playtime: Number;
-};
-
-gameRouter.post('/add', (req, res) => {
-	if (!req.body) {
-		res.status(400).send();
-	}
-	const body: AddGameRequestBody = req.body;
-	if (!prisma.has(body.platform)) {
-		res.status(400).send();
-	}
+const addGameSchema = z.object({
+	name: z.string().min(1).max(250),
+	description: z.string().min(1).max(2000),
+	platform: z.string().min(1),
+	releaseDate: z.string().datetime(), // ISO date string
+	playtime: z.number().int().min(1)
 });
+
+/**
+ * @api {post} /api/v1/games/add Add a game
+ * @apiName AddGame
+ * @apiGroup Games
+ * @apiDescription Adds a game to the service
+ *
+ * @apiBody {String} name Name of the game
+ * @apiBody {String} description Description of the game
+ * @apiBody {String} platform Platform the game is played on
+ * @apiBody {String} releaseDate Date the game was released
+ * @apiBody {Number} playtime Playtime of the game
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * 	"message": "Game added"
+ * }
+ */
+gameRouter.post(
+	'/add',
+	validateRequestBody(addGameSchema),
+	async (req, res) => {
+		const body = req.body;
+
+		if (!(await platformExists(body.platform))) {
+			return sendApiValidationError(
+				res,
+				{
+					path: 'platform',
+					message: 'Platform does not exist'
+				},
+				'Body'
+			);
+		}
+
+		if (body.releaseDate > new Date().toISOString()) {
+			return sendError(
+				{
+					type: 'Body',
+					errors: z.ZodError.create([
+						{
+							path: ['releaseDate'],
+							message: 'Release date cannot be in the future',
+							code: 'custom'
+						}
+					])
+				},
+				res
+			);
+		}
+
+		await createGame(
+			body.name,
+			body.description,
+			body.platform,
+			new Date(body.releaseDate),
+			body.playtime
+		);
+
+		res.status(200).json({ message: 'Game added' });
+	}
+);
 
 export default gameRouter;
