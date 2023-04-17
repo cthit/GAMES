@@ -6,8 +6,9 @@ on:
     branches: [main]
 jobs:
   test:
-    runs-on: ubuntu-latest
     name: Test
+
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -18,21 +19,27 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      -
+        uses: actions/checkout@v3
+      -
+        name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: pnpm install
+      -
+        name: pnpm install
         run: npm install -g pnpm
+      -
+        run: pnpm install --frozen-lockfile
+      -
+        run: pnpm test
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test
   build:
+    name: Build docker container
+
     needs: [test]
     runs-on: ubuntu-latest
-    name: Build docker container
+    
     steps:
       -
         uses: actions/checkout@v3
