@@ -6,12 +6,12 @@ import styles from './GamesList.module.css';
 interface GamesListProps {}
 
 interface Game {
-	id: number;
+	id: string;
 	name: string;
 	description: string;
-	platform: string;
-	playtime: string;
-	release_date: string;
+	platformName: string;
+	playtimeMinutes: string;
+	releaseDate: string;
 }
 
 const GamesList: FC<GamesListProps> = () => {
@@ -32,9 +32,9 @@ const GamesList: FC<GamesListProps> = () => {
 							key={game.id}
 							name={game.name}
 							description={game.description}
-							platform={game.platform}
-							playtime={game.playtime}
-							release_date={game.release_date}
+							platform={game.platformName}
+							playtimeMinutes={game.playtimeMinutes}
+							releaseDate={game.releaseDate}
 						/>
 					))}
 				</ul>
