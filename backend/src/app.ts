@@ -33,8 +33,11 @@ if (process.env.NODE_ENV === 'development') {
  *			"name"
  *		   ],
  *		   "message": "Required"
+ *	      }
+ *	   	],
+ *	   	"name": "ZodError"
+ *     }
  *	  }
- *	 }
  *  ]
  */
 
