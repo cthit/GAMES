@@ -9,19 +9,23 @@ generator client {
 
 model Game {
     id           String   @id @default(cuid())
-    gameName     String
+    name         String
     description  String
-    platform     Platform @relation(fields: [platformName], references: [platformName])
+    platform     Platform @relation(fields: [platformName], references: [name])
     platformName String
     dateReleased DateTime
     //dateAdded DateTime
     //canBorrow Boolean
-    playerMin    Int
-    playerMax    Int
+    //playerMin    Int
+    //playerMax    Int
     playtime     Int // Stored in minutes
+
+    @@map("games")
 }
 
 model Platform {
-    platformName String @id
-    game         Game[]
+    name String @id
+    game Game[]
+
+    @@map("platforms")
 }
