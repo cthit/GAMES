@@ -72,6 +72,8 @@ const addGameSchema = z.object({
  * {
  * 	"message": "Game added"
  * }
+ *
+ * @apiUse ZodError
  */
 gameRouter.post(
 	'/add',

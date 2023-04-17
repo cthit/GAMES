@@ -17,6 +17,28 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 /**
+ * @apiDefine ZodError
+ * @apiError InvalidRequest Invalid request body
+ * @apiErrorExample {json} Error-Response:
+ *  [
+ *	 {
+ *	  "type": "Body",
+ *	   "errors": {
+ *		 "issues": [
+ *		  {
+ *		   "code": "invalid_type",
+ *		   "expected": "string",
+ *		   "received": "undefined",
+ *		   "path": [
+ *			"name"
+ *		   ],
+ *		   "message": "Required"
+ *	  }
+ *	 }
+ *  ]
+ */
+
+/**
  * @api {get} / Request Hello World
  * @apiName GetHelloWorld
  * @apiGroup Hello
