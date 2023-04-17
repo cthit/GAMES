@@ -13,3 +13,7 @@ export const platformExists = async (platform: string): Promise<boolean> => {
 
 	return false;
 };
+
+export const getAllPlatforms = async () => {
+	return await prisma.platform.findMany({ select: { name: true } });
+};
