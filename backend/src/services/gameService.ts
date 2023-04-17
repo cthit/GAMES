@@ -21,3 +21,16 @@ export const createGame = async (
 		}
 	});
 };
+
+export const getAllGames = async () => {
+	return await prisma.game.findMany({
+		select: {
+			id: true,
+			name: true,
+			description: true,
+			platformName: true,
+			dateReleased: true,
+			playtime: true
+		}
+	});
+};
