@@ -21,13 +21,13 @@ jobs:
       - name: Compile documentation
         run: apidoc -i backend -o _site -c backend/apidoc.json
       - name: Cache documentation
-        if: ${{ github.ref == 'ref/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/cache/save@v3
         with:
           path: _site
           key: docs-${{ github.sha }}
   push:
-    if: ${{ github.ref == 'ref/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: [compile]
     runs-on: ubuntu-latest
 
