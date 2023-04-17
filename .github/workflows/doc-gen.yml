@@ -1,16 +1,14 @@
-name: Generate Documentation
+name: Documentation
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 jobs:
-  publish:
+  compile:
     runs-on: ubuntu-latest
 
-    name: Publish latest API documentation
-
-    permissions:
-      pages: write
-      id-token: write
+    name: Compile
 
     steps:
       - uses: actions/checkout@v3
@@ -20,9 +18,32 @@ jobs:
           node-version: '18.x'
       - name: Setup dependencies
         run: npm install apidoc -g
-      - name: Create documentation
+      - name: Compile documentation
         run: apidoc -i backend -o _site -c backend/apidoc.json
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v1.0.8
-      - name: Deploy GitHub Pages
-        uses: actions/deploy-pages@v1
+      - name: Cache documentation
+        if: ${{ github.ref == 'ref/heads/main' }}
+        uses: actions/cache/save@v3
+        with:
+          path: _site
+          key: docs-${{ github.sha }}
+  push:
+    if: ${{ github.ref == 'ref/heads/main' }}
+    needs: [compile]
+    runs-on: ubuntu-latest
+
+    name: Push to Pages
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+    - name: Fetch documentation cache
+      uses: actions/cache/restore@v3
+      with:
+        path: _site
+        key: docs-${{ github.sha }}
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v1.0.8
+    - name: Deploy GitHub Pages
+      uses: actions/deploy-pages@v1
