@@ -1,14 +1,14 @@
-import axios from 'axios';
+import supertest from 'supertest';
+import app from '../../src/app';
 import { Game } from '../../src/types/Game';
 
-const url = 'http://localhost:8080/api/v1/games';
+const request = supertest(app);
 
-describe('The router', () => {
-	test('The get route', async () => {
-		const res = await axios.get(url);
-
+describe('Testing gameRouter.ts', () => {
+	test('Test fetching games', async () => {
+		const res = await request.get('/api/v1/games');
 		expect(res).toBeTruthy();
 		expect(res.status).toBe(200);
-		expect(res.data).toBeInstanceOf(Array<Game>);
+		expect(res.body).toBeInstanceOf(Array<Game>);
 	});
 });

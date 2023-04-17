@@ -2,8 +2,7 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import express from 'express';
 
-import gameRouter from './routers/gameRouter.js';
-
+import gameRouter from './routers/gameRouter';
 config(); // Load .env file
 
 const app = express();
@@ -33,6 +32,4 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/games', gameRouter);
 
-app.listen(8080, () => {
-	console.log('Server is running on port 8080');
-});
+export default app;

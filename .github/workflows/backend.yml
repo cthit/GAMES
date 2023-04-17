@@ -28,8 +28,7 @@ jobs:
         run: npm install -g pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm start & pnpm test
+      - run: pnpm test
   build:
     needs: [test]
     runs-on: ubuntu-latest
