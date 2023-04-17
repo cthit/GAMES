@@ -1,0 +1,31 @@
+datasource db {
+    url      = env("DB_URL")
+    provider = "postgresql"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Game {
+    id              String   @id @default(cuid())
+    name            String
+    description     String
+    platform        Platform @relation(fields: [platformName], references: [name])
+    platformName    String
+    dateReleased    DateTime
+    //dateAdded DateTime
+    //canBorrow Boolean
+    //playerMin    Int
+    //playerMax    Int
+    playtimeMinutes Int // Stored in minutes @map("playtime")
+
+    @@map("games")
+}
+
+model Platform {
+    name String @id
+    game Game[]
+
+    @@map("platforms")
+}
