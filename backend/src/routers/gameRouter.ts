@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Game } from '../types/Game';
 
 const gameRouter = Router();
 
@@ -24,7 +25,7 @@ const gameRouter = Router();
  * ]
  */
 gameRouter.get('/', (req, res) => {
-	const games = [
+	const games: Game[] = [
 		{
 			id: 1,
 			name: 'Game 1',
