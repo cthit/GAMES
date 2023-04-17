@@ -31,19 +31,19 @@ jobs:
     needs: [compile]
     runs-on: ubuntu-latest
 
-      name: Push to Pages
+    name: Push to Pages
 
-      permissions:
-        pages: write
-        id-token: write
+    permissions:
+      pages: write
+      id-token: write
 
-      steps:
-      - name: Fetch documentation cache
-        uses: actions/cache/restore@v3
-        with:
-          path: _site
-          key: docs-${{ github.sha }}
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v1.0.8
-      - name: Deploy GitHub Pages
-        uses: actions/deploy-pages@v1
+    steps:
+    - name: Fetch documentation cache
+      uses: actions/cache/restore@v3
+      with:
+        path: _site
+        key: docs-${{ github.sha }}
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v1.0.8
+    - name: Deploy GitHub Pages
+      uses: actions/deploy-pages@v1
