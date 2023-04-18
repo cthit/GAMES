@@ -12,6 +12,7 @@ const Header: FC<HeaderProps> = () => {
 				<a style={{ marginLeft: '5px' }} href="/add">
 					Add
 				</a>
+				<a style={{ marginLeft: '5px' }} href="/addplatform">Add platform</a>
 			</nav>
 		</header>
 	);
