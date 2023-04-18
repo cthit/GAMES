@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import { getAllPlatforms } from '../services/platformService.js';
+import { addPlatform, getAllPlatforms } from '../services/platformService.js';
+import { z } from 'zod';
+import { validateRequestBody } from 'zod-express-middleware';
 
 const platformRouter = Router();
 
@@ -24,5 +26,21 @@ platformRouter.get('/', async (req, res) => {
 
 	res.status(200).json(platforms);
 });
+
+const addPlatformSchema = z.object({
+	name: z.string().min(1).max(100)
+});
+
+platformRouter.post(
+	'/add',
+	validateRequestBody(addPlatformSchema),
+	async (req, res) => {
+		const platform = req.body.name;
+
+		await addPlatform(platform);
+
+		res.status(200).json({ message: 'Platform added' });
+	}
+);
 
 export default platformRouter;
