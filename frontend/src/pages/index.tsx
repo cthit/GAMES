@@ -18,7 +18,8 @@ export const Home = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<Header />
-			<main>
+			<main style={{display: 'flex', flexDirection:'row', width:'100%', justifyContent:'center', gap:'50px', paddingTop:'50px'}}>
+				<div style={{width: '200px', height: '400px', backgroundColor:'lightgray'}}>Temp filter box</div>
 				<GamesList />
 			</main>
 		</>
