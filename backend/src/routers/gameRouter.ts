@@ -54,7 +54,7 @@ const addGameSchema = z.object({
 });
 
 /**
- * @api {get} /api/v1/games/:term Request Games
+ * @api {get} /api/v1/games/searcg/:term Request Games
  * @apiName SearchGames
  * @apiGroup Games
  * @apiDescription Get all public games that includes the search term
@@ -74,9 +74,8 @@ const addGameSchema = z.object({
  *   }
  * ]
  */
- gameRouter.get('/:term', async (req, res) => {
-	const games = await searchGames(req.params.term);
-
+ gameRouter.get('/search', async (req, res) => {
+	const games = await searchGames(typeof req.query.term === "string" ? req.query.term : "");
 	const formattedGames = games.map((game) => {
 		return {
 			id: game.id,
