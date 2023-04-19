@@ -1,5 +1,5 @@
 import { useApiGet } from '@/src/hooks/apiHooks';
-import { ChangeEvent, FC } from 'react';
+import { ChangeEvent, FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
 import styles from './GamesList.module.css';
 import debounce from 'lodash.debounce';
@@ -16,11 +16,18 @@ interface Game {
 }
 
 const GamesList: FC<GamesListProps> = () => {
-	const { data, error, loading } = useApiGet<Game[]>('/games');
+	const [apiPath, setApiPath] = useState("/games")
+	const [isSearching, setIsSearching] = useState(false)
+	const { data, error, loading } = useApiGet<Game[]>(apiPath);
 
-	const search = debounce((e: ChangeEvent) => {
-		console.log(e.target.value)
-		// TODO: send a search request to the backend and update data
+	const search = debounce((e: ChangeEvent<HTMLInputElement>) => {
+		if (e.target.value) {
+			setApiPath("/games/search?term=" + e.target.value)
+			setIsSearching(true)
+		} else {
+			setApiPath("/games")
+			setIsSearching(false)
+		}
 	}, 300)
 
 	return (
@@ -35,6 +42,8 @@ const GamesList: FC<GamesListProps> = () => {
 			{loading ? <p>Loading...</p> : null}
 
 			{error ? <p>Error: {error}</p> : null}
+
+			{data?.length == 0 && isSearching ? <p>No games matching your search</p> : null}
 
 			{data ? (
 				<ul className={styles.gamesList}>
