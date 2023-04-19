@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { createGame, getAllGames, searchGames } from '../services/gameService.js';
+import {
+	createGame,
+	getAllGames,
+	searchGames
+} from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
@@ -54,7 +58,7 @@ const addGameSchema = z.object({
 });
 
 /**
- * @api {get} /api/v1/games/searcg/:term Request Games
+ * @api {get} /api/v1/games/search/:term Request Games
  * @apiName SearchGames
  * @apiGroup Games
  * @apiDescription Get all public games that includes the search term
@@ -74,8 +78,10 @@ const addGameSchema = z.object({
  *   }
  * ]
  */
- gameRouter.get('/search', async (req, res) => {
-	const games = await searchGames(typeof req.query.term === "string" ? req.query.term : "");
+gameRouter.get('/search', async (req, res) => {
+	const games = await searchGames(
+		typeof req.query.term === 'string' ? req.query.term : ''
+	);
 	const formattedGames = games.map((game) => {
 		return {
 			id: game.id,
