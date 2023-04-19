@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google';
 import Head from 'next/head';
 import GamesList from '../components/GamesList/GamesList';
 import Header from '../components/Header/Header';
+import styles from './index.module.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,8 +19,8 @@ export const Home = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<Header />
-			<main style={{display: 'flex', flexDirection:'row', width:'100%', justifyContent:'center', gap:'50px', paddingTop:'50px'}}>
-				<div style={{width: '200px', height: '400px', backgroundColor:'lightgray'}}>Temp filter box</div>
+			<main className={styles.mainContainer}>
+				<div className={styles.filterBox}>Temp filter box</div>
 				<GamesList />
 			</main>
 		</>
