@@ -34,3 +34,21 @@ export const getAllGames = async () => {
 		}
 	});
 };
+
+export const searchGames = async (term: string) => {
+	return await prisma.game.findMany({
+		select: {
+			id: true,
+			name: true,
+			description: true,
+			platformName: true,
+			dateReleased: true,
+			playtimeMinutes: true
+		},
+		where: {
+			name: {
+				contains: term
+			}
+		}
+	});
+};
