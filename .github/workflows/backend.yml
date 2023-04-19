@@ -32,6 +32,8 @@ jobs:
       -
         run: pnpm install --frozen-lockfile
       -
+        run: cd .. & docker compose -f docker-compose.dev.yml up -d & cd backend
+      -
         run: pnpm test
 
   build:
@@ -39,7 +41,7 @@ jobs:
 
     needs: [test]
     runs-on: ubuntu-latest
-    
+
     steps:
       -
         uses: actions/checkout@v3
