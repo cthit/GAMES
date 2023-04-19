@@ -47,7 +47,8 @@ export const searchGames = async (term: string) => {
 		},
 		where: {
 			name: {
-				contains: term
+				contains: term,
+				mode: 'insensitive',
 			}
 		}
 	});
