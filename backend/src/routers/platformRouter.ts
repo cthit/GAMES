@@ -31,6 +31,24 @@ const addPlatformSchema = z.object({
 	name: z.string().min(1).max(100)
 });
 
+/**
+ * @api {post} /api/v1/platforms/add Add a platform
+ * @apiName AddPlatform
+ * @apiGroup Platforms
+ * @apiDescription Adds a platform to the service
+ *
+ * @apiBody {String} name Name of the platform
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * 	"message": "Platform added"
+ * }
+ *
+ * @apiUse ZodError
+ */
 platformRouter.post(
 	'/add',
 	validateRequestBody(addPlatformSchema),
