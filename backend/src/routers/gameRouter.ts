@@ -54,7 +54,7 @@ const addGameSchema = z.object({
 });
 
 /**
- * @api {get} /api/v1/games/searcg/:term Request Games
+ * @api {get} /api/v1/games/search/:term Request Games
  * @apiName SearchGames
  * @apiGroup Games
  * @apiDescription Get all public games that includes the search term
