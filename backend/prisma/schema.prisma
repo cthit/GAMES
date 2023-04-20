@@ -29,3 +29,22 @@ model Platform {
 
     @@map("platforms")
 }
+
+model User {
+    id              String   @id @default(cuid())
+    name            String
+    accessToken     String?  @unique
+    externalUser    ExternalUser[]
+
+    @@map("users")
+}
+
+model ExternalUser {
+    service         String
+    serviceUserId   String
+    user            User   @relation(fields: [userId], references: [id])
+    userId          String
+
+    @@id([service, serviceUserId])
+    @@map("external_users")
+}

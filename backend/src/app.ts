@@ -2,12 +2,19 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import express from 'express';
 
+import { init } from './authentication/gamma.strategy';
+import passport from 'passport';
 import gameRouter from './routers/gameRouter.js';
 import platformRouter from './routers/platformRouter.js';
 
 config(); // Load .env file
 
 const app = express();
+
+init(passport);
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.json());
 
 console.log('NODE_ENV: ', process.env.NODE_ENV);
@@ -60,6 +67,44 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/games', gameRouter);
 app.use('/api/v1/platforms', platformRouter);
+
+app.get('/api/login', passport.authenticate('gamma'));
+app.get(
+	'/api/callback',
+	passport.authenticate('gamma'),
+	(req: express.Request, res: express.Response) => {
+	/*
+	Code from BookIT-Node 
+
+ 	const user: User = {
+        cid: "",
+        is_admin: false,
+        groups: [],
+        language: "en",
+		...req.user,
+	};
+	delete user.accessToken;
+	res.send(user);
+	res.status(200);
+	  
+	*/
+
+		res.send('OK');
+		res.status(200);
+	}
+);
+app.post('/api/logout', (req: express.Request, res: express.Response) => {
+	req.logOut((err) => {
+		// TODO: Better error handling
+		if (err) {
+			console.log(err);
+			res.status(500).send('Error logging out');
+			return;
+		}
+		res.send('OK');
+		res.status(200);
+	});
+});
 
 app.listen(8080, () => {
 	console.log('Server is running on port 8080');
