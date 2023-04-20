@@ -38,7 +38,10 @@ gameRouter.get('/', async (req, res) => {
 			description: game.description,
 			platformName: game.platformName,
 			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-			playtimeMinutes: game.playtimeMinutes
+			playtimeMinutes: game.playtimeMinutes,
+			playerMin: game.playerMin,
+			playerMax: game.playerMax
+
 		};
 	});
 
@@ -50,7 +53,9 @@ const addGameSchema = z.object({
 	description: z.string().min(1).max(2000),
 	platform: z.string().min(1),
 	releaseDate: z.string().datetime(), // ISO date string
-	playtime: z.number().int().min(1)
+	playtime: z.number().int().min(1),
+	playerMin: z.number().int().min(1),
+	playerMax: z.number().int().min(1) //Maybe check that max > min?
 });
 
 /**
@@ -64,6 +69,8 @@ const addGameSchema = z.object({
  * @apiBody {String} platform Platform the game is played on
  * @apiBody {String} releaseDate Date the game was released
  * @apiBody {Number} playtime Playtime of the game
+ * @apiBody {Number} playerMin PlayerMin of the game
+ * @apiBody {Number} playMax PlayerMax of the game
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -108,7 +115,9 @@ gameRouter.post(
 			body.description,
 			body.platform,
 			new Date(body.releaseDate),
-			body.playtime
+			body.playtime,
+			body.playerMin,
+			body.playerMax,
 		);
 
 		res.status(200).json({ message: 'Game added' });
