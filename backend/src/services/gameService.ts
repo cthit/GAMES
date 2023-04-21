@@ -30,7 +30,44 @@ export const getAllGames = async () => {
 			description: true,
 			platformName: true,
 			dateReleased: true,
-			playtimeMinutes: true
+			playtimeMinutes: true,
+			borrow: true
+		}
+	});
+};
+
+export const borrowGame = async (gameId: string, user: string) => {
+	await prisma.game.update({
+		where: {
+			id: gameId
+		},
+		data: {
+			borrow: {
+				push: {
+					gameId: gameId,
+					user: user
+				}
+			}
+		}
+	});
+};
+
+export const returnGame = async (gameId: string, user: string) => {
+	await prisma.game.update({
+		where: {
+			id: gameId
+		},
+		data: {
+			borrow: {
+				updateMany: {
+					where: {
+						gameId: gameId
+					},
+					data: {
+						returned: true
+					}
+				}
+			}
 		}
 	});
 };

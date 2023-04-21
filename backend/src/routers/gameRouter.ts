@@ -23,8 +23,9 @@ const gameRouter = Router();
  *    "name": "Game 1",
  *    "description": "Game 1 description",
  * 	  "platformName": "Steam",
- *	  "releaseDate": "2023-04-13",
- *	  "playtime": "60"
+ *	  	"releaseDate": "2023-04-13",
+ *	  	"playtime": "60",
+ * 	"isBorrowed": "false"
  *   }
  * ]
  */
@@ -38,7 +39,8 @@ gameRouter.get('/', async (req, res) => {
 			description: game.description,
 			platformName: game.platformName,
 			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-			playtimeMinutes: game.playtimeMinutes
+			playtimeMinutes: game.playtimeMinutes,
+			isBorrowed: game.borrow[game.borrow.length - 1].returned
 		};
 	});
 

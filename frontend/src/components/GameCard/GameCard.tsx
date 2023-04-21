@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import styles from './GameCard.module.css';
+import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface GameCardProps {
 	name: string;
@@ -7,6 +8,8 @@ interface GameCardProps {
 	platform: string;
 	playtimeMinutes: string;
 	releaseDate: string;
+	borrowed: boolean;
+	gameId: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -14,7 +17,9 @@ const GameCard: FC<GameCardProps> = ({
 	description,
 	platform,
 	releaseDate,
-	playtimeMinutes
+	playtimeMinutes,
+	borrowed,
+	gameId
 }) => {
 	return (
 		<li className={styles.card}>
@@ -23,6 +28,17 @@ const GameCard: FC<GameCardProps> = ({
 			<p>Platform: {platform}</p>
 			<p>Playtime: {playtimeMinutes} mins</p>
 			<p>Release date: {releaseDate}</p>
+			<button
+			/* onClick={() => {
+					const {
+						error: borrowError,
+						loading: borrowLoading,
+						!borrowed
+					} = useApiPost('/game/borrow');
+				}}*/
+			>
+				{borrowed ? 'Currently borrowed' : 'In stock'}
+			</button>
 		</li>
 	);
 };
