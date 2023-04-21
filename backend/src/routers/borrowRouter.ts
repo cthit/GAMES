@@ -13,7 +13,7 @@ const borrowSchema = z.object({
 });
 
 /**
- * @api {post} /api/v1/games/borrow Borrow a game
+ * @api {post} /api/v1/borrow Borrow a game
  * @apiName BorrowGame
  * @apiGroup Borrowing
  * @apiDescription Borrows a game from the service
