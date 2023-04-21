@@ -5,9 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"compile": "tsc --watch",
-		"watch": "nodemon dist/app.js",
+		"watch": "nodemon dist/server.js",
 		"build": "tsc",
-		"start": "node dist/app.js",
+		"start": "node dist/server.js",
 		"test": "jest",
 		"watchTest": "jest --watchAll"
 	},

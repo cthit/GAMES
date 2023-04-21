@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { addPlatform, getAllPlatforms } from '../services/platformService.js';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
+import { addPlatform, getAllPlatforms } from '../services/platformService';
 
 const platformRouter = Router();
 
