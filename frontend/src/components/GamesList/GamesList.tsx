@@ -58,7 +58,7 @@ const GamesList: FC<GamesListProps> = () => {
 							platform={game.platformName}
 							playtimeMinutes={game.playtimeMinutes}
 							releaseDate={game.releaseDate}
-							borrowed={game.isBorrowed}
+							isBorrowed={game.isBorrowed}
 							playerMin={game.playerMin}
 							playerMax={game.playerMax}
 						/>
