@@ -32,14 +32,13 @@ const gameRouter = Router();
  *	  "playtime": 60,
  *	  "playerMin": 1,
  *	  "playerMax": 5
+ * 	"isBorrowed": "false"
  *   }
  * ]
  */
 gameRouter.get('/', async (req, res) => {
 	const games = await getAllGames();
-
 	const formattedGames = formatGames(games);
-
 	res.status(200).json(formattedGames);
 });
 
@@ -152,7 +151,7 @@ gameRouter.post(
 	}
 );
 
-const formatGames = (games: Game[]) => {
+const formatGames = (games: any[]) => {
 	return games.map((game) => ({
 		id: game.id,
 		name: game.name,
@@ -161,7 +160,11 @@ const formatGames = (games: Game[]) => {
 		releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
 		playtimeMinutes: game.playtimeMinutes,
 		playerMin: game.playerMin,
-		playerMax: game.playerMax
+		playerMax: game.playerMax,
+		isBorrowed:
+			game.borrow.filter((b: { returned: boolean }) => {
+				return !b.returned;
+			}).length > 0
 	}));
 };
 
