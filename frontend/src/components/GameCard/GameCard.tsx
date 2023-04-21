@@ -7,6 +7,8 @@ interface GameCardProps {
 	platform: string;
 	playtimeMinutes: string;
 	releaseDate: string;
+	playerMin: string;
+	playerMax: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -14,7 +16,9 @@ const GameCard: FC<GameCardProps> = ({
 	description,
 	platform,
 	releaseDate,
-	playtimeMinutes
+	playtimeMinutes,
+	playerMin,
+	playerMax
 }) => {
 	return (
 		<li className={styles.card}>
@@ -23,6 +27,8 @@ const GameCard: FC<GameCardProps> = ({
 			<p>Platform: {platform}</p>
 			<p>Playtime: {playtimeMinutes} mins</p>
 			<p>Release date: {releaseDate}</p>
+			<p>Minimum players: {playerMin}</p>
+			<p>Maximum players: {playerMax}</p>
 		</li>
 	);
 };

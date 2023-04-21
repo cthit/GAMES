@@ -5,7 +5,9 @@ export const createGame = async (
 	description: string,
 	platform: string,
 	releaseDate: Date,
-	playtimeMinutes: number
+	playtimeMinutes: number,
+	playerMin: number,
+	playerMax: number
 ) => {
 	await prisma.game.create({
 		data: {
@@ -17,7 +19,9 @@ export const createGame = async (
 				}
 			},
 			dateReleased: releaseDate,
-			playtimeMinutes
+			playtimeMinutes,
+			playerMin,
+			playerMax,
 		}
 	});
 };
@@ -30,7 +34,9 @@ export const getAllGames = async () => {
 			description: true,
 			platformName: true,
 			dateReleased: true,
-			playtimeMinutes: true
+			playtimeMinutes: true,
+			playerMin: true,
+			playerMax: true
 		}
 	});
 };
