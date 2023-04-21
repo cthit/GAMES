@@ -9,6 +9,8 @@ interface GameCardProps {
 	playtimeMinutes: string;
 	releaseDate: string;
 	borrowed: boolean;
+	playerMin: string;
+	playerMax: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -17,7 +19,9 @@ const GameCard: FC<GameCardProps> = ({
 	platform,
 	releaseDate,
 	playtimeMinutes,
-	borrowed
+	borrowed,
+	playerMin,
+	playerMax
 }) => {
 	return (
 		<li className={styles.card}>
@@ -30,6 +34,8 @@ const GameCard: FC<GameCardProps> = ({
 				Status:
 				{borrowed ? 'Currently borrowed' : 'Currently Available'}
 			</p>
+			<p>Minimum players: {playerMin}</p>
+			<p>Maximum players: {playerMax}</p>
 		</li>
 	);
 };

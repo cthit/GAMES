@@ -5,7 +5,9 @@ export const createGame = async (
 	description: string,
 	platform: string,
 	releaseDate: Date,
-	playtimeMinutes: number
+	playtimeMinutes: number,
+	playerMin: number,
+	playerMax: number
 ) => {
 	await prisma.game.create({
 		data: {
@@ -17,7 +19,9 @@ export const createGame = async (
 				}
 			},
 			dateReleased: releaseDate,
-			playtimeMinutes
+			playtimeMinutes,
+			playerMin,
+			playerMax
 		}
 	});
 };
@@ -32,6 +36,29 @@ export const getAllGames = async () => {
 			dateReleased: true,
 			playtimeMinutes: true,
 			borrow: true // TODO: See what is given
+			playerMin: true,
+			playerMax: true
+		}
+	});
+};
+
+export const searchGames = async (term: string) => {
+	return await prisma.game.findMany({
+		select: {
+			id: true,
+			name: true,
+			description: true,
+			platformName: true,
+			dateReleased: true,
+			playtimeMinutes: true,
+			playerMin: true,
+			playerMax: true
+		},
+		where: {
+			name: {
+				contains: term,
+				mode: 'insensitive'
+			}
 		}
 	});
 };

@@ -19,6 +19,8 @@ const AddGame: FC<AddGameProps> = () => {
 	const [platform, setPlatform] = useState('');
 	const [releaseDate, setReleaseDate] = useState<Date>();
 	const [playtime, setPlaytime] = useState<number>();
+	const [playerMin, setPlayerMin] = useState<number>();
+	const [playerMax, setPlayerMax] = useState<number>();
 
 	const {
 		error: postError,
@@ -43,7 +45,9 @@ const AddGame: FC<AddGameProps> = () => {
 					description,
 					platform,
 					releaseDate: releaseDate?.toISOString(),
-					playtime
+					playtime,
+					playerMin,
+					playerMax
 				});
 			}}
 		>
@@ -87,6 +91,24 @@ const AddGame: FC<AddGameProps> = () => {
 					setPlaytime(Number.parseInt(input.currentTarget.value))
 				}
 				value={playtime?.toString() || ''}
+			/>
+			<br />
+			<TextInput
+				label="Minimum number of players"
+				type="number"
+				onChange={(input) =>
+					setPlayerMin(Number.parseInt(input.currentTarget.value))
+				}
+				value={playerMin?.toString() || ''}
+			/>
+			<br />
+			<TextInput
+				label="Maximum number of players"
+				type="number"
+				onChange={(input) =>
+					setPlayerMax(Number.parseInt(input.currentTarget.value))
+				}
+				value={playerMax?.toString() || ''}
 			/>
 			<br />
 
