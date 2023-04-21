@@ -13,6 +13,7 @@ interface Game {
 	platformName: string;
 	playtimeMinutes: string;
 	releaseDate: string;
+	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
 }
@@ -57,6 +58,7 @@ const GamesList: FC<GamesListProps> = () => {
 							platform={game.platformName}
 							playtimeMinutes={game.playtimeMinutes}
 							releaseDate={game.releaseDate}
+							isBorrowed={game.isBorrowed}
 							playerMin={game.playerMin}
 							playerMax={game.playerMax}
 						/>
