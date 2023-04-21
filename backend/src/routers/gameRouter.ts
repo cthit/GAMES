@@ -151,7 +151,7 @@ gameRouter.post(
 	}
 );
 
-const formatGames = (games: Game[]) => {
+const formatGames = (games: any[]) => {
 	return games.map((game) => ({
 		id: game.id,
 		name: game.name,
@@ -161,7 +161,10 @@ const formatGames = (games: Game[]) => {
 		playtimeMinutes: game.playtimeMinutes,
 		playerMin: game.playerMin,
 		playerMax: game.playerMax,
-		isBorrowed: game.borrow.filter((b) => {return !b.returned;}).length > 0
+		isBorrowed:
+			game.borrow.filter((b: { returned: boolean }) => {
+				return !b.returned;
+			}).length > 0
 	}));
 };
 

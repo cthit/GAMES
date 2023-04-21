@@ -52,7 +52,8 @@ export const searchGames = async (term: string) => {
 			dateReleased: true,
 			playtimeMinutes: true,
 			playerMin: true,
-			playerMax: true
+			playerMax: true,
+			borrow: true
 		},
 		where: {
 			name: {
