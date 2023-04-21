@@ -16,8 +16,8 @@ model Game {
     dateReleased    DateTime
     //dateAdded DateTime
     //canBorrow Boolean
-    //playerMin    Int
-    //playerMax    Int
+    playerMin    Int
+    playerMax    Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
 
     @@map("games")
