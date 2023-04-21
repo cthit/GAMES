@@ -10,4 +10,13 @@
 	justify-content: center;
 	gap: 1rem;
 	list-style-type: none;
+	width: 100%;
+}
+
+.gamesListSearchBar {
+	width: 100%;
+	font-size: 1.5rem;
+	text-align: center;
+	padding: 6px;
+	margin-bottom: 24px;
 }
