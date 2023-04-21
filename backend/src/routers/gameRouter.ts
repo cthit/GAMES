@@ -1,3 +1,4 @@
+import { Game } from '@prisma/client';
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
@@ -37,19 +38,7 @@ const gameRouter = Router();
 gameRouter.get('/', async (req, res) => {
 	const games = await getAllGames();
 
-	const formattedGames = games.map((game) => {
-		return {
-			id: game.id,
-			name: game.name,
-			description: game.description,
-			platformName: game.platformName,
-			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-			playtimeMinutes: game.playtimeMinutes,
-			playerMin: game.playerMin,
-			playerMax: game.playerMax
-
-		};
-	});
+	const formattedGames = formatGames(games);
 
 	res.status(200).json(formattedGames);
 });
@@ -91,16 +80,8 @@ gameRouter.get('/search', async (req, res) => {
 	const games = await searchGames(
 		typeof req.query.term === 'string' ? req.query.term : ''
 	);
-	const formattedGames = games.map((game) => {
-		return {
-			id: game.id,
-			name: game.name,
-			description: game.description,
-			platformName: game.platformName,
-			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-			playtimeMinutes: game.playtimeMinutes
-		};
-	});
+
+	const formattedGames = formatGames(games);
 
 	res.status(200).json(formattedGames);
 });
@@ -164,11 +145,24 @@ gameRouter.post(
 			new Date(body.releaseDate),
 			body.playtime,
 			body.playerMin,
-			body.playerMax,
+			body.playerMax
 		);
 
 		res.status(200).json({ message: 'Game added' });
 	}
 );
+
+const formatGames = (games: Game[]) => {
+	return games.map((game) => ({
+		id: game.id,
+		name: game.name,
+		description: game.description,
+		platformName: game.platformName,
+		releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
+		playtimeMinutes: game.playtimeMinutes,
+		playerMin: game.playerMin,
+		playerMax: game.playerMax
+	}));
+};
 
 export default gameRouter;
