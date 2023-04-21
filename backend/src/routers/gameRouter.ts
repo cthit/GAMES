@@ -160,7 +160,8 @@ const formatGames = (games: Game[]) => {
 		releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
 		playtimeMinutes: game.playtimeMinutes,
 		playerMin: game.playerMin,
-		playerMax: game.playerMax
+		playerMax: game.playerMax,
+		isBorrowed: game.borrow.filter((b) => {return !b.returned;}).length > 0
 	}));
 };
 
