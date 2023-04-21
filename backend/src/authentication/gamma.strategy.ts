@@ -1,4 +1,4 @@
-import Strategy, { Authority } from "./strategy";
+import Strategy, { Authority } from "./strategy.js";
 import passport from "passport";
 import { GammaUser } from "../models/gammaUser.js";
 
