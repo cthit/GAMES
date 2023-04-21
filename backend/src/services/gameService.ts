@@ -35,7 +35,7 @@ export const getAllGames = async () => {
 			platformName: true,
 			dateReleased: true,
 			playtimeMinutes: true,
-			borrow: true // TODO: See what is given
+			borrow: true, // TODO: See what is given
 			playerMin: true,
 			playerMax: true
 		}
