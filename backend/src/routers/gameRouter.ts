@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { createGame, getAllGames } from '../services/gameService.js';
+import {
+	createGame,
+	getAllGames,
+	searchGames
+} from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
@@ -58,6 +62,47 @@ const addGameSchema = z.object({
 	playtime: z.number().int().min(1),
 	playerMin: z.number().int().min(1),
 	playerMax: z.number().int().min(1) //Maybe check that max > min?
+});
+
+/**
+ * @api {get} /api/v1/games/search Search Games
+ * @apiName SearchGames
+ * @apiGroup Games
+ * @apiDescription Get all public games that includes the search term
+ *
+ * @apiQuery {String} term Search term
+ *
+ * @apiSuccess {Object[]} games List of games
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *  [
+ *   {
+ *    "id": "clgkri8kk0000przwvkvbyj95",
+ *    "name": "Game 1",
+ *    "description": "Game 1 description",
+ * 	  "platformName": "Steam",
+ *	  "releaseDate": "2023-04-13",
+ *	  "playtimeMinutes": "60"
+ *   }
+ * ]
+ */
+gameRouter.get('/search', async (req, res) => {
+	const games = await searchGames(
+		typeof req.query.term === 'string' ? req.query.term : ''
+	);
+	const formattedGames = games.map((game) => {
+		return {
+			id: game.id,
+			name: game.name,
+			description: game.description,
+			platformName: game.platformName,
+			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
+			playtimeMinutes: game.playtimeMinutes
+		};
+	});
+
+	res.status(200).json(formattedGames);
 });
 
 /**
