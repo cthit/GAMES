@@ -21,7 +21,7 @@ export const createGame = async (
 			dateReleased: releaseDate,
 			playtimeMinutes,
 			playerMin,
-			playerMax,
+			playerMax
 		}
 	});
 };
@@ -49,12 +49,14 @@ export const searchGames = async (term: string) => {
 			description: true,
 			platformName: true,
 			dateReleased: true,
-			playtimeMinutes: true
+			playtimeMinutes: true,
+			playerMin: true,
+			playerMax: true
 		},
 		where: {
 			name: {
 				contains: term,
-				mode: 'insensitive',
+				mode: 'insensitive'
 			}
 		}
 	});
