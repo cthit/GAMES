@@ -23,7 +23,7 @@ const gameRouter = Router();
  *    "name": "Game 1",
  *    "description": "Game 1 description",
  * 	  "platformName": "Steam",
- *	  "releaseDate": "2023-04-13",
+ *	  "releaseDate": "2023-04-13T00:00:00.000Z",
  *	  "playtime": 60,
  *	  "playerMin": 1,
  *	  "playerMax": 5
