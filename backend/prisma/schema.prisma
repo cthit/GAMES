@@ -16,9 +16,10 @@ model Game {
     dateReleased    DateTime
     //dateAdded DateTime
     //canBorrow Boolean
-    //playerMin    Int
-    //playerMax    Int
+    playerMin    Int
+    playerMax    Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
+    borrow Borrow[]
 
     @@map("games")
 }
@@ -30,9 +31,21 @@ model Platform {
     @@map("platforms")
 }
 
+
 model User {
     id              String   @id @default(cuid())
     cid             String   @unique
 
     @@map("users")
+
+model Borrow {
+    game Game @relation(fields: [gameId], references: [id])
+    id              String   @id @default(cuid())
+    gameId          String
+    user            String
+    borrowStart     DateTime
+    borrowEnd       DateTime
+    returned        Boolean  @default(false)
+    @@map("borrows")
+
 }
