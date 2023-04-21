@@ -8,7 +8,7 @@ interface GameCardProps {
 	platform: string;
 	playtimeMinutes: string;
 	releaseDate: string;
-	borrowed: boolean;
+	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
 }
@@ -19,7 +19,7 @@ const GameCard: FC<GameCardProps> = ({
 	platform,
 	releaseDate,
 	playtimeMinutes,
-	borrowed,
+	isBorrowed,
 	playerMin,
 	playerMax
 }) => {
@@ -32,7 +32,7 @@ const GameCard: FC<GameCardProps> = ({
 			<p>Release date: {releaseDate}</p>
 			<p>
 				Status:
-				{borrowed ? 'Currently borrowed' : 'Currently Available'}
+				{isBorrowed ? 'Currently borrowed' : 'Currently Available'}
 			</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
