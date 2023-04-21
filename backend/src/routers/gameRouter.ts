@@ -58,10 +58,12 @@ const addGameSchema = z.object({
 });
 
 /**
- * @api {get} /api/v1/games/search/:term Request Games
+ * @api {get} /api/v1/games/search Search Games
  * @apiName SearchGames
  * @apiGroup Games
  * @apiDescription Get all public games that includes the search term
+ *
+ * @apiQuery {String} term Search term
  *
  * @apiSuccess {Object[]} games List of games
  *
@@ -74,7 +76,7 @@ const addGameSchema = z.object({
  *    "description": "Game 1 description",
  * 	  "platformName": "Steam",
  *	  "releaseDate": "2023-04-13",
- *	  "playtime": "60"
+ *	  "playtimeMinutes": "60"
  *   }
  * ]
  */
