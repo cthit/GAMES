@@ -9,7 +9,6 @@ interface GameCardProps {
 	playtimeMinutes: string;
 	releaseDate: string;
 	borrowed: boolean;
-	gameId: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -18,8 +17,7 @@ const GameCard: FC<GameCardProps> = ({
 	platform,
 	releaseDate,
 	playtimeMinutes,
-	borrowed,
-	gameId
+	borrowed
 }) => {
 	return (
 		<li className={styles.card}>
@@ -28,23 +26,10 @@ const GameCard: FC<GameCardProps> = ({
 			<p>Platform: {platform}</p>
 			<p>Playtime: {playtimeMinutes} mins</p>
 			<p>Release date: {releaseDate}</p>
-			<button
-				onClick={() => {
-					if (borrowed) {
-						useApiPost('/game/borrow').postData({
-							gameId: gameId,
-							user: 'admin'
-						});
-					} else {
-						useApiPost('/game/return').postData({
-							gameId: gameId,
-							user: 'admin'
-						});
-					}
-				}}
-			>
-				{borrowed ? 'Currently borrowed' : 'In stock'}
-			</button>
+			<p>
+				Status:
+				{borrowed ? 'Currently borrowed' : 'Currently Available'}
+			</p>
 		</li>
 	);
 };

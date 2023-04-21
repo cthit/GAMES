@@ -31,46 +31,7 @@ export const getAllGames = async () => {
 			platformName: true,
 			dateReleased: true,
 			playtimeMinutes: true,
-			borrow: true
-		}
-	});
-};
-
-export const borrowGame = async (gameId: string, user: string) => {
-	await prisma.game.update({
-		where: {
-			id: gameId
-		},
-		data: {
-			borrow: {
-				push: {
-					id: 'hej',
-					gameId: gameId,
-					user: user,
-					dateBorrowed: new Date(),
-					returned: false
-				}
-			}
-		}
-	});
-};
-
-export const returnGame = async (gameId: string, user: string) => {
-	await prisma.game.update({
-		where: {
-			id: gameId
-		},
-		data: {
-			borrow: {
-				updateMany: {
-					where: {
-						gameId: gameId
-					},
-					data: {
-						returned: true
-					}
-				}
-			}
+			borrow: true // TODO: See what is given
 		}
 	});
 };

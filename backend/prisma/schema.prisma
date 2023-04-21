@@ -36,7 +36,8 @@ model Borrow {
     id              String   @id @default(cuid())
     gameId          String
     user            String
-    dateBorrowed    DateTime @default(now())
+    borrowStart     DateTime
+    borrowEnd       DateTime
     returned        Boolean  @default(false)
     @@map("borrows")
 }

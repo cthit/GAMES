@@ -1,12 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import {
-	borrowGame,
-	createGame,
-	getAllGames,
-	returnGame
-} from '../services/gameService.js';
+import { createGame, getAllGames } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
@@ -45,7 +40,10 @@ gameRouter.get('/', async (req, res) => {
 			platformName: game.platformName,
 			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
 			playtimeMinutes: game.playtimeMinutes,
-			isBorrowed: game.borrow[game.borrow.length - 1].returned
+			isBorrowed:
+				game.borrow.filter((b) => {
+					return !b.returned;
+				}).length > 0
 		};
 	});
 
@@ -121,15 +119,5 @@ gameRouter.post(
 		res.status(200).json({ message: 'Game added' });
 	}
 );
-
-gameRouter.post('/borrow', async (req, res) => {
-	const body = req.body;
-	await borrowGame(body.gameId, body.user);
-});
-
-gameRouter.post('/return', async (req, res) => {
-	const body = req.body;
-	await returnGame(body.gameId, body.user);
-});
 
 export default gameRouter;
