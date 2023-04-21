@@ -37,6 +37,7 @@ model User {
     cid             String   @unique
 
     @@map("users")
+}
 
 model Borrow {
     game Game @relation(fields: [gameId], references: [id])
