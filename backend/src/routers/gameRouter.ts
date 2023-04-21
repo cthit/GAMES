@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { createGame, getAllGames } from '../services/gameService.js';
+import {
+	borrowGame,
+	createGame,
+	getAllGames,
+	returnGame
+} from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
@@ -116,5 +121,15 @@ gameRouter.post(
 		res.status(200).json({ message: 'Game added' });
 	}
 );
+
+gameRouter.post('/borrow', async (req, res) => {
+	const body = req.body;
+	await borrowGame(body.gameId, body.user);
+});
+
+gameRouter.post('/return', async (req, res) => {
+	const body = req.body;
+	await returnGame(body.gameId, body.user);
+});
 
 export default gameRouter;

@@ -29,13 +29,19 @@ const GameCard: FC<GameCardProps> = ({
 			<p>Playtime: {playtimeMinutes} mins</p>
 			<p>Release date: {releaseDate}</p>
 			<button
-			/* onClick={() => {
-					const {
-						error: borrowError,
-						loading: borrowLoading,
-						!borrowed
-					} = useApiPost('/game/borrow');
-				}}*/
+				onClick={() => {
+					if (borrowed) {
+						useApiPost('/game/borrow').postData({
+							gameId: gameId,
+							user: 'admin'
+						});
+					} else {
+						useApiPost('/game/return').postData({
+							gameId: gameId,
+							user: 'admin'
+						});
+					}
+				}}
 			>
 				{borrowed ? 'Currently borrowed' : 'In stock'}
 			</button>

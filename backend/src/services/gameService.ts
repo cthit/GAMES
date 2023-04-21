@@ -44,8 +44,11 @@ export const borrowGame = async (gameId: string, user: string) => {
 		data: {
 			borrow: {
 				push: {
+					id: 'hej',
 					gameId: gameId,
-					user: user
+					user: user,
+					dateBorrowed: new Date(),
+					returned: false
 				}
 			}
 		}
