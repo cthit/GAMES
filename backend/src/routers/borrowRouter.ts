@@ -50,7 +50,7 @@ const returnSchema = z.object({
 });
 
 /**
- * @api {post} /api/v1/games/return Returns a borrowed game
+ * @api {post} /api/v1/borrow/return Returns a borrowed game
  * @apiName ReturnGame
  * @apiGroup Borrowing
  * @apiDescription Returns a borrowed game to be borrowed again
