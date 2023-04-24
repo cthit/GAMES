@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
 import {
 	createGame,
+	filterGames,
 	getAllGames,
 	searchGames
 } from '../services/gameService.js';
@@ -150,6 +151,31 @@ gameRouter.post(
 		res.status(200).json({ message: 'Game added' });
 	}
 );
+
+const filterGamesSchema = z.object({
+	platform: z.string().min(1).optional(),
+	releaseBefore: z.string().datetime(), // ISO date string
+	releaseAfter: z.string().datetime(), // ISO date string
+	playtime: z.number().int().min(1).optional(),
+	playerCount: z.number().int().min(1).max(2000)
+});
+
+gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
+	const body = req.body;
+	const filter = {
+		platform: (body.platform == null) ? false : body.platform,
+		releaseBefore: body.releaseBefore,
+		releaseAfter: body.releaseAfter,
+		playtime: (body.playtime == null) ? false : body.playtime,
+		playerCount: body.playerCount
+	}
+	const games = await filterGames(filter);
+
+	const formattedGames = formatGames(games);
+
+	res.status(200).json(formattedGames);
+});
+
 
 const formatGames = (games: any[]) => {
 	return games.map((game) => ({

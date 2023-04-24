@@ -63,3 +63,33 @@ export const searchGames = async (term: string) => {
 		}
 	});
 };
+
+
+export const filterGames = async (filter: any) => {
+	const filterQuery = {
+		dateReleased: {
+			lte: filter.releaseBefore,
+			gte: filter.releaseAfter
+		},
+		playerCount: {
+			gte: filter.playerCount
+		},
+		platform: (filter.platform) ? filter.platform : undefined,
+		playtime: (filter.playerCount) ? filter.playerCount : undefined
+	};
+
+	return await prisma.game.findMany({
+		select: {
+			id: true,
+			name: true,
+			description: true,
+			platformName: true,
+			dateReleased: true,
+			playtimeMinutes: true,
+			playerMin: true,
+			playerMax: true,
+			borrow: true
+		},
+		where: filterQuery
+	});
+};
