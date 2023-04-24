@@ -154,6 +154,7 @@ gameRouter.post(
 );
 
 const filterGamesSchema = z.object({
+	name: z.string().min(1).max(500).optional(),
 	platform: z.string().min(1).optional(),
 	releaseBefore: z.string().datetime().optional(), // ISO date string
 	releaseAfter: z.string().datetime().optional(), // ISO date string
@@ -164,6 +165,9 @@ const filterGamesSchema = z.object({
 gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
 	const body = req.body;
 	const filter: Filter = {};
+	if (body.name) {
+		filter.name = { contains: body.name, mode: 'insensitive' }
+	}
 	if (body.releaseAfter && body.releaseBefore)
 		filter.dateReleased = {
 			lte: new Date(body.releaseBefore),

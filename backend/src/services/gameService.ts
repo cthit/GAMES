@@ -65,6 +65,10 @@ export const searchGames = async (term: string) => {
 };
 
 export type Filter = {
+	name?: {
+		contains: string,
+		mode: 'insensitive'
+	},
 	dateReleased?: {
 		lte: Date,
 		gte: Date
