@@ -3,6 +3,7 @@ import { ChangeEvent, FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
 import styles from './GamesList.module.css';
 import debounce from 'lodash.debounce';
+import GameFilter from '../GameFilter/GameFilter';
 
 interface GamesListProps {}
 
@@ -34,9 +35,11 @@ const GamesList: FC<GamesListProps> = () => {
 	}, 300)
 
 	return (
+		<>
+			<GameFilter />
 		<div style={{width: 'auto'}}>
-			<input 
-				className={styles.gamesListSearchBar} 
+			<input
+				className={styles.gamesListSearchBar}
 				type='text'
 				placeholder='Search for a game'
 				onChange={search}
@@ -65,7 +68,9 @@ const GamesList: FC<GamesListProps> = () => {
 					))}
 				</ul>
 			) : null}
+
 		</div>
+		</>
 	);
 };
 
