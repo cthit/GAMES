@@ -37,10 +37,10 @@ const GamesList: FC<GamesListProps> = () => {
 	const [releaseAfter, setReleaseAfter] = useState<Date>();
 	const [playtime, setPlaytime] = useState<number>();
 	const [playerCount, setPlayerCount] = useState<number>();
+	const searchFilter: SearchFilter = {};
 
 	const search = debounce((e: ChangeEvent<HTMLInputElement>) => {
 		setIsSearching(true);
-		const searchFilter: SearchFilter = {};
 		if (e !== undefined) {
 			if (e.target.value) searchFilter.name = e.target.value;
 		}
@@ -51,6 +51,7 @@ const GamesList: FC<GamesListProps> = () => {
 		if (playerCount) searchFilter.playerCount = playerCount;
 		postData(searchFilter);
 	}, 300);
+
 	return (
 		<>
 			<GameFilter
@@ -72,6 +73,7 @@ const GamesList: FC<GamesListProps> = () => {
 					type="text"
 					placeholder="Search for a game"
 					onChange={search}
+					onLoad={search}
 				/>
 
 				{loading ? <p>Loading...</p> : null}

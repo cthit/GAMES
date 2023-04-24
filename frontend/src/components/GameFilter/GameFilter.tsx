@@ -6,17 +6,17 @@ import DateInput from '../Forms/DateInput/DateInput';
 import TextInput from '../Forms/TextInput/TextInput';
 
 interface GameFilterProps {
-	setPlatform: (s: string) => string;
-	setReleaseBefore: (a: Date) => Date;
-	setReleaseAfter: (a: Date) => Date;
-	setPlaytime: (x: number) => number;
-	setPlayerCount: (x: number) => number;
-	platform: string;
-	releaseAfter: Date;
-	releaseBefore: Date;
-	playtime: number;
-	playerCount: number;
-	filterFunction: () => void;
+	setPlatform: (s: string) => void;
+	setReleaseBefore: (a: Date) => void;
+	setReleaseAfter: (a: Date) => void;
+	setPlaytime: (x: number) => void;
+	setPlayerCount: (x: number) => void;
+	platform: string | undefined;
+	releaseAfter: Date | undefined;
+	releaseBefore: Date | undefined;
+	playtime: number | undefined;
+	playerCount: number | undefined;
+	filterFunction: any;
 }
 interface Platform {
 	name: string;
@@ -52,7 +52,7 @@ const GameFilter: FC<GameFilterProps> = ({
 				options={data.map((platform) => platform.name)}
 				placeholder="Filter for platform"
 				onChange={(select) => setPlatform(select.target.value)}
-				value={platform}
+				value={platform ? platform : ''}
 			/>
 			<br />
 
