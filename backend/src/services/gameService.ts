@@ -64,20 +64,23 @@ export const searchGames = async (term: string) => {
 	});
 };
 
-
-export const filterGames = async (filter: any) => {
-	const filterQuery = {
-		dateReleased: {
-			lte: filter.releaseBefore,
-			gte: filter.releaseAfter
-		},
-		playerCount: {
-			gte: filter.playerCount
-		},
-		platform: (filter.platform) ? filter.platform : undefined,
-		playtime: (filter.playerCount) ? filter.playerCount : undefined
-	};
-
+export type Filter = {
+	dateReleased?: {
+		lte: Date,
+		gte: Date
+	},
+	playerMax?: {
+		gte: number
+	},
+	playerMin?: {
+		lte: number
+	},
+	platform?: {
+		name: string
+	},
+	playtime?: number
+};
+export const filterGames = async (filter: Filter) => {
 	return await prisma.game.findMany({
 		select: {
 			id: true,
@@ -90,6 +93,6 @@ export const filterGames = async (filter: any) => {
 			playerMax: true,
 			borrow: true
 		},
-		where: filterQuery
+		where: filter
 	});
 };

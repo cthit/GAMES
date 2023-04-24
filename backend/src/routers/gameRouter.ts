@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
 import {
+	Filter,
 	createGame,
 	filterGames,
 	getAllGames,
@@ -154,25 +155,34 @@ gameRouter.post(
 
 const filterGamesSchema = z.object({
 	platform: z.string().min(1).optional(),
-	releaseBefore: z.string().datetime(), // ISO date string
-	releaseAfter: z.string().datetime(), // ISO date string
+	releaseBefore: z.string().datetime().optional(), // ISO date string
+	releaseAfter: z.string().datetime().optional(), // ISO date string
 	playtime: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000)
+	playerCount: z.number().int().min(1).max(2000).optional()
 });
 
 gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
 	const body = req.body;
-	const filter = {
-		platform: (body.platform == null) ? false : body.platform,
-		releaseBefore: body.releaseBefore,
-		releaseAfter: body.releaseAfter,
-		playtime: (body.playtime == null) ? false : body.playtime,
-		playerCount: body.playerCount
+	const filter: Filter = {};
+	if (body.releaseAfter && body.releaseBefore)
+		filter.dateReleased = {
+			lte: new Date(body.releaseBefore),
+			gte: new Date(body.releaseAfter)
+		};
+	if (body.playerCount) {
+		filter.playerMax = { gte: body.playerCount };
+		filter.playerMin = { lte: body.playerCount };
 	}
+	if (body.platform)
+		filter.platform = { name: body.platform };
+	if (body.playtime)
+		filter.playtime = body.playtime;
+
 	const games = await filterGames(filter);
 
 	const formattedGames = formatGames(games);
-
+	console.log(formattedGames);
+	console.log("Filtering");
 	res.status(200).json(formattedGames);
 });
 
