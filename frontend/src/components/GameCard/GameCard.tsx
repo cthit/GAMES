@@ -3,6 +3,7 @@ import styles from './GameCard.module.css';
 import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface GameCardProps {
+	id: string;
 	name: string;
 	description: string;
 	platform: string;
@@ -14,6 +15,7 @@ interface GameCardProps {
 }
 
 const GameCard: FC<GameCardProps> = ({
+	id,
 	name,
 	description,
 	platform,
@@ -23,6 +25,7 @@ const GameCard: FC<GameCardProps> = ({
 	playerMin,
 	playerMax
 }) => {
+	console.log(id);
 	return (
 		<li className={styles.card}>
 			<h2>{name}</h2>
@@ -36,6 +39,10 @@ const GameCard: FC<GameCardProps> = ({
 			</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
+			<form action="/borrow">
+				<input type="hidden" id="game" name="game" value={id} />
+				<input type="submit" value="Borrow Game" />
+			</form>
 		</li>
 	);
 };
