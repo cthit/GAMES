@@ -36,8 +36,22 @@ model User {
     id              String   @id @default(cuid())
     cid             String   @unique
 
+    adminOrganizations Organization[] @relation("Admins")
+    memberOrganizations Organization[] @relation("Members")
+
     @@map("users")
 }
+
+model Organization {
+    id              String   @id @default(cuid())
+    gammaSuperNames String[]
+
+    admins          User[]  @relation("Admins") 
+    members         User[]  @relation("Members")
+
+    @@map("organizations")
+}
+
 
 model Borrow {
     game Game @relation(fields: [gameId], references: [id])
