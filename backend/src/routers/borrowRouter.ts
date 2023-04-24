@@ -35,13 +35,19 @@ const borrowSchema = z.object({
  */
 borrowRouter.post('/', validateRequestBody(borrowSchema), async (req, res) => {
 	const body = req.body;
-	await borrowGame(
-		body.gameId,
-		body.user,
-		new Date(body.borrowStart),
-		new Date(body.borrowEnd)
-	);
-	res.status(200).json({ message: 'Game successfully borrowed' });
+	try {
+
+		await borrowGame(
+			body.gameId,
+			body.user,
+			new Date(body.borrowStart),
+			new Date(body.borrowEnd)
+		);
+		res.status(200).json({ message: 'Game successfully borrowed' });
+	}
+	catch (error: any) {
+		res.status(500).json({ message: error.message })
+	}
 });
 
 const returnSchema = z.object({
@@ -72,9 +78,14 @@ borrowRouter.post(
 	'/return',
 	validateRequestBody(returnSchema),
 	async (req, res) => {
-		const body = req.body;
-		await returnGame(body.gameId, body.user);
-		res.status(200).json({ message: 'Game successfully returned' });
+		try {
+			const body = req.body;
+			await returnGame(body.gameId, body.user);
+			res.status(200).json({ message: 'Game successfully returned' });
+		}
+		catch (error: any) {
+			res.status(500).json({ message: error.message });
+		}
 	}
 );
 
