@@ -7,6 +7,31 @@ interface ErrorProperty {
 	message: string;
 }
 
+/**
+ * @apiDefine ZodError
+ * @apiError InvalidRequest Invalid request body
+ * @apiErrorExample {json} Error-Response:
+ *  [
+ *	 {
+ *	  "type": "Body",
+ *	   "errors": {
+ *		 "issues": [
+ *		  {
+ *		   "code": "invalid_type",
+ *		   "expected": "string",
+ *		   "received": "undefined",
+ *		   "path": [
+ *			"name"
+ *		   ],
+ *		   "message": "Required"
+ *	      }
+ *	   	],
+ *	   	"name": "ZodError"
+ *     }
+ *	  }
+ *  ]
+ */
+
 const sendApiValidationError = (
 	res: Response,
 	errors: ErrorProperty[] | ErrorProperty,

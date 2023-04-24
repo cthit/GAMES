@@ -16,53 +16,10 @@ await initializePassport(app);
 
 app.use(express.json());
 
-console.log('NODE_ENV: ', process.env.NODE_ENV);
-
 if (process.env.NODE_ENV === 'development') {
+	console.log('CORS open for all origins (development mode)');
 	app.use(cors());
 }
-
-/**
- * @apiDefine ZodError
- * @apiError InvalidRequest Invalid request body
- * @apiErrorExample {json} Error-Response:
- *  [
- *	 {
- *	  "type": "Body",
- *	   "errors": {
- *		 "issues": [
- *		  {
- *		   "code": "invalid_type",
- *		   "expected": "string",
- *		   "received": "undefined",
- *		   "path": [
- *			"name"
- *		   ],
- *		   "message": "Required"
- *	      }
- *	   	],
- *	   	"name": "ZodError"
- *     }
- *	  }
- *  ]
- */
-
-/**
- * @api {get} / Request Hello World
- * @apiName GetHelloWorld
- * @apiGroup Hello
- *
- * @apiSuccess {String} message Hello World
- *
- * @apiSuccessExample Success-Response:
- *    HTTP/1.1 200 OK
- *   {
- *    "message": "Hello World"
- *  }
- */
-app.get('/', (req, res) => {
-	res.status(200).json({ message: 'Hello World' });
-});
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/games', gameRouter);
