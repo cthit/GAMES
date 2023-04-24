@@ -1,6 +1,6 @@
 import { prisma } from '../prisma.js';
 
-enum BorrowStatus {
+export enum BorrowStatus {
 	Borrowed,
 	NotBorrowed,
 	NotValid
@@ -13,39 +13,42 @@ export const borrowGame = async (
 	borrowEnd: Date
 ) => {
 	const borrowStatus = await controlBorrowStatus(gameId, user);
-	if (!(borrowStatus == BorrowStatus.NotBorrowed))
-		throw new Error("The game doesn't exist or is already borrowed");
-	await prisma.borrow.create({
-		data: {
-			gameId,
-			user,
-			borrowStart,
-			borrowEnd
-		}
-	});
+	if (borrowStatus == BorrowStatus.NotBorrowed) {
+		await prisma.borrow.create({
+			data: {
+				gameId,
+				user,
+				borrowStart,
+				borrowEnd
+			}
+		});
+	}
+	return borrowStatus;
 };
 
 export const returnGame = async (gameId: string, user: string) => {
 	const borrowStatus = await controlBorrowStatus(gameId, user);
-	if (!(borrowStatus == BorrowStatus.Borrowed))
-		throw new Error("The game doesn't exist or isn't borrowed");
-	await prisma.game.update({
-		where: {
-			id: gameId
-		},
-		data: {
-			borrow: {
-				updateMany: {
-					where: {
-						gameId: gameId
-					},
-					data: {
-						returned: true
+	if (borrowStatus == BorrowStatus.Borrowed) {
+
+		await prisma.game.update({
+			where: {
+				id: gameId
+			},
+			data: {
+				borrow: {
+					updateMany: {
+						where: {
+							gameId: gameId
+						},
+						data: {
+							returned: true
+						}
 					}
 				}
 			}
-		}
-	});
+		});
+	}
+	return borrowStatus;
 };
 
 
