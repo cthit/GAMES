@@ -3,7 +3,10 @@ import express from 'express';
 import passport from 'passport';
 
 import { GammaUser } from '../models/gammaModels.js';
-import { createAccount } from '../services/accountService.js';
+import {
+	createAccount,
+	addUserToGammaConnectedOrgs
+} from '../services/accountService.js';
 
 const authRouter = Router();
 
@@ -52,6 +55,8 @@ authRouter.get(
 		} else {
 			console.log('Account already exists for ' + user.cid);
 		}
+
+		await addUserToGammaConnectedOrgs(user);
 
 		res.status(200).json(user);
 	}

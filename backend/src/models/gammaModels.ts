@@ -1,4 +1,34 @@
-import { GammaGroup } from './gammaGroup.js';
+export interface Authority {
+	id: string;
+	authority: string;
+}
+
+export interface GammaGroup {
+	id: string;
+	becomesActive?: number;
+	becomesInactive?: number;
+	description: {
+		sv: string;
+		en: string;
+	};
+	function?: {
+		sv: string;
+		en: string;
+	};
+	email: string;
+	name: string;
+	prettyName: string;
+	superGroup?: GammaSuperGroup;
+	active?: boolean;
+}
+
+export interface GammaSuperGroup {
+	id: string;
+	name: string;
+	prettyName: string;
+	type: string;
+	email: string;
+}
 
 export interface GammaUser {
 	cid: string;
