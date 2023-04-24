@@ -38,6 +38,7 @@ export const useApiGet = <T>(apiPath: string) => {
 export const useApiPost = <T>(apiPath: string) => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [data, setData] = useState<T | null>(null);
 
 	const postData = async (body: any) => {
 		setLoading(true);
@@ -57,6 +58,8 @@ export const useApiPost = <T>(apiPath: string) => {
 					'Error fetching data from server with status code: ' + response.status
 				);
 			}
+			const data = await response.json();
+			setData(data);
 		} catch (error: any) {
 			setError(error.message);
 		} finally {
@@ -64,5 +67,5 @@ export const useApiPost = <T>(apiPath: string) => {
 		}
 	};
 
-	return { loading, error, postData };
+	return { loading, error, postData, data };
 };

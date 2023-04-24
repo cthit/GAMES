@@ -5,25 +5,36 @@ import Select from '../Forms/Select/Select';
 import DateInput from '../Forms/DateInput/DateInput';
 import TextInput from '../Forms/TextInput/TextInput';
 
-interface GameFilterProps {}
+interface GameFilterProps {
+	setPlatform: (s: string) => string;
+	setReleaseBefore: (a: Date) => Date;
+	setReleaseAfter: (a: Date) => Date;
+	setPlaytime: (x: number) => number;
+	setPlayerCount: (x: number) => number;
+	platform: string;
+	releaseAfter: Date;
+	releaseBefore: Date;
+	playtime: number;
+	playerCount: number;
+	filterFunction: () => void;
+}
 interface Platform {
 	name: string;
 }
-const GameFilter: FC<GameFilterProps> = () => {
-
+const GameFilter: FC<GameFilterProps> = ({
+	setPlatform,
+	setReleaseBefore,
+	setReleaseAfter,
+	setPlaytime,
+	setPlayerCount,
+	platform,
+	playerCount,
+	playtime,
+	releaseAfter,
+	releaseBefore,
+	filterFunction
+}: GameFilterProps) => {
 	const { data, error, loading } = useApiGet<Platform[]>('/platforms');
-
-	const [platform, setPlatform] = useState('');
-	const [releaseBefore, setReleaseBefore] = useState<Date>();
-	const [releaseAfter, setReleaseAfter] = useState<Date>();
-	const [playtime, setPlaytime] = useState<number>();
-	const [playerCount, setPlayerCount] = useState<number>();
-
-	const {
-		error: postError,
-		loading: postLoading,
-		postData
-	} = useApiPost('/games/filter');
 
 	if (loading) {
 		return <p>Loading...</p>;
@@ -34,17 +45,8 @@ const GameFilter: FC<GameFilterProps> = () => {
 	}
 
 	return (
-		<form
-			onSubmit={(e) => {
-				postData({
-					platform: platform,
-					releaseBefore: releaseBefore?.toISOString(),
-					releaseAfter: releaseAfter?.toISOString(),
-					playtime,
-					playerCount
-				});
-			}}
-		>
+		<form className={styles.formClass}>
+			<h2>Filtering</h2>
 			<Select
 				label="Platform"
 				options={data.map((platform) => platform.name)}
@@ -92,7 +94,13 @@ const GameFilter: FC<GameFilterProps> = () => {
 			/>
 			<br />
 
-			<input type="submit" value="Submit" />
+			<input
+				type="button"
+				value="Submit"
+				onClick={() => {
+					filterFunction();
+				}}
+			/>
 		</form>
 	);
 };
