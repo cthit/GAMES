@@ -42,8 +42,9 @@ model User {
 }
 
 model Organization {
-    id              String   @id @default(cuid())
-    gammaSuperNames String[]
+    id                 String   @id @default(cuid())
+    gammaSuperNames    String[]
+    addGammaAsOrgAdmin Boolean  @default(false)
 
     admins  User[] @relation("Admins")
     members User[] @relation("Members")

@@ -38,11 +38,52 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 		}
 	}));
 
-	const matchingOrgs = await prisma.organization.findMany({
+	const orgsToAddUserAsMember = await prisma.organization.findMany({
 		where: {
 			AND: [{ OR: superGroupQueries }, { members: { none: account } }]
+		},
+		select: {
+			id: true
 		}
 	});
 
-	console.log(matchingOrgs);
+	for (const org of orgsToAddUserAsMember) {
+		await prisma.organization.update({
+			where: {
+				id: org.id
+			},
+			data: {
+				members: {
+					connect: {
+						id: account.id
+					}
+				}
+			}
+		});
+	}
+
+	const orgsToAddUserAsAdmin = await prisma.organization.findMany({
+		where: {
+			AND: [
+				{ OR: superGroupQueries },
+				{ addGammaAsOrgAdmin: true },
+				{ admins: { none: account } }
+			]
+		}
+	});
+
+	for (const org of orgsToAddUserAsAdmin) {
+		await prisma.organization.update({
+			where: {
+				id: org.id
+			},
+			data: {
+				admins: {
+					connect: {
+						id: account.id
+					}
+				}
+			}
+		});
+	}
 };
