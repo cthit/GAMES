@@ -26,7 +26,7 @@ const AddSuggestion: FC<AddSuggestionProps> = () => {
 		error: postError,
 		loading: postLoading,
 		postData
-	} = useApiPost('/suggestions/add');
+	} = useApiPost('/suggest/add');
 
 	if (loading) {
 		return <p>Loading...</p>;

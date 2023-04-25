@@ -17,7 +17,7 @@ interface Suggestion {
 }
 
 const SuggestionsList: FC<SuggestionsListProps> = () => {
-	const { data, error, loading } = useApiGet<Suggestion[]>('/suggestions');
+	const { data, error, loading } = useApiGet<Suggestion[]>('/suggest');
 
 	return (
 		<div>
