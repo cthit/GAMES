@@ -162,6 +162,37 @@ const filterGamesSchema = z.object({
 	playerCount: z.number().int().min(1).max(2000).optional()
 });
 
+/**
+ * @api {post} /api/v1/games/filter Filter which games to show
+ * @apiName Filter
+ * @apiGroup Games
+ * @apiDescription Filters the games returned
+ *
+ * @apiBody {String} name Name of the game (Optional)
+ * @apiBody {String} description Description of the game (Optional)
+ * @apiBody {String} platform Platform the game is played on (Optional)
+ * @apiBody {String} releaseBefore Filters to games released before a specific date (Optional)
+ * @apiBody {String} releaseAfter Filters to games released after a specific date (Optional)
+ * @apiBody {Number} playtime Playtime of the game (Optional)
+ * @apiBody {Number} playerCount amount of players for the game (Optional)
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *  [
+ *   {
+ *    "id": "clgkri8kk0000przwvkvbyj95",
+ *    "name": "Game 1",
+ *    "description": "Game 1 description",
+ * 	"platformName": "Steam",
+ *	   "releaseDate": "2023-04-13",
+ *	   "playtimeMinutes": "60"
+ *   }
+ * ]
+ *
+ * @apiUse ZodError
+ */
 gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
 	const body = req.body;
 	const filter: Filter = {};

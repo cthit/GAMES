@@ -37,6 +37,7 @@ const GameFilter: FC<GameFilterProps> = ({
 	const { data, error, loading } = useApiGet<Platform[]>('/platforms');
 
 	if (loading) {
+		filterFunction();
 		return <p>Loading...</p>;
 	}
 
