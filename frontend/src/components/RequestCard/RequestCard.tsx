@@ -4,6 +4,7 @@ import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface RequestCardProps {
     gameId: string,
+    name: string,
     user: string,
     borrowStart: string,
     borrowEnd: string
@@ -11,6 +12,7 @@ interface RequestCardProps {
 
 const RequestCard: FC<RequestCardProps> = ({
 	gameId,
+    name,
     user,
     borrowStart,
     borrowEnd
@@ -24,32 +26,30 @@ const RequestCard: FC<RequestCardProps> = ({
 
 	return (
 		<li className={styles.card}>
-			<h2>{gameId}</h2>
+			<h2>{name}</h2>
 			<p>Requested by: {user}</p>
-			<p>From: {borrowStart}</p>
-			<p>To: {borrowEnd}</p>
+			<p>From: {borrowStart?.split('T')[0] || ''}</p>
+			<p>To: {borrowEnd?.split('T')[0] || ''}</p>
 			<form onSubmit={(e) => {
 				e.preventDefault();
 				postData({
 					gameId: gameId,
-                    user: user,
+                    startDate: borrowStart,
+                    endDate: borrowEnd,
                     approved: true
 				});
 			}}>
-				<input type="hidden" id="game" name="game" value={gameId} />
-                <input type="hidden" id="approved" name="approved" value="true" />
 				<input type="submit" value="Approve" />
 			</form>
             <form onSubmit={(e) => {
 				e.preventDefault();
 				postData({
 					gameId: gameId,
-                    user: user,
+                    startDate: borrowStart,
+                    endDate: borrowEnd,
                     approved: false
 				});
 			}}>
-				<input type="hidden" id="game" name="game" value={gameId} />
-                <input type="hidden" id="approved" name="approved" value="false" />
 				<input type="submit" value="Deny" />
 			</form>
 		</li>
