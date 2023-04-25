@@ -43,11 +43,11 @@ export const respondBorrowRequest = async (
                 user: user
             },
             data: {
-                approved: prisma.BorrowRequestStatus.ACCEPTED
+                status: BorrowRequestStatus.ACCEPTED
             }
         });
         borrowRequestStatus = approved ? BorrowRequestState.Approved : BorrowRequestState.Rejected;
-        let borrowRequest = prisma.borrowRequest.find({
+        let borrowRequest = prisma.borrowRequest.findFirst({
             where: {
                 gameId: gameId,
                 user: user
@@ -58,6 +58,15 @@ export const respondBorrowRequest = async (
         }
     }
     return borrowRequestStatus;
+}
+
+// TODO: Only get requests for game manager once implemented
+export const getActiveBorrowRequests = async () => {
+    return await prisma.borrowRequest.findMany({
+        where: {
+            status: BorrowRequestStatus.PENDING
+        }
+    });
 }
 
 const controlBorrowRequestStatus = async (gameId: string, user: string) => {
@@ -74,7 +83,10 @@ const controlBorrowRequestStatus = async (gameId: string, user: string) => {
 	const isApproved = data.request.filter((b: { status: BorrowRequestStatus }) => {
 		return b.status == BorrowRequestStatus.ACCEPTED;
 	}).length > 0;
-	if (isApproved)
-		return BorrowRequestState.Approved;
+	if (isApproved) {
+        borrowGame(gameId, user, new Date(), new Date());
+        return BorrowRequestState.Approved;
+    }
+		
 	return BorrowRequestState.Pending;
 }

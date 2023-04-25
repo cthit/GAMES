@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { BorrowRequestState, createBorrowRequest, respondBorrowRequest } from '../services/borrowRequestService.js';
+import { BorrowRequestState, createBorrowRequest, respondBorrowRequest, getActiveBorrowRequests } from '../services/borrowRequestService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const borrowRequestRouter = Router();
@@ -42,7 +42,7 @@ borrowRequestRouter.post('/', validateRequestBody(borrowRequestSchema), async (r
 			new Date(body.borrowStart),
 			new Date(body.borrowEnd)
 		);
-	if (status == BorrowRequestState.Borrowed) return sendApiValidationError(res,
+	if (status == BorrowRequestState.Overlapping) return sendApiValidationError(res,
 		{
 			path: 'gameId',
 			message: 'The game is already borrowed during this period'
@@ -71,13 +71,14 @@ const borrowRequestResponseSchema = z.object({
  *
  * @apiBody {String} gameId Id of the game to borrow
  * @apiBody {String} user User borrowing the game
+ * @apiBody {Boolean} approved Whether the request is accepted or rejected
  *
  * @apiSuccess {String} message Message indicating success
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  * {
- *   message: 'Request successfully responded to'
+ *   message: 'Request accepted successfully'
  * }
  *
  * @apiUse ZodError
@@ -86,7 +87,7 @@ borrowRequestRouter.post(
 	'/respond',
 	validateRequestBody(borrowRequestResponseSchema),
 	async (req, res) => {
-			const body = req.body;
+		const body = req.body;
 		const status = await respondBorrowRequest(body.gameId, body.user, body.approved);
 		if (status == BorrowRequestState.NotValid) return sendApiValidationError(res,
 			{
@@ -98,5 +99,41 @@ borrowRequestRouter.post(
 		res.status(200).json({ message: requestResponse });
 	}
 );
+
+/**
+ * @api {post} /api/v1/borrow/request/list Get a list of borrow requests
+ * @apiName ListBorrowRequests
+ * @apiGroup Requesting
+ * @apiDescription Gets a list of borrow requests for the user
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   message: 'Request successfully responded to'
+ * }
+ *
+ * @apiUse ZodError
+ */
+borrowRequestRouter.get(
+	'/list',
+	async (_, res) => {
+		const requests = await getActiveBorrowRequests();
+		res.status(200).json(formatBorrowRequests(requests));
+	}
+);
+
+const formatBorrowRequests = (requests: any[]) => {
+	return requests.map((request) => {
+		return {
+			gameId: request.gameId,
+			user: request.user,
+			borrowStart: request.borrowStart,
+			borrowEnd: request.borrowEnd,
+			approved: request.approved
+		};
+	});
+};
 
 export default borrowRequestRouter;
