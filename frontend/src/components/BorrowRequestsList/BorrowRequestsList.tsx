@@ -8,6 +8,7 @@ interface GamesListProps {}
 
 interface BorrowRequest {
     gameId: string,
+    name: string,
     user: string,
     borrowStart: string,
     borrowEnd: string
@@ -16,8 +17,6 @@ interface BorrowRequest {
 const GamesList: FC<GamesListProps> = () => {
 	const [apiPath, setApiPath] = useState("/borrow/request/list")
 	const { data, error, loading } = useApiGet<BorrowRequest[]>(apiPath);
-
-    console.log(data)
 
 	return (
 		<div style={{width: 'auto'}}>
@@ -32,7 +31,9 @@ const GamesList: FC<GamesListProps> = () => {
 				<ul className={styles.gamesList}>
 					{data.map((request) => (
 						<RequestCard
+                            key={request.gameId}
 							gameId={request.gameId}
+                            name={request.name}
                             user={request.user}
                             borrowStart={request.borrowStart}
                             borrowEnd={request.borrowEnd}

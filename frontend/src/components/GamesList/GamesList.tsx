@@ -52,6 +52,7 @@ const GamesList: FC<GamesListProps> = () => {
 				<ul className={styles.gamesList}>
 					{data.map((game) => (
 						<GameCard
+							key={game.id}
 							id={game.id}
 							name={game.name}
 							description={game.description}
