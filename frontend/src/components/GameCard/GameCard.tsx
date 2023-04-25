@@ -25,7 +25,6 @@ const GameCard: FC<GameCardProps> = ({
 	playerMin,
 	playerMax
 }) => {
-	console.log(id);
 	return (
 		<li className={styles.card}>
 			<h2>{name}</h2>

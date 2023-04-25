@@ -9,7 +9,7 @@ interface RequestCardProps {
     borrowEnd: string
 }
 
-const GameCard: FC<RequestCardProps> = ({
+const RequestCard: FC<RequestCardProps> = ({
 	gameId,
     user,
     borrowStart,
@@ -56,4 +56,4 @@ const GameCard: FC<RequestCardProps> = ({
 	);
 };
 
-export default GameCard;
+export default RequestCard;
