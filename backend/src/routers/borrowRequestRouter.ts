@@ -22,7 +22,7 @@ const borrowRequestSchema = z.object({
  * @apiBody {String} gameId Id of the game
  * @apiBody {String} user User that borrows the game
  * @apiBody {String} borrowStart Date that the game starts being borrowed
- * @apiBody {String} borrowEnd Date that the game should be returned
+ * @apiBody {String} borrowEnd Date that the game is expected to be returned
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -59,8 +59,9 @@ borrowRequestRouter.post('/', validateRequestBody(borrowRequestSchema), async (r
 
 const borrowRequestResponseSchema = z.object({
 	gameId: z.string().min(1),
-	user: z.string().min(1),
-    approved: z.boolean()
+    approved: z.boolean(),
+	startDate: z.string().datetime(),
+	endDate: z.string().datetime()
 });
 
 /**
@@ -70,7 +71,8 @@ const borrowRequestResponseSchema = z.object({
  * @apiDescription Accepts or rejects a borrow request
  *
  * @apiBody {String} gameId Id of the game to borrow
- * @apiBody {String} user User borrowing the game
+ * @apiBody {String} startDate Date that the game starts being borrowed
+ * @apiBody {String} endDate Date that the game is expected to be returned
  * @apiBody {Boolean} approved Whether the request is accepted or rejected
  *
  * @apiSuccess {String} message Message indicating success
@@ -88,7 +90,7 @@ borrowRequestRouter.post(
 	validateRequestBody(borrowRequestResponseSchema),
 	async (req, res) => {
 		const body = req.body;
-		const status = await respondBorrowRequest(body.gameId, body.user, body.approved);
+		const status = await respondBorrowRequest(body.gameId, new Date(body.startDate), new Date(body.endDate), body.approved);
 		if (status == BorrowRequestState.NotValid) return sendApiValidationError(res,
 			{
 				path: 'gameId',
@@ -101,18 +103,24 @@ borrowRequestRouter.post(
 );
 
 /**
- * @api {post} /api/v1/borrow/request/list Get a list of borrow requests
- * @apiName ListBorrowRequests
+ * @api {post} /api/v1/borrow/request/list Get a list of pending borrow requests
+ * @apiName ListPendingBorrowRequests
  * @apiGroup Requesting
- * @apiDescription Gets a list of borrow requests for the user
+ * @apiDescription Gets a list of pending borrow requests for the user
  *
  * @apiSuccess {String} message Message indicating success
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
- * {
- *   message: 'Request successfully responded to'
- * }
+ * [
+ *   {
+ *     "gameId":"clguralhj00009btg94vqquv4",
+ *     "user":"User",
+ *     "borrowStart":"2023-03-27T00:00:00.000Z",
+ *     "borrowEnd":"2023-03-28T00:00:00.000Z",
+ *     "name":"The Forest"
+ *   }
+ * ]
  *
  * @apiUse ZodError
  */
@@ -131,7 +139,8 @@ const formatBorrowRequests = (requests: any[]) => {
 			user: request.user,
 			borrowStart: request.borrowStart,
 			borrowEnd: request.borrowEnd,
-			approved: request.approved
+			approved: request.approved,
+			name: request.game["name"]
 		};
 	});
 };

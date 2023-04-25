@@ -6,6 +6,7 @@ export enum BorrowRequestState {
     Pending,
     Approved,
     Rejected,
+    Free,
     Overlapping,
     NotValid
 }
@@ -16,8 +17,8 @@ export const createBorrowRequest = async (
     borrowStart: Date,
     borrowEnd: Date
 ) => {
-    const borrowRequestStatus = await controlBorrowRequestStatus(gameId, user);
-    if (borrowRequestStatus == BorrowRequestState.Pending) {
+    const borrowRequestStatus = await controlBorrowRequestStatus(gameId, borrowStart, borrowEnd);
+    if (borrowRequestStatus == BorrowRequestState.Free) {
         await prisma.borrowRequest.create({
             data: {
                 gameId,
@@ -32,29 +33,33 @@ export const createBorrowRequest = async (
 
 export const respondBorrowRequest = async (
     gameId: string,
-    user: string,
+    borrowStart: Date,
+    borrowEnd: Date,
     approved: boolean
 ) => {
-    let borrowRequestStatus = await controlBorrowRequestStatus(gameId, user);
+    let borrowRequestStatus = await controlBorrowRequestStatus(gameId, borrowStart, borrowEnd);
     if (borrowRequestStatus == BorrowRequestState.Pending) {
         await prisma.borrowRequest.updateMany({
             where: {
                 gameId: gameId,
-                user: user
+                borrowStart: borrowStart,
+                borrowEnd: borrowEnd
             },
             data: {
-                status: BorrowRequestStatus.ACCEPTED
+                status: approved ? BorrowRequestStatus.ACCEPTED : BorrowRequestStatus.REJECTED
             }
         });
         borrowRequestStatus = approved ? BorrowRequestState.Approved : BorrowRequestState.Rejected;
-        let borrowRequest = prisma.borrowRequest.findFirst({
+        let borrowRequest = await prisma.borrowRequest.findFirst({
             where: {
                 gameId: gameId,
-                user: user
+                borrowStart: borrowStart,
+                borrowEnd: borrowEnd
             }
         })
+        if (borrowRequest === null) return BorrowRequestState.NotValid;
         if (approved) {
-            await borrowGame(gameId, user, new Date(), new Date());
+            await borrowGame(gameId, borrowRequest.user, borrowStart, borrowEnd);
         }
     }
     return borrowRequestStatus;
@@ -65,28 +70,57 @@ export const getActiveBorrowRequests = async () => {
     return await prisma.borrowRequest.findMany({
         where: {
             status: BorrowRequestStatus.PENDING
+        },
+        include: {
+            game: {
+                select: {
+                    name: true
+                }
+            }
         }
     });
 }
 
-const controlBorrowRequestStatus = async (gameId: string, user: string) => {
-	const data = await prisma.game.findUnique({
+const controlBorrowRequestStatus = async (gameId: string, borrowStart: Date, borrowEnd: Date) => {
+    const gameData = await prisma.game.findFirst({
+        where: {
+            id: gameId
+        }
+    });
+    if (gameData === null)
+        return BorrowRequestState.NotValid;
+
+	const data = await prisma.borrowRequest.findFirst({
 		where: {
-			id: gameId
-		},
-		select: {
-			request: true
+			gameId: gameId,
+            borrowStart: borrowStart,
+            borrowEnd: borrowEnd
 		}
 	});
-	if (data === null)
-		return BorrowRequestState.NotValid;
-	const isApproved = data.request.filter((b: { status: BorrowRequestStatus }) => {
-		return b.status == BorrowRequestStatus.ACCEPTED;
-	}).length > 0;
-	if (isApproved) {
-        borrowGame(gameId, user, new Date(), new Date());
-        return BorrowRequestState.Approved;
+	if (data === null) {
+        const rangeData = await prisma.borrowRequest.findMany({
+            where: {
+                gameId: gameId,
+                borrowStart: {
+                    lte: borrowEnd
+                },
+                borrowEnd: {
+                    gte: borrowStart
+                },
+                status: BorrowRequestStatus.ACCEPTED
+            }
+        });
+        if (rangeData.length > 0)
+		    return BorrowRequestState.Overlapping;
+        else return BorrowRequestState.Free;
     }
-		
-	return BorrowRequestState.Pending;
+        
+    switch(data.status) {
+        case BorrowRequestStatus.PENDING:
+            return BorrowRequestState.Pending;
+        case BorrowRequestStatus.REJECTED:
+            return BorrowRequestState.Rejected;
+        case BorrowRequestStatus.ACCEPTED:
+            return BorrowRequestState.Approved;
+    }
 }
