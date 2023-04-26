@@ -2,13 +2,13 @@ import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
 import { FC, useState } from 'react';
 import DateInput from '../Forms/DateInput/DateInput';
 
-interface AddGameProps {}
+interface BorrowGameProps {}
 
 interface Platform {
 	name: string;
 }
 
-const AddGame: FC<AddGameProps> = () => {
+const BorrowGame: FC<BorrowGameProps> = () => {
 	const { data, error, loading } = useApiGet<Platform[]>('/platforms');
 
 	const [startDate, setStartDate] = useState<Date>();
@@ -76,4 +76,4 @@ const AddGame: FC<AddGameProps> = () => {
 	);
 };
 
-export default AddGame;
+export default BorrowGame;

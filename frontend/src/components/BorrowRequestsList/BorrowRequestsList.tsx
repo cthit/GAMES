@@ -3,7 +3,7 @@ import { ChangeEvent, FC, useState } from 'react';
 import RequestCard from '../RequestCard/RequestCard';
 import debounce from 'lodash.debounce';
 
-interface GamesListProps {}
+interface BorrowRequestsListProps {}
 
 interface BorrowRequest {
     gameId: string,
@@ -13,7 +13,7 @@ interface BorrowRequest {
     borrowEnd: string
 }
 
-const GamesList: FC<GamesListProps> = () => {
+const BorrowRequestsList: FC<BorrowRequestsListProps> = () => {
 	const [apiPath, setApiPath] = useState("/borrow/request/list")
 	const { data, error, loading } = useApiGet<BorrowRequest[]>(apiPath);
 
@@ -44,4 +44,4 @@ const GamesList: FC<GamesListProps> = () => {
 	);
 };
 
-export default GamesList;
+export default BorrowRequestsList;
