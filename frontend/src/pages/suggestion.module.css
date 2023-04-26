@@ -1,0 +1,14 @@
+.mainContainer {
+    display: flex; 
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    gap: 50px;
+    padding-top: 50px;
+}
+
+.filterBox {
+    width: 200px;
+    height: 400px;
+    background-color: lightgray;
+}
