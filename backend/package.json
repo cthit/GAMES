@@ -8,7 +8,8 @@
 		"compile": "tsc --watch",
 		"watch": "nodemon dist/app.js",
 		"build": "tsc",
-		"test": "jest"
+		"test": "jest",
+		"seed": "tsc && node dist/seeder.js"
 	},
 	"author": "Grupp 2",
 	"license": "ISC",
