@@ -91,17 +91,6 @@ suggestRouter.post(
 				'Body'
 			);
 		}
-        //Maybe change so release date can be in the future?
-		if (body.releaseDate > new Date().toISOString()) {
-			return sendApiValidationError(
-				res,
-				{
-					path: 'releaseDate',
-					message: 'The release date cannot be in the future'
-				},
-				'Body'
-			);
-		}
 
 		if(body.playerMin > body.playerMax){
 			return sendApiValidationError(
