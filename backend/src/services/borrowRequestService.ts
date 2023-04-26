@@ -8,6 +8,7 @@ export enum BorrowRequestState {
     Rejected,
     Free,
     Overlapping,
+    Inverted,
     NotValid
 }
 
@@ -17,6 +18,7 @@ export const createBorrowRequest = async (
     borrowStart: Date,
     borrowEnd: Date
 ) => {
+    if (borrowEnd < borrowStart) return BorrowRequestState.Inverted;
     const borrowRequestStatus = await controlBorrowRequestStatus(gameId, borrowStart, borrowEnd);
     if (borrowRequestStatus == BorrowRequestState.Free) {
         await prisma.borrowRequest.create({

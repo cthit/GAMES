@@ -42,6 +42,12 @@ borrowRequestRouter.post('/', validateRequestBody(borrowRequestSchema), async (r
 			new Date(body.borrowStart),
 			new Date(body.borrowEnd)
 		);
+	if (status == BorrowRequestState.Inverted) return sendApiValidationError(res,
+		{
+			path: 'gameId',
+			message: 'A game cannot be returned before it is borrowed'
+		},
+		'Body');
 	if (status == BorrowRequestState.Overlapping) return sendApiValidationError(res,
 		{
 			path: 'gameId',
