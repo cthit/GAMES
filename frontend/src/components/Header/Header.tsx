@@ -19,6 +19,9 @@ const Header: FC<HeaderProps> = () => {
 				<a style={{ marginLeft: '5px' }} href="/suggestion">
 					Suggestions
 				</a>
+				<a style={{ marginLeft: '5px' }} href="/bookings">
+					Scheduled bookings
+				</a>
 			</nav>
 		</header>
 	);
