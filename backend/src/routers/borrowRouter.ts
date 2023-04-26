@@ -127,7 +127,7 @@ borrowRouter.get('/list', async (_, res) => {
 const formatBookings = (bookings: any[]) => {
 	return bookings.map((booking) => ({
 		id: booking.id,
-		gameId: booking.gameId,
+		gameName: booking.game["name"],
 		user: booking.user,
 		borrowStart: booking.borrowStart,
 		borrowEnd: booking.borrowEnd,
