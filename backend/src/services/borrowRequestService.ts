@@ -9,6 +9,7 @@ export enum BorrowRequestState {
     Free,
     Overlapping,
     Inverted,
+    InPast,
     NotValid
 }
 
@@ -18,6 +19,7 @@ export const createBorrowRequest = async (
     borrowStart: Date,
     borrowEnd: Date
 ) => {
+    if (borrowStart < new Date(new Date().toDateString())) return BorrowRequestState.InPast;
     if (borrowEnd < borrowStart) return BorrowRequestState.Inverted;
     const borrowRequestStatus = await controlBorrowRequestStatus(gameId, borrowStart, borrowEnd);
     if (borrowRequestStatus == BorrowRequestState.Free) {

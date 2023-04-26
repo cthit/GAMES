@@ -42,6 +42,12 @@ borrowRequestRouter.post('/', validateRequestBody(borrowRequestSchema), async (r
 			new Date(body.borrowStart),
 			new Date(body.borrowEnd)
 		);
+	if (status == BorrowRequestState.InPast) return sendApiValidationError(res,
+		{
+			path: 'gameId',
+			message: 'A game cannot be borrowed in the past'
+		},
+		'Body');
 	if (status == BorrowRequestState.Inverted) return sendApiValidationError(res,
 		{
 			path: 'gameId',
