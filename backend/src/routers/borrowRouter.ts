@@ -113,9 +113,15 @@ borrowRouter.post(
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
- * {
- *   message: 'Game successfully borrowed'
- * }
+ * [
+ *   {
+ *     "name":"Sons of The Forest",
+ *     "user":"User",
+ *     "borrowStart":"2023-04-24T14:51:43.583Z",
+ *     "borrowEnd":"2023-04-25T14:51:43.583Z",
+ *     "returned":false
+ *   }
+ * ]
  *
  * @apiUse ZodError
  */

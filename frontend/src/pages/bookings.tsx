@@ -6,7 +6,7 @@ import styles from './index.module.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const Home = () => {
+export const Bookings = () => {
 	return (
 		<>
 			<Head>
@@ -26,4 +26,4 @@ export const Home = () => {
 	);
 };
 
-export default Home;
+export default Bookings;
