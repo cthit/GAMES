@@ -1,7 +1,6 @@
 import { useApiGet } from '@/src/hooks/apiHooks';
 import { ChangeEvent, FC, useState } from 'react';
 import RequestCard from '../RequestCard/RequestCard';
-import styles from '../GamesList/GamesList.module.css';
 import debounce from 'lodash.debounce';
 
 interface GamesListProps {}
@@ -28,7 +27,7 @@ const GamesList: FC<GamesListProps> = () => {
 			{data?.length == 0 ? <p>There are no active requests at this time.</p> : null}
 
 			{data ? (
-				<ul className={styles.gamesList}>
+				<ul>
 					{data.map((request) => (
 						<RequestCard
                             key={request.gameId}
