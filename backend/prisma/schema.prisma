@@ -27,6 +27,7 @@ model Game {
 model Platform {
     name String @id
     game Game[]
+    suggest Suggest[]
 
     @@map("platforms")
 }
@@ -40,4 +41,16 @@ model Borrow {
     borrowEnd       DateTime
     returned        Boolean  @default(false)
     @@map("borrows")
+}
+
+model Suggest {
+    name String @id
+    description String
+    platform        Platform @relation(fields: [platformName], references: [name])
+    platformName    String 
+    dateReleased    DateTime
+    playtimeMinutes Int // Stored in minutes @map("playtime")
+    playerMin    Int
+    playerMax    Int
+    @@map("suggests")
 }
