@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { BorrowStatus, borrowGame, returnGame } from '../services/borrowService.js';
+import { BorrowStatus, borrowGame, returnGame, listBorrows } from '../services/borrowService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const borrowRouter = Router();
@@ -102,5 +102,37 @@ borrowRouter.post(
 		res.status(200).json({ message: 'Game successfully returned' });
 	}
 );
+
+/**
+ * @api {get} /api/v1/borrow/list List all booked borrows
+ * @apiName ListBookedBorrows
+ * @apiGroup Borrowing
+ * @apiDescription Gets a list of all borrows that are currently booked
+ *
+ * @apiSuccess {Object[]} bookings List of bookings
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   message: 'Game successfully borrowed'
+ * }
+ *
+ * @apiUse ZodError
+ */
+borrowRouter.get('/list', async (_, res) => {
+	const borrows = await listBorrows();
+	res.status(200).json(formatBookings(borrows));
+});
+
+const formatBookings = (bookings: any[]) => {
+	return bookings.map((booking) => ({
+		id: booking.id,
+		gameId: booking.gameId,
+		user: booking.user,
+		borrowStart: booking.borrowStart,
+		borrowEnd: booking.borrowEnd,
+		returned: booking.returned
+	}));
+};
 
 export default borrowRouter;

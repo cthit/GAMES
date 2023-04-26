@@ -51,6 +51,19 @@ export const returnGame = async (gameId: string, user: string) => {
 	return borrowStatus;
 };
 
+export const listBorrows = async () => {
+	const borrows = await prisma.borrow.findMany({
+		select: {
+			game: true,
+			user: true,
+			borrowStart: true,
+			borrowEnd: true,
+			returned: true
+		}
+	});
+	return borrows;
+}
+
 
 const controlBorrowStatus = async (gameId: string, user: string) => {
 	const data = await prisma.game.findUnique({
