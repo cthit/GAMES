@@ -199,6 +199,14 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 	if (body.name) {
 		filter.name = { contains: body.name, mode: 'insensitive' }
 	}
+	if (body.releaseAfter)
+		filter.dateReleased = {
+			gte: new Date(body.releaseAfter)
+		};
+	if (body.releaseBefore)
+		filter.dateReleased = {
+			lte: new Date(body.releaseBefore)
+		};
 	if (body.releaseAfter && body.releaseBefore)
 		filter.dateReleased = {
 			lte: new Date(body.releaseBefore),
@@ -211,8 +219,7 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 	if (body.platform)
 		filter.platform = { name: body.platform };
 	if (body.playtime)
-		filter.playtime = body.playtime;
-
+		filter.playtimeMinutes = body.playtime;
 	const games = await filterGames(filter);
 
 	const formattedGames = formatGames(games);

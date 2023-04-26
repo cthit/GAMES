@@ -50,6 +50,7 @@ const GamesList: FC<GamesListProps> = () => {
 		if (playtime) searchFilter.playtime = playtime;
 		if (playerCount) searchFilter.playerCount = playerCount;
 		postData(searchFilter);
+		console.log(releaseBefore);
 	}, 300);
 
 	return (

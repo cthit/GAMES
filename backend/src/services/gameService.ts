@@ -70,8 +70,8 @@ export type Filter = {
 		mode: 'insensitive'
 	},
 	dateReleased?: {
-		lte: Date,
-		gte: Date
+		lte?: Date,
+		gte?: Date
 	},
 	playerMax?: {
 		gte: number
@@ -82,7 +82,7 @@ export type Filter = {
 	platform?: {
 		name: string
 	},
-	playtime?: number
+	playtimeMinutes?: number
 };
 export const filterGames = async (filter: Filter) => {
 	return await prisma.game.findMany({

@@ -3,7 +3,7 @@ import styles from './GameFilter.module.css';
 import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
 import Select from '../Forms/Select/Select';
 import DateInput from '../Forms/DateInput/DateInput';
-import TextInput from '../Forms/TextInput/TextInput';
+import NumberInput from '../Forms/NumberInput/NumberInput';
 
 interface GameFilterProps {
 	setPlatform: (s: string) => void;
@@ -35,7 +35,9 @@ const GameFilter: FC<GameFilterProps> = ({
 	filterFunction
 }: GameFilterProps) => {
 	const { data, error, loading } = useApiGet<Platform[]>('/platforms');
-
+	const nums = '0123456789';
+	const dateReg =
+		/^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$/;
 	if (loading) {
 		filterFunction();
 		return <p>Loading...</p>;
@@ -62,7 +64,11 @@ const GameFilter: FC<GameFilterProps> = ({
 				onChange={(input) =>
 					setReleaseBefore(new Date(input.currentTarget.value))
 				}
-				value={releaseBefore?.toISOString().split('T')[0] || ''}
+				value={
+					dateReg.test(releaseBefore + '')
+						? releaseBefore?.toISOString().split('T')[0]
+						: undefined
+				}
 			/>
 			<br />
 
@@ -71,26 +77,38 @@ const GameFilter: FC<GameFilterProps> = ({
 				onChange={(input) =>
 					setReleaseAfter(new Date(input.currentTarget.value))
 				}
-				value={releaseAfter?.toISOString().split('T')[0] || ''}
+				value={
+					dateReg.test(releaseAfter + '')
+						? releaseAfter?.toISOString().split('T')[0]
+						: undefined
+				}
 			/>
 			<br />
 
-			<TextInput
+			<NumberInput
 				label="Playtime"
 				type="number"
-				onChange={(input) =>
-					setPlaytime(Number.parseInt(input.currentTarget.value))
-				}
+				onChange={(input) => {
+					let newTime = '';
+					for (const element of input.currentTarget.value) {
+						newTime += nums.includes(element) ? element : '';
+					}
+					setPlaytime(Number.parseInt(newTime));
+				}}
 				value={playtime?.toString() || ''}
 			/>
 			<br />
 
-			<TextInput
+			<NumberInput
 				label="Player count"
 				type="number"
-				onChange={(input) =>
-					setPlayerCount(Number.parseInt(input.currentTarget.value))
-				}
+				onChange={(input) => {
+					let newCount = '';
+					for (const element of input.currentTarget.value) {
+						newCount += nums.includes(element) ? element : '';
+					}
+					setPlayerCount(Number.parseInt(newCount));
+				}}
 				value={playerCount?.toString() || ''}
 			/>
 			<br />
