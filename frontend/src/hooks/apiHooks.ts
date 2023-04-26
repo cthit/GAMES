@@ -43,6 +43,7 @@ export const useApiPost = <T>(apiPath: string) => {
 	const postData = async (body: any) => {
 		setLoading(true);
 		setError(null);
+		setSuccess(false);
 		try {
 			const response = await fetch('/api/v1' + apiPath, {
 				method: 'POST',
