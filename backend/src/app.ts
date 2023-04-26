@@ -5,6 +5,7 @@ import borrowRouter from './routers/borrowRouter.js';
 
 import gameRouter from './routers/gameRouter.js';
 import platformRouter from './routers/platformRouter.js';
+import suggestRouter from './routers/suggestRouter.js';
 
 config(); // Load .env file
 
@@ -62,6 +63,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/games', gameRouter);
 app.use('/api/v1/platforms', platformRouter);
 app.use('/api/v1/borrow', borrowRouter);
+app.use('/api/v1/suggest', suggestRouter);
 
 app.listen(8080, () => {
 	console.log('Server is running on port 8080');
