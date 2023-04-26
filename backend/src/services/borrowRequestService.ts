@@ -1,6 +1,6 @@
 import { prisma } from '../prisma.js';
 import { BorrowRequestStatus } from '@prisma/client';
-import { BorrowStatus, borrowGame } from './borrowService.js';
+import { BorrowStatus } from './borrowService.js';
 
 export enum BorrowRequestState {
     Pending,
@@ -58,9 +58,6 @@ export const respondBorrowRequest = async (
             }
         })
         if (borrowRequest === null) return BorrowRequestState.NotValid;
-        if (approved) {
-            await borrowGame(gameId, borrowRequest.user, borrowStart, borrowEnd);
-        }
     }
     return borrowRequestStatus;
 }
