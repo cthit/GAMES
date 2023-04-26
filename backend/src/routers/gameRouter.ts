@@ -3,7 +3,9 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
 import {
+	Filter,
 	createGame,
+	filterGames,
 	getAllGames,
 	searchGames
 } from '../services/gameService.js';
@@ -150,6 +152,80 @@ gameRouter.post(
 		res.status(200).json({ message: 'Game added' });
 	}
 );
+
+const filterGamesSchema = z.object({
+	name: z.string().min(1).max(500).optional(),
+	platform: z.string().min(1).optional(),
+	releaseBefore: z.string().datetime().optional(), // ISO date string
+	releaseAfter: z.string().datetime().optional(), // ISO date string
+	playtime: z.number().int().min(1).optional(),
+	playerCount: z.number().int().min(1).max(2000).optional()
+});
+
+/**
+ * @api {post} /api/v1/games/filter Filter which games to show
+ * @apiName Filter
+ * @apiGroup Games
+ * @apiDescription Filters the games returned
+ *
+ * @apiBody {String} name Name of the game (Optional)
+ * @apiBody {String} description Description of the game (Optional)
+ * @apiBody {String} platform Platform the game is played on (Optional)
+ * @apiBody {String} releaseBefore Filters to games released before a specific date (Optional)
+ * @apiBody {String} releaseAfter Filters to games released after a specific date (Optional)
+ * @apiBody {Number} playtime Playtime of the game (Optional)
+ * @apiBody {Number} playerCount amount of players for the game (Optional)
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *  [
+ *   {
+ *    "id": "clgkri8kk0000przwvkvbyj95",
+ *    "name": "Game 1",
+ *    "description": "Game 1 description",
+ * 	"platformName": "Steam",
+ *	   "releaseDate": "2023-04-13",
+ *	   "playtimeMinutes": "60"
+ *   }
+ * ]
+ *
+ * @apiUse ZodError
+ */
+gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
+	const body = req.body;
+	const filter: Filter = {};
+	if (body.name) {
+		filter.name = { contains: body.name, mode: 'insensitive' }
+	}
+	if (body.releaseAfter)
+		filter.dateReleased = {
+			gte: new Date(body.releaseAfter)
+		};
+	if (body.releaseBefore)
+		filter.dateReleased = {
+			lte: new Date(body.releaseBefore)
+		};
+	if (body.releaseAfter && body.releaseBefore)
+		filter.dateReleased = {
+			lte: new Date(body.releaseBefore),
+			gte: new Date(body.releaseAfter)
+		};
+	if (body.playerCount) {
+		filter.playerMax = { gte: body.playerCount };
+		filter.playerMin = { lte: body.playerCount };
+	}
+	if (body.platform)
+		filter.platform = { name: body.platform };
+	if (body.playtime)
+		filter.playtimeMinutes = body.playtime;
+	const games = await filterGames(filter);
+
+	const formattedGames = formatGames(games);
+	res.status(200).json(formattedGames);
+});
+
 
 const formatGames = (games: any[]) => {
 	return games.map((game) => ({
