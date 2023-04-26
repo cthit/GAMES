@@ -10,7 +10,7 @@ export const useApiGet = <T>(apiPath: string) => {
 			setLoading(true);
 			setError(null);
 			try {
-				const response = await fetch('http://localhost:8080/api/v1' + apiPath);
+				const response = await fetch('/api/v1' + apiPath);
 
 				if (!response.ok) {
 					throw new Error(
@@ -36,15 +36,17 @@ export const useApiGet = <T>(apiPath: string) => {
 };
 
 export const useApiPost = <T>(apiPath: string) => {
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
 	const [data, setData] = useState<T | null>(null);
+	const [success, setSuccess] = useState(false);
 
 	const postData = async (body: any) => {
 		setLoading(true);
 		setError(null);
+		setSuccess(false);
 		try {
-			const response = await fetch('http://localhost:8080/api/v1' + apiPath, {
+			const response = await fetch('/api/v1' + apiPath, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -60,6 +62,8 @@ export const useApiPost = <T>(apiPath: string) => {
 			}
 			const data = await response.json();
 			setData(data);
+			setSuccess(true);
+      
 		} catch (error: any) {
 			setError(error.message);
 		} finally {
@@ -67,5 +71,5 @@ export const useApiPost = <T>(apiPath: string) => {
 		}
 	};
 
-	return { loading, error, postData, data };
+	return { success, loading, error, postData, data };
 };
