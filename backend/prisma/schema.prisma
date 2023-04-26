@@ -32,6 +32,14 @@ model Platform {
     @@map("platforms")
 }
 
+
+model User {
+    id              String   @id @default(cuid())
+    cid             String   @unique
+
+    @@map("users")
+}
+
 model Borrow {
     game Game @relation(fields: [gameId], references: [id])
     id              String   @id @default(cuid())
@@ -41,6 +49,7 @@ model Borrow {
     borrowEnd       DateTime
     returned        Boolean  @default(false)
     @@map("borrows")
+
 }
 
 model Suggest {
