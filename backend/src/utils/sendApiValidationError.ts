@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { z } from 'zod';
 import { sendErrors } from 'zod-express-middleware';
 
-interface ErrorProperty {
+export interface ErrorProperty {
 	path: string;
 	message: string;
 }

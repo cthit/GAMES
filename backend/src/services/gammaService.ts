@@ -1,11 +1,15 @@
 import axios from 'axios';
-import { GammaUser } from '../models/gammaModels';
+import { GammaUser, GammaSuperGroup } from '../models/gammaModels';
 
 const apiKey = process.env.GAMMA_API_KEY;
 const gammaUrl = process.env.GAMMA_ROOT_URL?.replace(/\/$/, '');
 
 export const getGammaUser = async (cid: string) => {
 	return gammaGetRequest<GammaUser>(`/users/${cid}`);
+};
+
+export const getGammaSuperGroups = async () => {
+	return gammaGetRequest<GammaSuperGroup[]>('/superGroups');
 };
 
 const gammaGetRequest = async <T>(path: string): Promise<T> => {

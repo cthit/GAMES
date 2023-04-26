@@ -19,7 +19,7 @@ export const createAccount = async (cid: string) => {
 	return true;
 };
 
-export const getAccount = async (cid: string) => {
+export const getAccountFromCid = async (cid: string) => {
 	return await prisma.user.findUnique({
 		where: {
 			cid: cid
@@ -27,8 +27,16 @@ export const getAccount = async (cid: string) => {
 	});
 };
 
+export const getAccountFromId = async (id: string) => {
+	return await prisma.user.findUnique({
+		where: {
+			id: id
+		}
+	});
+};
+
 export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
-	const account = await getAccount(user.cid);
+	const account = await getAccountFromCid(user.cid);
 
 	if (!account) return; //TODO: Handle this error
 
@@ -40,7 +48,16 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 
 	const orgsToAddUserAsMember = await prisma.organization.findMany({
 		where: {
-			AND: [{ OR: superGroupQueries }, { members: { none: account } }]
+			AND: [
+				{ OR: superGroupQueries },
+				{
+					members: {
+						none: {
+							userId: account.id
+						}
+					}
+				}
+			]
 		},
 		select: {
 			id: true
@@ -48,16 +65,11 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 	});
 
 	for (const org of orgsToAddUserAsMember) {
-		await prisma.organization.update({
-			where: {
-				id: org.id
-			},
+		await prisma.organizationMember.create({
 			data: {
-				members: {
-					connect: {
-						id: account.id
-					}
-				}
+				userId: account.id,
+				organizationId: org.id,
+				addedFromGamma: true
 			}
 		});
 	}
@@ -67,22 +79,23 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 			AND: [
 				{ OR: superGroupQueries },
 				{ addGammaAsOrgAdmin: true },
-				{ admins: { none: account } }
+				{
+					admins: {
+						none: {
+							userId: account.id
+						}
+					}
+				}
 			]
 		}
 	});
 
 	for (const org of orgsToAddUserAsAdmin) {
-		await prisma.organization.update({
-			where: {
-				id: org.id
-			},
+		await prisma.organizationMember.create({
 			data: {
-				admins: {
-					connect: {
-						id: account.id
-					}
-				}
+				userId: account.id,
+				organizationId: org.id,
+				addedFromGamma: true
 			}
 		});
 	}
