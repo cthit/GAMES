@@ -216,8 +216,6 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 	const games = await filterGames(filter);
 
 	const formattedGames = formatGames(games);
-	console.log(formattedGames);
-	console.log("Filtering");
 	res.status(200).json(formattedGames);
 });
 
