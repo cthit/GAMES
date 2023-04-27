@@ -62,8 +62,6 @@ class Strategy extends passport.Strategy {
 		this._authorization =
 			'Basic ' +
 			Base64.encode(this.options.clientID + ':' + this.options.clientSecret);
-		console.log(this._authorization);
-		console.log(this.options);
 	}
 
 	/**
