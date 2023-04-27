@@ -19,16 +19,16 @@ model Game {
     playerMin       Int
     playerMax       Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
-   
-    borrow Borrow[]
+
+    borrow  Borrow[]
     request BorrowRequest[]
 
     @@map("games")
 }
 
 model Platform {
-    name String @id
-    game Game[]
+    name    String    @id
+    game    Game[]
     suggest Suggest[]
 
     @@map("platforms")
@@ -39,34 +39,20 @@ model User {
     cid String @unique
 
     organizationsMember OrganizationMember[]
-    organizationsAdmin  OrganizationAdmin[]
-
 
     @@map("users")
 }
 
 model OrganizationMember {
-    organization      Organization       @relation(fields: [organizationId], references: [id])
-    organizationId    String
-    user              User               @relation(fields: [userId], references: [id])
-    userId            String
-    addedFromGamma    Boolean            @default(false)
-    organizationAdmin OrganizationAdmin?
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    organizationId String
+    user           User         @relation(fields: [userId], references: [id])
+    userId         String
+    addedFromGamma Boolean      @default(false)
+    isAdmin        Boolean      @default(false)
 
     @@id([organizationId, userId])
     @@map("organization_members")
-}
-
-model OrganizationAdmin {
-    organization       Organization       @relation(fields: [organizationId], references: [id])
-    organizationId     String
-    user               User               @relation(fields: [userId], references: [id])
-    userId             String
-    addedFromGamma     Boolean            @default(false)
-    organizationMember OrganizationMember @relation(fields: [organizationId, userId], references: [organizationId, userId])
-
-    @@id([organizationId, userId])
-    @@map("organization_admins")
 }
 
 model Organization {
@@ -77,7 +63,6 @@ model Organization {
     name String
 
     members OrganizationMember[]
-    admins  OrganizationAdmin[]
 
     @@map("organizations")
 }
@@ -92,7 +77,6 @@ model Borrow {
     returned    Boolean  @default(false)
 
     @@map("borrows")
-
 }
 
 enum BorrowRequestStatus {
@@ -102,25 +86,26 @@ enum BorrowRequestStatus {
 }
 
 model BorrowRequest {
-    game            Game                @relation(fields: [gameId], references: [id])
-    gameId          String
-    user            String
-    borrowStart     DateTime
-    borrowEnd       DateTime
-    status          BorrowRequestStatus @default(PENDING)
+    game        Game                @relation(fields: [gameId], references: [id])
+    gameId      String
+    user        String
+    borrowStart DateTime
+    borrowEnd   DateTime
+    status      BorrowRequestStatus @default(PENDING)
 
     @@id([gameId, borrowStart, borrowEnd])
     @@map("borrow_requests")
 }
 
 model Suggest {
-    name String @id
-    description String
+    name            String   @id
+    description     String
     platform        Platform @relation(fields: [platformName], references: [name])
-    platformName    String 
+    platformName    String
     dateReleased    DateTime
     playtimeMinutes Int // Stored in minutes @map("playtime")
-    playerMin    Int
-    playerMax    Int
+    playerMin       Int
+    playerMax       Int
+
     @@map("suggests")
 }

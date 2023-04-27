@@ -16,8 +16,7 @@ export const getOrganization = async (id: string) => {
 		},
 		select: {
 			id: true,
-			members: true,
-			admins: true
+			members: true
 		}
 	});
 };
@@ -92,10 +91,15 @@ export const addOrganizationAdmin = async (
 	orgId: string,
 	accountId: string
 ) => {
-	await prisma.organizationAdmin.create({
+	await prisma.organizationMember.update({
+		where: {
+			organizationId_userId: {
+				organizationId: orgId,
+				userId: accountId
+			}
+		},
 		data: {
-			organizationId: orgId,
-			userId: accountId
+			isAdmin: true
 		}
 	});
 };
@@ -104,12 +108,15 @@ export const removeOrganizationAdmin = async (
 	orgId: string,
 	accountId: string
 ) => {
-	await prisma.organizationAdmin.delete({
+	await prisma.organizationMember.update({
 		where: {
 			organizationId_userId: {
 				organizationId: orgId,
 				userId: accountId
 			}
+		},
+		data: {
+			isAdmin: true
 		}
 	});
 };

@@ -80,9 +80,9 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 				{ OR: superGroupQueries },
 				{ addGammaAsOrgAdmin: true },
 				{
-					admins: {
+					members: {
 						none: {
-							userId: account.id
+							isAdmin: true
 						}
 					}
 				}
