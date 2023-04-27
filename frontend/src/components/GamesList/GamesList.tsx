@@ -89,6 +89,7 @@ const GamesList: FC<GamesListProps> = () => {
 						{data.map((game: Game) => (
 							<GameCard
 								key={game.id}
+								id={game.id}
 								name={game.name}
 								description={game.description}
 								platform={game.platformName}

@@ -20,6 +20,7 @@ model Game {
     playerMax    Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
     borrow Borrow[]
+    request BorrowRequest[]
 
     @@map("games")
 }
@@ -50,6 +51,24 @@ model Borrow {
     returned        Boolean  @default(false)
     @@map("borrows")
 
+}
+
+enum BorrowRequestStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+model BorrowRequest {
+    game            Game                @relation(fields: [gameId], references: [id])
+    gameId          String
+    user            String
+    borrowStart     DateTime
+    borrowEnd       DateTime
+    status          BorrowRequestStatus @default(PENDING)
+
+    @@id([gameId, borrowStart, borrowEnd])
+    @@map("borrow_requests")
 }
 
 model Suggest {
