@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import styles from './GameCard.module.css';
+import RemoveGame from '../RemoveGame/RemoveGame';
 import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface GameCardProps {
@@ -42,6 +43,7 @@ const GameCard: FC<GameCardProps> = ({
 				<input type="hidden" id="game" name="game" value={id} />
 				<input type="submit" value="Borrow Game" />
 			</form>
+			<RemoveGame id={id} />
 		</li>
 	);
 };

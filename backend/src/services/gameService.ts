@@ -100,3 +100,12 @@ export const filterGames = async (filter: Filter) => {
 		where: filter
 	});
 };
+
+
+export const removeGame = async (gameID : string) => {
+	return await prisma.game.delete({
+		where: {
+			id : gameID,
+		}
+	});
+};

@@ -7,7 +7,8 @@ import {
 	createGame,
 	filterGames,
 	getAllGames,
-	searchGames
+	searchGames,
+	removeGame
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
@@ -225,6 +226,34 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 	const formattedGames = formatGames(games);
 	res.status(200).json(formattedGames);
 });
+
+
+
+/**
+ * @api {post} /api/v1/games/remove Remove a game 
+ * @apiName Remove
+ * @apiGroup Games
+ * @apiDescription Remove a game
+ *
+ * @apiBody {String} id 
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *  [
+ *   {
+ *    "id": "clgkri8kk0000przwvkvbyj95",
+ *   }
+ * ]
+ *
+ * @apiUse ZodError
+ */
+gameRouter.post('/remove', async (req, res) => {
+	const removedGame = await removeGame(req.body.id);
+	res.status(200).json({ message: 'Game removed' });
+})
+
 
 
 const formatGames = (games: any[]) => {
