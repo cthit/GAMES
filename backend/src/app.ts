@@ -1,11 +1,10 @@
 import cors from 'cors';
 import { config } from 'dotenv';
 import express from 'express';
-import borrowRouter from './routers/borrowRouter.js';
-import borrowRequestRouter from './routers/borrowRequestRouter.js';
 
 import authRouter from './routers/authenticationRouter.js';
 import borrowRouter from './routers/borrowRouter.js';
+import borrowRequestRouter from './routers/borrowRequestRouter.js';
 import gameRouter from './routers/gameRouter.js';
 import platformRouter from './routers/platformRouter.js';
 import initializePassport from './passport.js';
