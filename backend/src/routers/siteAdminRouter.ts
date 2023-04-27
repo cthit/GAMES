@@ -25,18 +25,82 @@ const siteAdminRouter = Router();
 siteAdminRouter.use(isAuthenticated);
 siteAdminRouter.use(isSiteAdmin);
 
+/**
+ * @api {get} /api/v1/admin/gamma/supergroups Get gamma supergroups
+ * @apiPermission siteAdmin
+ * @apiName GetSuperGroups
+ * @apiGroup SiteAdmin
+ * @apiDescription Requests all supergroups from Gamma API
+ *
+ * @apiSuccess {Object[]} supergproups List of supergroups
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *	[
+ *	    {
+ *	        "id": "ef9375b7-2195-43e0-8047-da508613b794",
+ *	        "name": "superadmin",
+ *	        "prettyName": "super admin",
+ *	        "type": "COMMITTEE",
+ *	        "email": "admin@chalmers.it"
+ *	    }
+ *	]
+ */
 siteAdminRouter.get('/gamma/supergroups', async (req, res) => {
 	res.status(200).json(await getGammaSuperGroups());
 });
 
+/**
+ * @api {get} /api/v1/admin/orgs Get all organizations
+ * @apiPermission siteAdmin
+ * @apiName GetOrganizations
+ * @apiGroup SiteAdmin
+ * @apiDescription Returns all organizations
+ *
+ * @apiSuccess {Object[]} organizations List of organizations
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *	[
+ *	    {
+ *	        "id": "clgzcwryp0000lpr082ontt9u",
+ *	        "name": "Test org"
+ *	    }
+ *	]
+ */
 siteAdminRouter.get('/orgs', async (req, res) => {
 	const orgs = await getOrganizationsIdsAndNames();
 
 	res.status(200).json(orgs);
 });
 
+/**
+ * @api {get} /api/v1/admin/orgs/:id Get organization
+ * @apiParam {String} id Organization id
+ * @apiPermission siteAdmin
+ * @apiName GetOrganization
+ * @apiGroup SiteAdmin
+ * @apiDescription Returns the organization with the specified id
+ *
+ * @apiError (404) OrganizationNotFound Organization with specified id does not exist
+ *
+ * @apiSuccess {Object} organization Organization
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *	{
+ *	    "id": "clgzcwryp0000lpr082ontt9u",
+ *	    "name": "Test org"
+ *	}
+ */
 siteAdminRouter.get('/orgs/:id', async (req, res) => {
 	const org = await getOrganization(req.params.id);
+
+	if (!org) {
+		return res.status(404).json({
+			message: `Organization with id ${req.params.id} does not exist`
+		});
+	}
 
 	res.status(200).json(org);
 });
@@ -47,6 +111,29 @@ const addOrganizationSchema = z.object({
 	addGammaAsOrgAdmin: z.boolean()
 });
 
+/**
+ * @api {post} /api/v1/admin/orgs Get all organizations
+ * @apiPermission siteAdmin
+ * @apiName GetOrganizations
+ * @apiGroup SiteAdmin
+ * @apiDescription Returns all organizations
+ *
+ * @apiBody {String} name The name of the organization
+ * @apiBody {String[]} gammaSuperGroups The gamma super groups to link to the organization
+ * @apiBody {Number} addGammaAsOrgAdmin Whether to add the gamma super groups members as organization admins
+ *
+ * @apiSuccess {String} message The organization was added
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *      "message": "Organization added"
+ *  }
+ *
+ * @apiUse ZodError
+ *
+ */
 siteAdminRouter.post(
 	'/orgs/add',
 	validateRequestBody(addOrganizationSchema),
@@ -75,6 +162,8 @@ siteAdminRouter.post(
 			req.body.gammaSuperGroups,
 			req.body.addGammaAsOrgAdmin
 		);
+
+		res.status(200).json({ message: 'Organization added' });
 	}
 );
 
