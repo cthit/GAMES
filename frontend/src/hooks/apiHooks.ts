@@ -60,7 +60,6 @@ export const useApiPost = <T>(apiPath: string) => {
 					'Error fetching data from server with status code: ' + response.status
 				);
 			}
-
 			const data = await response.json();
 			setData(data);
 			setSuccess(true);
