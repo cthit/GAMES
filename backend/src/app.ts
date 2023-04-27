@@ -9,7 +9,6 @@ import platformRouter from './routers/platformRouter.js';
 import initializePassport from './passport.js';
 import siteAdminRouter from './routers/siteAdminRouter.js';
 import borrowRequestRouter from './routers/borrowRequestRouter.js';
-import platformRouter from './routers/platformRouter.js';
 import suggestRouter from './routers/suggestRouter.js';
 
 config(); // Load .env file
