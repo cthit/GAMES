@@ -1,0 +1,8 @@
+.bookingsList {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 1rem;
+	list-style-type: none;
+	width: 100%;
+}

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { BorrowStatus, borrowGame, returnGame } from '../services/borrowService.js';
+import { BorrowStatus, borrowGame, returnGame, listBorrows } from '../services/borrowService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const borrowRouter = Router();
@@ -102,5 +102,43 @@ borrowRouter.post(
 		res.status(200).json({ message: 'Game successfully returned' });
 	}
 );
+
+/**
+ * @api {get} /api/v1/borrow/list List all booked borrows
+ * @apiName ListBookedBorrows
+ * @apiGroup Borrowing
+ * @apiDescription Gets a list of all borrows that are currently booked
+ *
+ * @apiSuccess {Object[]} bookings List of bookings
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * [
+ *   {
+ *     "name":"Sons of The Forest",
+ *     "user":"User",
+ *     "borrowStart":"2023-04-24T14:51:43.583Z",
+ *     "borrowEnd":"2023-04-25T14:51:43.583Z",
+ *     "returned":false
+ *   }
+ * ]
+ *
+ * @apiUse ZodError
+ */
+borrowRouter.get('/list', async (_, res) => {
+	const borrows = await listBorrows();
+	res.status(200).json(formatBookings(borrows));
+});
+
+const formatBookings = (bookings: any[]) => {
+	return bookings.map((booking) => ({
+		id: booking.id,
+		gameName: booking.game["name"],
+		user: booking.user,
+		borrowStart: booking.borrowStart,
+		borrowEnd: booking.borrowEnd,
+		returned: booking.returned
+	}));
+};
 
 export default borrowRouter;
