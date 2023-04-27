@@ -84,25 +84,26 @@ const GamesList: FC<GamesListProps> = () => {
 					<p>No games matching your search</p>
 				) : null}
 
-			{data ? (
-				<ul className={styles.gamesList}>
-					{data.map((game) => (
-						<GameCard
-							key={game.id}
-							id={game.id}
-							name={game.name}
-							description={game.description}
-							platform={game.platformName}
-							playtimeMinutes={game.playtimeMinutes}
-							releaseDate={game.releaseDate}
-							isBorrowed={game.isBorrowed}
-							playerMin={game.playerMin}
-							playerMax={game.playerMax}
-						/>
-					))}
-				</ul>
-			) : null}
-		</div>
+				{data ? (
+					<ul className={styles.gamesList}>
+						{data.map((game: Game) => (
+							<GameCard
+								key={game.id}
+								id={game.id}
+								name={game.name}
+								description={game.description}
+								platform={game.platformName}
+								playtimeMinutes={game.playtimeMinutes}
+								releaseDate={game.releaseDate}
+								isBorrowed={game.isBorrowed}
+								playerMin={game.playerMin}
+								playerMax={game.playerMax}
+							/>
+						))}
+					</ul>
+				) : null}
+			</div>
+		</>
 	);
 };
 
