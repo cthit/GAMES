@@ -1,9 +1,13 @@
 import { FC } from 'react';
 import styles from './Header.module.css';
+import LoginStatus from '@/src/components/LoginStatus/LoginStatus';
 
 interface HeaderProps {}
 
 const Header: FC<HeaderProps> = () => {
+
+
+
 	return (
 		<header className={styles.header}>
 			<h1>Extremely Ugly GAMES Header</h1>
@@ -20,6 +24,9 @@ const Header: FC<HeaderProps> = () => {
 				<a style={{ marginLeft: '5px' }} href="/suggestion">
 					Suggestions
 				</a>
+        
+        <LoginStatus />
+
 			</nav>
 		</header>
 	);

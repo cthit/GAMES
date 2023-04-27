@@ -20,7 +20,6 @@ export const Home = () => {
 			</Head>
 			<Header />
 			<main className={styles.mainContainer}>
-				<div className={styles.filterBox}>Temp filter box</div>
 				<GamesList />
 			</main>
 		</>

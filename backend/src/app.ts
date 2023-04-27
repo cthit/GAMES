@@ -4,13 +4,19 @@ import express from 'express';
 import borrowRouter from './routers/borrowRouter.js';
 import borrowRequestRouter from './routers/borrowRequestRouter.js';
 
+import authRouter from './routers/authenticationRouter.js';
+import borrowRouter from './routers/borrowRouter.js';
 import gameRouter from './routers/gameRouter.js';
 import platformRouter from './routers/platformRouter.js';
+import initializePassport from './passport.js';
 import suggestRouter from './routers/suggestRouter.js';
 
 config(); // Load .env file
 
 const app = express();
+
+await initializePassport(app);
+
 app.use(express.json());
 
 console.log('NODE_ENV: ', process.env.NODE_ENV);
@@ -61,6 +67,7 @@ app.get('/', (req, res) => {
 	res.status(200).json({ message: 'Hello World' });
 });
 
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/games', gameRouter);
 app.use('/api/v1/platforms', platformRouter);
 app.use('/api/v1/borrow', borrowRouter);
