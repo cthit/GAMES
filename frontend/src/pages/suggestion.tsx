@@ -1,8 +1,8 @@
 import { Inter } from 'next/font/google';
 import Head from 'next/head';
-import GamesList from '../components/GamesList/GamesList';
+import SuggestionsList from '../components/SuggestionsList/SuggestionsList';
 import Header from '../components/Header/Header';
-import styles from './index.module.css';
+import styles from './suggestion.module.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -10,7 +10,7 @@ export const Home = () => {
 	return (
 		<>
 			<Head>
-				<title>GAMES</title>
+				<title>SUGGESTIONS</title>
 				<meta
 					name="description"
 					content="A service for finding and browsing games in different mediums and formats."
@@ -20,7 +20,7 @@ export const Home = () => {
 			</Head>
 			<Header />
 			<main className={styles.mainContainer}>
-				<GamesList />
+				<SuggestionsList />
 			</main>
 		</>
 	);

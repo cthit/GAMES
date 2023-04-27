@@ -81,10 +81,12 @@ authRouter.post('/logout', (req: express.Request, res: express.Response) => {
 		// TODO: Better error handling
 		if (err) {
 			console.log(err);
+
 			res.status(500).json({ message: 'Error logging out' });
 			return;
 		}
 		res.status(200).json({ message: 'Logged out' });
+
 		res.status(200);
 	});
 });

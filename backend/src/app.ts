@@ -8,10 +8,17 @@ import gameRouter from './routers/gameRouter.js';
 import platformRouter from './routers/platformRouter.js';
 import initializePassport from './passport.js';
 import siteAdminRouter from './routers/siteAdminRouter.js';
+import borrowRequestRouter from './routers/borrowRequestRouter.js';
+import platformRouter from './routers/platformRouter.js';
+import suggestRouter from './routers/suggestRouter.js';
 
 config(); // Load .env file
 
 const app = express();
+
+await initializePassport(app);
+
+app.use(express.json());
 
 await initializePassport(app);
 
@@ -27,6 +34,8 @@ app.use('/api/v1/games', gameRouter);
 app.use('/api/v1/platforms', platformRouter);
 app.use('/api/v1/borrow', borrowRouter);
 app.use('/api/v1/admin', siteAdminRouter);
+app.use('/api/v1/borrow/request', borrowRequestRouter);
+app.use('/api/v1/suggest', suggestRouter);
 
 app.listen(8080, () => {
 	console.log('Server is running on port 8080');

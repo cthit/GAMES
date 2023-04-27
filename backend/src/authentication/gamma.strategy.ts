@@ -65,6 +65,7 @@ export const init = (pass: passport.PassportStatic) => {
 	});
 
 	passport.serializeUser((user: Express.User, cb) => {
+
 		cb(null, user);
 	});
 };

@@ -1,16 +1,16 @@
 import { Inter } from 'next/font/google';
 import Head from 'next/head';
-import GamesList from '../components/GamesList/GamesList';
+import BookingsList from '../components/BookingsList/BookingsList';
 import Header from '../components/Header/Header';
 import styles from './index.module.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const Home = () => {
+export const Bookings = () => {
 	return (
 		<>
 			<Head>
-				<title>GAMES</title>
+				<title>GAMES | Bookings</title>
 				<meta
 					name="description"
 					content="A service for finding and browsing games in different mediums and formats."
@@ -20,10 +20,10 @@ export const Home = () => {
 			</Head>
 			<Header />
 			<main className={styles.mainContainer}>
-				<GamesList />
+				<BookingsList />
 			</main>
 		</>
 	);
 };
 
-export default Home;
+export default Bookings;
