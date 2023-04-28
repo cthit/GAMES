@@ -16,41 +16,67 @@ model Game {
     dateReleased    DateTime
     //dateAdded DateTime
     //canBorrow Boolean
-    playerMin    Int
-    playerMax    Int
+    playerMin       Int
+    playerMax       Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
-    borrow Borrow[]
+
+    borrow  Borrow[]
     request BorrowRequest[]
 
     @@map("games")
 }
 
 model Platform {
-    name String @id
-    game Game[]
+    name    String    @id
+    game    Game[]
     suggest Suggest[]
 
     @@map("platforms")
 }
 
-
 model User {
-    id              String   @id @default(cuid())
-    cid             String   @unique
+    id  String @id @default(cuid())
+    cid String @unique
+
+    organizationsMember OrganizationMember[]
 
     @@map("users")
 }
 
-model Borrow {
-    game Game @relation(fields: [gameId], references: [id])
-    id              String   @id @default(cuid())
-    gameId          String
-    user            String
-    borrowStart     DateTime
-    borrowEnd       DateTime
-    returned        Boolean  @default(false)
-    @@map("borrows")
+model OrganizationMember {
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    organizationId String
+    user           User         @relation(fields: [userId], references: [id])
+    userId         String
+    addedFromGamma Boolean      @default(false)
+    isAdmin        Boolean      @default(false)
 
+    @@id([organizationId, userId])
+    @@map("organization_members")
+}
+
+model Organization {
+    id                 String   @id @default(cuid())
+    gammaSuperNames    String[]
+    addGammaAsOrgAdmin Boolean  @default(false)
+
+    name String
+
+    members OrganizationMember[]
+
+    @@map("organizations")
+}
+
+model Borrow {
+    game        Game     @relation(fields: [gameId], references: [id])
+    id          String   @id @default(cuid())
+    gameId      String
+    user        String
+    borrowStart DateTime
+    borrowEnd   DateTime
+    returned    Boolean  @default(false)
+
+    @@map("borrows")
 }
 
 enum BorrowRequestStatus {
@@ -60,25 +86,26 @@ enum BorrowRequestStatus {
 }
 
 model BorrowRequest {
-    game            Game                @relation(fields: [gameId], references: [id])
-    gameId          String
-    user            String
-    borrowStart     DateTime
-    borrowEnd       DateTime
-    status          BorrowRequestStatus @default(PENDING)
+    game        Game                @relation(fields: [gameId], references: [id])
+    gameId      String
+    user        String
+    borrowStart DateTime
+    borrowEnd   DateTime
+    status      BorrowRequestStatus @default(PENDING)
 
     @@id([gameId, borrowStart, borrowEnd])
     @@map("borrow_requests")
 }
 
 model Suggest {
-    name String @id
-    description String
+    name            String   @id
+    description     String
     platform        Platform @relation(fields: [platformName], references: [name])
-    platformName    String 
+    platformName    String
     dateReleased    DateTime
     playtimeMinutes Int // Stored in minutes @map("playtime")
-    playerMin    Int
-    playerMax    Int
+    playerMin       Int
+    playerMax       Int
+
     @@map("suggests")
 }

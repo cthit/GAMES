@@ -4,10 +4,11 @@ import express from 'express';
 
 import authRouter from './routers/authenticationRouter.js';
 import borrowRouter from './routers/borrowRouter.js';
-import borrowRequestRouter from './routers/borrowRequestRouter.js';
 import gameRouter from './routers/gameRouter.js';
 import platformRouter from './routers/platformRouter.js';
 import initializePassport from './passport.js';
+import siteAdminRouter from './routers/siteAdminRouter.js';
+import borrowRequestRouter from './routers/borrowRequestRouter.js';
 import suggestRouter from './routers/suggestRouter.js';
 
 config(); // Load .env file
@@ -18,58 +19,20 @@ await initializePassport(app);
 
 app.use(express.json());
 
-console.log('NODE_ENV: ', process.env.NODE_ENV);
+await initializePassport(app);
+
+app.use(express.json());
 
 if (process.env.NODE_ENV === 'development') {
+	console.log('CORS open for all origins (development mode)');
 	app.use(cors());
 }
-
-/**
- * @apiDefine ZodError
- * @apiError InvalidRequest Invalid request body
- * @apiErrorExample {json} Error-Response:
- *  [
- *	 {
- *	  "type": "Body",
- *	   "errors": {
- *		 "issues": [
- *		  {
- *		   "code": "invalid_type",
- *		   "expected": "string",
- *		   "received": "undefined",
- *		   "path": [
- *			"name"
- *		   ],
- *		   "message": "Required"
- *	      }
- *	   	],
- *	   	"name": "ZodError"
- *     }
- *	  }
- *  ]
- */
-
-/**
- * @api {get} / Request Hello World
- * @apiName GetHelloWorld
- * @apiGroup Hello
- *
- * @apiSuccess {String} message Hello World
- *
- * @apiSuccessExample Success-Response:
- *    HTTP/1.1 200 OK
- *   {
- *    "message": "Hello World"
- *  }
- */
-app.get('/', (req, res) => {
-	res.status(200).json({ message: 'Hello World' });
-});
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/games', gameRouter);
 app.use('/api/v1/platforms', platformRouter);
 app.use('/api/v1/borrow', borrowRouter);
+app.use('/api/v1/admin', siteAdminRouter);
 app.use('/api/v1/borrow/request', borrowRequestRouter);
 app.use('/api/v1/suggest', suggestRouter);
 

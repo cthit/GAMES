@@ -2,8 +2,11 @@ import { Router } from 'express';
 import express from 'express';
 import passport from 'passport';
 
-import { GammaUser } from '../models/gammaUser.js';
-import { createAccount } from '../services/accountService.js';
+import { GammaUser } from '../models/gammaModels.js';
+import {
+	createAccount,
+	addUserToGammaConnectedOrgs
+} from '../services/accountService.js';
 
 const authRouter = Router();
 
@@ -44,24 +47,18 @@ authRouter.get(
 	'/callback',
 	passport.authenticate('gamma'),
 	async (req: express.Request, res: express.Response) => {
+		const user = req.user as GammaUser;
+		delete user.accessToken;
 
-		const user: GammaUser = {
-			cid: '',
-			is_admin: false,
-			groups: [],
-			language: 'en',
-			...req.user
-		};
-        delete user.accessToken;
+		if (await createAccount(user.cid)) {
+			console.log('Created account for ' + user.cid);
+		} else {
+			console.log('Account already exists for ' + user.cid);
+		}
 
-        if (await createAccount(user.cid)){
-            console.log("Created account for " + user.cid);
-        }else{
-            console.log("Account already exists for " + user.cid);
-        }
+		await addUserToGammaConnectedOrgs(user);
 
-
-        res.status(200).json(user);
+		res.status(200).json(user);
 	}
 );
 
@@ -84,14 +81,15 @@ authRouter.post('/logout', (req: express.Request, res: express.Response) => {
 		// TODO: Better error handling
 		if (err) {
 			console.log(err);
-			res.status(500).json({ message: 'Error logging out'});
+
+			res.status(500).json({ message: 'Error logging out' });
 			return;
 		}
-		res.status(200).json({ message: 'Logged out'});
+		res.status(200).json({ message: 'Logged out' });
+
 		res.status(200);
 	});
 });
-
 
 /**
  * @api {get} api/v1/auth/user Get user
@@ -120,22 +118,16 @@ authRouter.post('/logout', (req: express.Request, res: express.Response) => {
  * {
  *    "message": "Not logged in"
  * }
- * 
+ *
  */
 authRouter.get('/user', (req: express.Request, res: express.Response) => {
-    if (req.isAuthenticated()) {
-        const user: GammaUser = {
-            cid: '',
-            is_admin: false,
-            groups: [],
-            language: 'en',
-            ...req.user
-        };
-        delete user.accessToken;
-        res.status(200).json(user);
-    } else {
-        res.status(401).json({ message: 'Not logged in'});
-    }
+	if (req.isAuthenticated()) {
+		const user = req.user as GammaUser;
+		delete user.accessToken;
+		res.status(200).json(user);
+	} else {
+		res.status(401).json({ message: 'Not logged in' });
+	}
 });
 
 export default authRouter;

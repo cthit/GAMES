@@ -2,10 +2,35 @@ import { Response } from 'express';
 import { z } from 'zod';
 import { sendErrors } from 'zod-express-middleware';
 
-interface ErrorProperty {
+export interface ErrorProperty {
 	path: string;
 	message: string;
 }
+
+/**
+ * @apiDefine ZodError
+ * @apiError InvalidRequest Invalid request body
+ * @apiErrorExample {json} Error-Response:
+ *  [
+ *	 {
+ *	  "type": "Body",
+ *	   "errors": {
+ *		 "issues": [
+ *		  {
+ *		   "code": "invalid_type",
+ *		   "expected": "string",
+ *		   "received": "undefined",
+ *		   "path": [
+ *			"name"
+ *		   ],
+ *		   "message": "Required"
+ *	      }
+ *	   	],
+ *	   	"name": "ZodError"
+ *     }
+ *	  }
+ *  ]
+ */
 
 const sendApiValidationError = (
 	res: Response,

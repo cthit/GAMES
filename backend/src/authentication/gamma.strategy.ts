@@ -1,6 +1,7 @@
+import { Authority, GammaGroup } from '../models/gammaModels.js';
+import Strategy from './strategy.js';
 import passport from 'passport';
-import { GammaUser } from '../models/gammaUser.js';
-import Strategy, { Authority } from './strategy.js';
+import { GammaUser } from '../models/gammaModels.js';
 
 const default_options = {
 	authorizationURL: 'http://localhost:8081/api/oauth/authorize',
@@ -11,14 +12,19 @@ const default_options = {
 	callbackURL: 'http://localhost:3001/auth/account/callback'
 };
 
-const isAdmin = (authorities: Authority[], groups: String[]): boolean => {
-	if (process.env.MOCK && groups.includes('superadmin')) {
-		return true;
-	}
+const isAdmin = (
+	authorities: Authority[],
+	gammaGroups: GammaGroup[]
+): boolean => {
+	const superGroups = gammaGroups.map((g) => g.superGroup?.name);
+
+	if (process.env.MOCK && superGroups.includes('superadmin')) return true;
+
+	//TODO: Get side admin groups from env?
+	if (superGroups.includes('digit')) return true;
+
 	for (const i in authorities) {
-		if (authorities[i].authority == process.env.ADMIN_AUTHORITY) {
-			return true;
-		}
+		if (authorities[i].authority == process.env.ADMIN_AUTHORITY) return true;
 	}
 
 	return false;
@@ -35,29 +41,31 @@ export const init = (pass: passport.PassportStatic) => {
 			callbackURL: process.env.GAMMA_CALLBACK_URL || ''
 		},
 		(accessToken, profile, cb: (_: any, __: GammaUser, ___: any) => void) => {
-			const groups = profile.groups
-				.filter((g) => g.superGroup.type != 'ALUMNI')
-				.map((g) => g.superGroup.name);
-			groups.push(profile.cid);
+			const groups = profile.groups.filter(
+				(g) => g.superGroup?.type != 'ALUMNI'
+			);
+
 			cb(
 				null,
 				{
-					cid: profile.cid,
-					phone: profile.phone,
-					is_admin: isAdmin(profile.authorities, groups),
-					groups: groups,
-					language: profile.language ?? 'en',
-					accessToken: accessToken
+					...profile,
+					groups,
+					isSiteAdmin: isAdmin(profile.authorities, groups),
+					language: profile.language ?? 'en'
 				},
 				null
 			);
 		}
 	);
+
 	passport.use(strategy);
+
 	passport.deserializeUser(async (user: Express.User, cb) => {
 		return cb(null, user);
 	});
-	passport.serializeUser(function (user: Express.User, cb) {
+
+	passport.serializeUser((user: Express.User, cb) => {
+
 		cb(null, user);
 	});
 };
