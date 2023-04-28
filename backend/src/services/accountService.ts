@@ -14,6 +14,7 @@ export const createAccount = async (cid: string) => {
 			if (e.code === 'P2002') {
 				return false;
 			}
+			throw e;
 		}
 	}
 	return true;
@@ -64,17 +65,19 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 		}
 	});
 
-	for (const org of orgsToAddUserAsMember) {
-		await prisma.organizationMember.create({
-			data: {
-				userId: account.id,
-				organizationId: org.id,
-				addedFromGamma: true
-			}
-		});
-	}
+	await Promise.all(
+		orgsToAddUserAsMember.map(async (org) => {
+			prisma.organizationMember.create({
+				data: {
+					userId: account.id,
+					organizationId: org.id,
+					addedFromGamma: true
+				}
+			});
+		})
+	);
 
-	const orgsToAddUserAsAdmin = await prisma.organization.findMany({
+	const orgsToSetUserAsAdmin = await prisma.organization.findMany({
 		where: {
 			AND: [
 				{ OR: superGroupQueries },
@@ -90,13 +93,19 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 		}
 	});
 
-	for (const org of orgsToAddUserAsAdmin) {
-		await prisma.organizationMember.create({
-			data: {
-				userId: account.id,
-				organizationId: org.id,
-				addedFromGamma: true
-			}
-		});
-	}
+	await Promise.all(
+		orgsToSetUserAsAdmin.map(async (org) => {
+			prisma.organizationMember.update({
+				where: {
+					organizationId_userId: {
+						organizationId: org.id,
+						userId: account.id
+					}
+				},
+				data: {
+					isAdmin: true
+				}
+			});
+		})
+	);
 };
