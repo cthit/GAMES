@@ -230,12 +230,12 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 
 
 /**
- * @api {post} /api/v1/games/remove Remove a game 
+ * @api {post} /api/v1/games/remove Remove a game
  * @apiName Remove
  * @apiGroup Games
  * @apiDescription Remove a game
  *
- * @apiBody {String} id 
+ * @apiBody {String} id
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -250,8 +250,16 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
  * @apiUse ZodError
  */
 gameRouter.post('/remove', async (req, res) => {
-	const removedGame = await removeGame(req.body.id);
-	res.status(200).json({ message: 'Game removed' });
+	try {
+		await removeGame(req.body.id);
+		res.status(200).json({ message: 'Game removed' });
+	}
+	catch (e) {
+		if (e instanceof Error)
+			res.status(400).json({ message: e.message });
+		else
+			res.status(400).json({ message: 'Error removing game' });
+	}
 })
 
 
