@@ -112,11 +112,11 @@ const addOrganizationSchema = z.object({
 });
 
 /**
- * @api {post} /api/v1/admin/orgs Get all organizations
+ * @api {post} /api/v1/admin/orgs/add Add organization
  * @apiPermission siteAdmin
- * @apiName GetOrganizations
+ * @apiName AddOrganization
  * @apiGroup SiteAdmin
- * @apiDescription Returns all organizations
+ * @apiDescription Adds a new organization
  *
  * @apiBody {String} name The name of the organization
  * @apiBody {String[]} gammaSuperGroups The gamma super groups to link to the organization
@@ -167,6 +167,26 @@ siteAdminRouter.post(
 	}
 );
 
+/**
+ * @api {delete} /api/v1/admin/orgs/:id Delete organization
+ * @apiParam {String} id Organization id
+ * @apiPermission siteAdmin
+ * @apiName DeleteOrganization
+ * @apiGroup SiteAdmin
+ * @apiDescription Deletes the organization with the specified id
+ *
+ * @apiError (404) OrganizationNotFound Organization with specified id does not exist
+ *
+ * @apiSuccess {String} message The organization was deleted
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *      "message": "Organization deleted"
+ *  }
+ *
+ */
 siteAdminRouter.delete('/orgs/:id', async (req, res) => {
 	const org = await getOrganization(req.params.id);
 
@@ -184,6 +204,31 @@ const addOrgMemberSchema = z.object({
 	isOrgAdmin: z.boolean()
 });
 
+/**
+ * @api {post} /api/v1/admin/orgs/:id/addMember Add organization
+ * @apiParam {String} id Organization id
+ * @apiPermission siteAdmin
+ * @apiName AddOrganization
+ * @apiGroup SiteAdmin
+ * @apiDescription Adds a new member to the organization
+ *
+ * @apiError (404) OrganizationNotFound Organization with specified id does not exist
+ *
+ * @apiBody {String} userId The id of the user to add
+ * @apiBody {Boolean} isOrgAdmin The users admin status
+ *
+ * @apiSuccess {String} message Member added (and made admin)
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *      "message": "Member added"
+ *  }
+ *
+ * @apiUse ZodError
+ *
+ */
 siteAdminRouter.post(
 	'/orgs/:id/addMember',
 	validateRequestBody(addOrgMemberSchema),
@@ -234,14 +279,37 @@ siteAdminRouter.post(
 	}
 );
 
-siteAdminRouter.delete('/orgs/:id/removeMember/:memberId', async (req, res) => {
+/**
+ * @api {delete} /api/v1/admin/orgs/removeMember/:userID Remove organization member
+ * @apiParam {String} id Organization id
+ * @apiParam {String} userId User id
+ * @apiPermission siteAdmin
+ * @apiName RemoveOrganizationMember
+ * @apiGroup SiteAdmin
+ * @apiDescription Removes the user with the specified userId from the organization with the specified id
+ *
+ * @apiError (404) OrganizationNotFound Organization with specified id does not exist
+ *
+ * @apiSuccess {String} message The user was removed from the organization
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *      "message": "Organization deleted"
+ *  }
+ *
+ * @apiUse ZodError
+ *
+ */
+siteAdminRouter.delete('/orgs/:id/removeMember/:userId', async (req, res) => {
 	const org = await getOrganization(req.params.id);
 
 	if (!org) {
 		return res.status(404).json({ message: 'Organization not found' });
 	}
 
-	if ((await getAccountFromId(req.params.memberId)) === null) {
+	if ((await getAccountFromId(req.params.userId)) === null) {
 		return sendApiValidationError(
 			res,
 			[
@@ -256,7 +324,7 @@ siteAdminRouter.delete('/orgs/:id/removeMember/:memberId', async (req, res) => {
 
 	const memberIds = org.members.map((m) => m.userId);
 
-	if (!memberIds.includes(req.params.memberId)) {
+	if (!memberIds.includes(req.params.userId)) {
 		return sendApiValidationError(
 			res,
 			[
@@ -269,7 +337,7 @@ siteAdminRouter.delete('/orgs/:id/removeMember/:memberId', async (req, res) => {
 		);
 	}
 
-	await removeOrganizationMember(req.params.id, req.params.memberId);
+	await removeOrganizationMember(req.params.id, req.params.userId);
 });
 
 const setAdminStatusSchema = z.object({
@@ -277,6 +345,31 @@ const setAdminStatusSchema = z.object({
 	isOrgAdmin: z.boolean()
 });
 
+/**
+ * @api {put} /api/v1/admin/orgs/:id/setAdminStatus Set organization member admin status
+ * @apiParam {String} id Organization id
+ * @apiPermission siteAdmin
+ * @apiName AddOrganization
+ * @apiGroup SiteAdmin
+ * @apiDescription Sets the admin status of the user with the specified userId in the organization with the specified id
+ *
+ * @apiBody {String} userId The id of the user to modify
+ * @apiBody {Boolean} isOrgAdmin The users new admin status
+ *
+ * @apiError (404) OrganizationNotFound Organization with specified id does not exist
+ *
+ * @apiSuccess {String} message Admin status updated
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *      "message": "Admin status updated"
+ *  }
+ *
+ * @apiUse ZodError
+ *
+ */
 siteAdminRouter.put(
 	'/orgs/:id/setAdminStatus',
 	validateRequestBody(setAdminStatusSchema),
