@@ -13,6 +13,7 @@ const RemoveGame: FC<RemoveGameProps> = ({ id }) => {
 			value="Remove Game"
 			onClick={async () => {
 				await postData({ id: id });
+					// This currently runs every time, while it only should run when a game successfully gets removed
 					location.reload();
 				}}
 		/>
