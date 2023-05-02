@@ -6,14 +6,22 @@ import { AxiosError } from 'axios';
 import Select from 'react-select';
 import Checkbox from '../../Forms/Checkbox/Checkbox';
 
-interface AddOrganizationProps {}
+interface ManageOrganizationProps {
+	organizationId: string;
+}
 
 interface SuperGroup {
 	name: string;
 	prettyName: string;
 }
 
-const AddOrganization: FC<AddOrganizationProps> = () => {
+interface Organization {
+	name: string;
+	gammaSuperGroups: string[];
+	addGammaAsOrgAdmin: boolean;
+}
+
+const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 	const superGroupsQuery = useQuery<SuperGroup[], AxiosError>(
 		['siteAdmin', 'superGroups'],
 		async () => {
@@ -25,8 +33,31 @@ const AddOrganization: FC<AddOrganizationProps> = () => {
 	const [superGroups, setSuperGroups] = useState<string[]>([]);
 	const [addGammaAsAdmin, setAddGammaAsAdmin] = useState<boolean>(true);
 
-	if (superGroupsQuery.isLoading) {
+	const organizationQuery = useQuery<Organization, AxiosError>(
+		['siteAdmin', 'organization', props.organizationId],
+		async () => {
+			return (await axios.get('/api/v1/admin/orgs/' + props.organizationId))
+				.data;
+		},
+		{
+			onSettled: (data, error) => {
+				if (error || data === undefined) return;
+				setName(data.name);
+				setSuperGroups(data.gammaSuperGroups);
+				setAddGammaAsAdmin(data.addGammaAsOrgAdmin);
+			}
+		}
+	);
+
+	if (superGroupsQuery.isLoading || organizationQuery.isLoading) {
 		return <p>Loading...</p>;
+	}
+
+	if (organizationQuery.isError) {
+		if (organizationQuery.error.code == '404') {
+			return <p>404: Organization not found</p>;
+		}
+		return <p>Something went wrong: {organizationQuery.error.message}</p>;
 	}
 
 	if (superGroupsQuery.isError) {
@@ -83,4 +114,4 @@ const AddOrganization: FC<AddOrganizationProps> = () => {
 	);
 };
 
-export default AddOrganization;
+export default ManageOrganization;

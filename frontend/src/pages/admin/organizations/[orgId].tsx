@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const Home = () => {
 	const router = useRouter();
 	const { orgId } = router.query;
+
 	return (
 		<>
 			<Head>
