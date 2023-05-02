@@ -113,8 +113,8 @@ export const removeGame = async (gameID : string) => {
 	});
 	if (!game)
 		throw new Error("Game not found");
-	const notReturnedGames = game.borrow.filter(borrow => ((!borrow.returned) && borrow.borrowStart < new Date()));
-	if (notReturnedGames.length > 0)
+	const borrows = game.borrow.filter(borrow => ((!borrow.returned) && borrow.borrowStart < new Date()));
+	if (borrows.length > 0)
 		throw new Error("Game is currently borrowed");
 
 	return await prisma.game.delete({
