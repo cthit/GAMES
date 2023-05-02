@@ -1,7 +1,8 @@
 import { Inter } from 'next/font/google';
 import Head from 'next/head';
-import Header from '../components/Header/Header';
-import styles from './index.module.css';
+import Header from '@/src/components/Header/Header';
+import styles from '@/src/pages/index.module.css';
+import OrganizationList from '@/src/components/SiteAdminComponents/OrganizationList/OrganizationList';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +20,10 @@ export const Home = () => {
 			</Head>
 			<Header />
 			<main className={styles.mainContainer}>
-				<h1>Admin</h1>
+				<h1>Manage organizations</h1>
+				<br />
+
+				<OrganizationList />
 			</main>
 		</>
 	);
