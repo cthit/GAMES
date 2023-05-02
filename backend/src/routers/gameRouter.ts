@@ -8,7 +8,8 @@ import {
 	filterGames,
 	getAllGames,
 	searchGames,
-	removeGame
+	removeGame,
+	markGameAsPlayed
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
@@ -249,7 +250,43 @@ gameRouter.post('/remove', async (req, res) => {
 		else
 			res.status(400).json({ message: 'Error removing game' });
 	}
-})
+});
+const markPlayedSchema = z.object({
+	gameId: z.string().cuid(),
+	userId: z.string().cuid()
+});
+/**
+ * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
+ * @apiName markPlayed
+ * @apiGroup Games
+ * @apiDescription Marks the game as played for the user
+ *
+ * @apiBody {String} gameId Id of the game
+ * @apiBody {String} userId Id of the user
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *   {
+ *    "message": "Game marked as played"
+ *   }
+ *
+ * @apiUse ZodError
+ */
+gameRouter.post('/markPlayed', validateRequestBody(markPlayedSchema), async (req, res) => {
+	try {
+		await markGameAsPlayed(req.body.gameId, req.body.userId);
+		res.status(200).json({ message: 'Game marked as played' });
+	} catch (e) {
+		if (e instanceof Error)
+			res.status(400).json({ message: e.message });
+		else
+			res.status(400).json({ message: 'Error marking game as played' });
+	}
+});
+
+
 
 
 
@@ -269,5 +306,6 @@ const formatGames = (games: any[]) => {
 			}).length > 0
 	}));
 };
+
 
 export default gameRouter;
