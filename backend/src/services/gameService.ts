@@ -82,7 +82,10 @@ export type Filter = {
 	platform?: {
 		name: string
 	},
-	playtimeMinutes?: number
+	playtimeMinutes?: {
+		lte?: number,
+		gte?: number
+	}
 };
 export const filterGames = async (filter: Filter) => {
 	return await prisma.game.findMany({
