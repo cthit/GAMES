@@ -105,7 +105,7 @@ export const filterGames = async (filter: Filter) => {
 };
 
 
-export const removeGame = async (gameID: string) => {
+export const removeGame = async (gameID : string) => {
 	const game = await prisma.game.findUnique({
 		where: {
 			id: gameID
@@ -122,7 +122,7 @@ export const removeGame = async (gameID: string) => {
 
 	return await prisma.game.delete({
 		where: {
-			id: gameID,
+			id : gameID,
 		}
 	});
 };
