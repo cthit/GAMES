@@ -128,17 +128,6 @@ gameRouter.post(
 			);
 		}
 
-		if (body.releaseDate > new Date().toISOString()) {
-			return sendApiValidationError(
-				res,
-				{
-					path: 'releaseDate',
-					message: 'The release date cannot be in the future'
-				},
-				'Body'
-			);
-		}
-
 		await createGame(
 			body.name,
 			body.description,
