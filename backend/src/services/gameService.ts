@@ -100,3 +100,26 @@ export const filterGames = async (filter: Filter) => {
 		where: filter
 	});
 };
+
+
+export const removeGame = async (gameID : string) => {
+	const game = await prisma.game.findUnique({
+		where: {
+			id: gameID
+		},
+		select: {
+			borrow: true
+		}
+	});
+	if (!game)
+		throw new Error("Game not found");
+	const borrows = game.borrow.filter(borrow => ((!borrow.returned) && borrow.borrowStart < new Date()));
+	if (borrows.length > 0)
+		throw new Error("Game is currently borrowed");
+
+	return await prisma.game.delete({
+		where: {
+			id : gameID,
+		}
+	});
+};
