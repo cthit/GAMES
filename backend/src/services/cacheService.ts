@@ -42,7 +42,7 @@ export const setCache = async (
  * @param key The key to get the value from.
  * @returns The value if it exists, otherwise null.
  */
-export const getFromCache = async (key: any) => {
+export const getFromCache = async <T>(key: any): Promise<T | null> => {
 	if (!redisClient) throw new Error('Redis store not initialized');
 
 	const value = await redisClient.get(key);

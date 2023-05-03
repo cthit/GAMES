@@ -9,14 +9,21 @@ export const getOrganizationsIdsAndNames = async () => {
 	});
 };
 
-export const getOrganization = async (id: string) => {
+export const getOrganizationWithMembers = async (id: string) => {
 	return await prisma.organization.findUnique({
 		where: {
 			id: id
 		},
-		select: {
-			id: true,
-			members: true
+		include: {
+			members: {}
+		}
+	});
+};
+
+export const getOrganization = async (id: string) => {
+	return await prisma.organization.findUnique({
+		where: {
+			id: id
 		}
 	});
 };

@@ -3,6 +3,7 @@ import { prisma } from '../prisma.js';
 import { getAccountFromCid, getAccountFromId } from './accountService.js';
 import { getFromCache, setCache } from './cacheService.js';
 import { getGammaUser } from './gammaService.js';
+import { getOrganization } from './organizationService.js';
 
 export const getGameOwnerIdFromCid = async (cid: string) => {
 	const user = await getAccountFromCid(cid);
@@ -14,20 +15,45 @@ export const getGameOwnerIdFromCid = async (cid: string) => {
 	return gameOwner.id;
 };
 
+export const getGameOwnerById = async (gameOwnerId: string) => {
+	return await prisma.gameOwner.findUnique({
+		where: {
+			id: gameOwnerId
+		}
+	});
+};
+
 export const getGameOwnerNameFromId = async (gameOwnerId: string) => {
-	const cachedName = await getFromCache('nick-gameOwner-' + gameOwnerId);
-	if (cachedName) return cachedName as string;
+	const cachedName = await getFromCache<String>(
+		'name-gameOwner-' + gameOwnerId
+	);
+	if (cachedName) return cachedName;
 
-	const user = await getUserFromGameOwner(gameOwnerId);
+	const gameOwner = await getGameOwnerById(gameOwnerId);
 
-	if (!user?.cid) throw new Error('No CID exists for the given user.');
+	if (!gameOwner) throw new Error('GameOwner does not exist');
 
-	const gammaUser = await getGammaUser(user.cid);
+	let name: string;
+	if (gameOwner?.ownerType === 'USER') {
+		const user = await getAccountFromId(gameOwner.ownerId);
+
+		if (!user) throw new Error('User does not exist');
+
+		const gammaUser = await getGammaUser(user.cid);
+
+		name = gammaUser.nick;
+	} else {
+		const org = await getOrganization(gameOwner.ownerId);
+
+		if (!org) throw new Error('Organization does not exist');
+
+		name = org.name;
+	}
 
 	const HOUR = 60;
-	setCache('nick-gameOwner-' + gameOwnerId, gammaUser.nick, HOUR); // nick prefix to avoid collisions with other cache keys
+	setCache('name-gameOwner-' + gameOwnerId, name, HOUR); // Name prefix to avoid collisions with other cache keys
 
-	return gammaUser.nick;
+	return name;
 };
 
 export const getGameOwnersWithGames = async () => {
@@ -38,19 +64,6 @@ export const getGameOwnersWithGames = async () => {
 			}
 		}
 	});
-};
-
-const getUserFromGameOwner = async (gameOwnerId: string) => {
-	const gameOwner = await prisma.gameOwner.findUnique({
-		where: {
-			id: gameOwnerId
-		}
-	});
-
-	if (gameOwner?.ownerType !== 'USER')
-		throw new Error('The given gameOwner does not correspond to a user.');
-
-	return getAccountFromId(gameOwner.ownerId);
 };
 
 const getGameOwnerFromIdAndType = async (id: string, type: GameOwnerType) => {
