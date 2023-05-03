@@ -1,10 +1,9 @@
 import { useApiPost } from '@/src/hooks/apiHooks';
+import debounce from 'lodash.debounce';
 import { ChangeEvent, FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
-import styles from './GamesList.module.css';
-import debounce from 'lodash.debounce';
 import GameFilter from '../GameFilter/GameFilter';
-import { release } from 'os';
+import styles from './GamesList.module.css';
 
 interface GamesListProps {}
 
@@ -18,6 +17,7 @@ interface Game {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	owner: string;
 }
 type SearchFilter = {
 	name?: string;
@@ -98,6 +98,7 @@ const GamesList: FC<GamesListProps> = () => {
 								isBorrowed={game.isBorrowed}
 								playerMin={game.playerMin}
 								playerMax={game.playerMax}
+								owner={game.owner}
 							/>
 						))}
 					</ul>

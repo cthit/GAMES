@@ -43,7 +43,8 @@ export const getAllGames = async () => {
 			playtimeMinutes: true,
 			borrow: true, // TODO: See what is given
 			playerMin: true,
-			playerMax: true
+			playerMax: true,
+			gameOwnerId: true
 		}
 	});
 };
@@ -59,7 +60,8 @@ export const searchGames = async (term: string) => {
 			playtimeMinutes: true,
 			playerMin: true,
 			playerMax: true,
-			borrow: true
+			borrow: true,
+			gameOwnerId: true
 		},
 		where: {
 			name: {
@@ -101,7 +103,8 @@ export const filterGames = async (filter: Filter) => {
 			playtimeMinutes: true,
 			playerMin: true,
 			playerMax: true,
-			borrow: true
+			borrow: true,
+			gameOwnerId: true
 		},
 		where: filter
 	});

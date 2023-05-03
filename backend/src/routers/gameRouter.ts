@@ -1,14 +1,17 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
+import {
+	getGameOwnerIdFromCid,
+	getGameOwnerNameFromId
+} from '../services/gameOwnerService.js';
 import {
 	Filter,
 	createGame,
 	filterGames,
 	getAllGames,
-	searchGames,
-	removeGame
+	removeGame,
+	searchGames
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
@@ -41,7 +44,7 @@ const gameRouter = Router();
  */
 gameRouter.get('/', async (req, res) => {
 	const games = await getAllGames();
-	const formattedGames = formatGames(games);
+	const formattedGames = await formatGames(games);
 	res.status(200).json(formattedGames);
 });
 
@@ -83,7 +86,7 @@ gameRouter.get('/search', async (req, res) => {
 		typeof req.query.term === 'string' ? req.query.term : ''
 	);
 
-	const formattedGames = formatGames(games);
+	const formattedGames = await formatGames(games);
 
 	res.status(200).json(formattedGames);
 });
@@ -225,11 +228,10 @@ gameRouter.post(
 		if (body.playtime) filter.playtimeMinutes = body.playtime;
 		const games = await filterGames(filter);
 
-		const formattedGames = formatGames(games);
+		const formattedGames = await formatGames(games);
 		res.status(200).json(formattedGames);
 	}
 );
-
 
 /**
  * @api {post} /api/v1/games/remove Remove a game
@@ -255,32 +257,60 @@ gameRouter.post('/remove', async (req, res) => {
 	try {
 		await removeGame(req.body.id);
 		res.status(200).json({ message: 'Game removed' });
+	} catch (e) {
+		if (e instanceof Error) res.status(400).json({ message: e.message });
+		else res.status(400).json({ message: 'Error removing game' });
 	}
-	catch (e) {
-		if (e instanceof Error)
-			res.status(400).json({ message: e.message });
-		else
-			res.status(400).json({ message: 'Error removing game' });
+});
+
+/**
+ * @api {post} /api/v1/games/remove Remove a game
+ * @apiName Remove
+ * @apiGroup Games
+ * @apiDescription Remove a game
+ *
+ * @apiBody {String} id
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *  [
+ *   {
+ *    "id": "clgkri8kk0000przwvkvbyj95",
+ *   }
+ * ]
+ *
+ * @apiUse ZodError
+ */
+gameRouter.post('/remove', async (req, res) => {
+	try {
+		await removeGame(req.body.id);
+		res.status(200).json({ message: 'Game removed' });
+	} catch (e) {
+		if (e instanceof Error) res.status(400).json({ message: e.message });
+		else res.status(400).json({ message: 'Error removing game' });
 	}
-})
+});
 
-
-
-const formatGames = (games: any[]) => {
-	return games.map((game) => ({
-		id: game.id,
-		name: game.name,
-		description: game.description,
-		platformName: game.platformName,
-		releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-		playtimeMinutes: game.playtimeMinutes,
-		playerMin: game.playerMin,
-		playerMax: game.playerMax,
-		isBorrowed:
-			game.borrow.filter((b: { returned: boolean }) => {
-				return !b.returned;
-			}).length > 0
-	}));
+const formatGames = async (games: any[]) => {
+	return await Promise.all(
+		games.map(async (game) => ({
+			id: game.id,
+			name: game.name,
+			description: game.description,
+			platformName: game.platformName,
+			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
+			playtimeMinutes: game.playtimeMinutes,
+			playerMin: game.playerMin,
+			playerMax: game.playerMax,
+			owner: await getGameOwnerNameFromId(game.gameOwnerId),
+			isBorrowed:
+				game.borrow.filter((b: { returned: boolean }) => {
+					return !b.returned;
+				}).length > 0
+		}))
+	);
 };
 
 export default gameRouter;
