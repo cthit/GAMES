@@ -1,13 +1,22 @@
 import { Prisma } from '@prisma/client';
-import { prisma } from '../prisma.js';
 import { GammaUser } from '../models/gammaModels.js';
+import { prisma } from '../prisma.js';
 
 export const createAccount = async (cid: string) => {
 	try {
-		await prisma.user.create({
-			data: {
-				cid
-			}
+		await prisma.$transaction(async (tx) => {
+			const user = await tx.user.create({
+				data: {
+					cid
+				}
+			});
+
+			await tx.gameOwner.create({
+				data: {
+					ownerId: user.id,
+					ownerType: 'USER'
+				}
+			});
 		});
 	} catch (e: any) {
 		if (e instanceof Prisma.PrismaClientKnownRequestError) {

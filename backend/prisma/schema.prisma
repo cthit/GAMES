@@ -20,8 +20,10 @@ model Game {
     playerMax       Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
 
-    borrow  Borrow[]
-    request BorrowRequest[]
+    borrow      Borrow[]
+    request     BorrowRequest[]
+    GameOwner   GameOwner?      @relation(fields: [gameOwnerId], references: [id])
+    gameOwnerId String?
 
     @@map("games")
 }
@@ -65,6 +67,23 @@ model Organization {
     members OrganizationMember[]
 
     @@map("organizations")
+}
+
+enum GameOwnerType {
+    ORGANIZATION
+    USER
+}
+
+model GameOwner {
+    id String @id @default(cuid())
+
+    ownerId   String
+    ownerType GameOwnerType
+
+    Games Game[]
+
+    @@unique([ownerId, ownerType])
+    @@map("game_owners")
 }
 
 model Borrow {

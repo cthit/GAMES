@@ -1,7 +1,7 @@
-import { Game } from '@prisma/client';
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
+import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
 import {
 	Filter,
 	createGame,
@@ -111,11 +111,21 @@ gameRouter.get('/search', async (req, res) => {
  * }
  *
  * @apiUse ZodError
+ *
+ * @apiError (401) {object} Unauthorized Must be logged in to add game
+ * @apiErrorExample {json} 401 Unauthorized:
+ * {
+ * 	"message": "Must be logged in to add game"
+ * }
  */
 gameRouter.post(
 	'/add',
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
+		if (!req.user) {
+			return res.status(401).json({ message: 'Must be logged in to add game' });
+		}
+
 		const body = req.body;
 
 		if (!(await platformExists(body.platform))) {
@@ -136,7 +146,9 @@ gameRouter.post(
 			new Date(body.releaseDate),
 			body.playtime,
 			body.playerMin,
-			body.playerMax
+			body.playerMax,
+			// @ts-expect-error GammaUser not added to Request.user type
+			await getGameOwnerIdFromCid(req.user.cid)
 		);
 
 		res.status(200).json({ message: 'Game added' });
@@ -183,39 +195,40 @@ const filterGamesSchema = z.object({
  *
  * @apiUse ZodError
  */
-gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
-	const body = req.body;
-	const filter: Filter = {};
-	if (body.name) {
-		filter.name = { contains: body.name, mode: 'insensitive' }
-	}
-	if (body.releaseAfter)
-		filter.dateReleased = {
-			gte: new Date(body.releaseAfter)
-		};
-	if (body.releaseBefore)
-		filter.dateReleased = {
-			lte: new Date(body.releaseBefore)
-		};
-	if (body.releaseAfter && body.releaseBefore)
-		filter.dateReleased = {
-			lte: new Date(body.releaseBefore),
-			gte: new Date(body.releaseAfter)
-		};
-	if (body.playerCount) {
-		filter.playerMax = { gte: body.playerCount };
-		filter.playerMin = { lte: body.playerCount };
-	}
-	if (body.platform)
-		filter.platform = { name: body.platform };
-	if (body.playtime)
-		filter.playtimeMinutes = body.playtime;
-	const games = await filterGames(filter);
+gameRouter.post(
+	'/filter',
+	validateRequestBody(filterGamesSchema),
+	async (req, res) => {
+		const body = req.body;
+		const filter: Filter = {};
+		if (body.name) {
+			filter.name = { contains: body.name, mode: 'insensitive' };
+		}
+		if (body.releaseAfter)
+			filter.dateReleased = {
+				gte: new Date(body.releaseAfter)
+			};
+		if (body.releaseBefore)
+			filter.dateReleased = {
+				lte: new Date(body.releaseBefore)
+			};
+		if (body.releaseAfter && body.releaseBefore)
+			filter.dateReleased = {
+				lte: new Date(body.releaseBefore),
+				gte: new Date(body.releaseAfter)
+			};
+		if (body.playerCount) {
+			filter.playerMax = { gte: body.playerCount };
+			filter.playerMin = { lte: body.playerCount };
+		}
+		if (body.platform) filter.platform = { name: body.platform };
+		if (body.playtime) filter.playtimeMinutes = body.playtime;
+		const games = await filterGames(filter);
 
-	const formattedGames = formatGames(games);
-	res.status(200).json(formattedGames);
-});
-
+		const formattedGames = formatGames(games);
+		res.status(200).json(formattedGames);
+	}
+);
 
 
 /**
