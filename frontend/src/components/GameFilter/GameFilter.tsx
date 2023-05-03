@@ -1,9 +1,9 @@
-import { ChangeEvent, FC, useState } from 'react';
-import styles from './GameFilter.module.css';
-import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
-import Select from '../Forms/Select/Select';
+import { useApiGet } from '@/src/hooks/apiHooks';
+import { FC } from 'react';
 import DateInput from '../Forms/DateInput/DateInput';
 import NumberInput from '../Forms/NumberInput/NumberInput';
+import Select from '../Forms/Select/Select';
+import styles from './GameFilter.module.css';
 
 interface GameFilterProps {
 	setPlatform: (s: string) => void;
@@ -11,39 +11,55 @@ interface GameFilterProps {
 	setReleaseAfter: (a: Date) => void;
 	setPlaytime: (x: number) => void;
 	setPlayerCount: (x: number) => void;
+	setOwner: (s: string) => void;
 	platform: string | undefined;
 	releaseAfter: Date | undefined;
 	releaseBefore: Date | undefined;
 	playtime: number | undefined;
 	playerCount: number | undefined;
+	owner: string | undefined;
 	filterFunction: any;
 }
+
 interface Platform {
 	name: string;
 }
+
+interface Owner {
+	id: string;
+	name: string;
+}
+
 const GameFilter: FC<GameFilterProps> = ({
 	setPlatform,
 	setReleaseBefore,
 	setReleaseAfter,
 	setPlaytime,
 	setPlayerCount,
+	setOwner,
 	platform,
 	playerCount,
 	playtime,
 	releaseAfter,
 	releaseBefore,
+	owner,
 	filterFunction
 }: GameFilterProps) => {
-	const { data, error, loading } = useApiGet<Platform[]>('/platforms');
+	const { data: platforms, loading: platformsLoading } =
+		useApiGet<Platform[]>('/platforms');
+	const { data: owners, loading: ownersLoading } =
+		useApiGet<Owner[]>('/games/owners');
+
 	const nums = '0123456789';
 	const dateReg =
 		/^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$/;
-	if (loading) {
+
+	if (platformsLoading || ownersLoading) {
 		filterFunction();
 		return <p>Loading...</p>;
 	}
 
-	if (!data) {
+	if (!platforms || !owners) {
 		return <p>Uh oh</p>;
 	}
 
@@ -52,7 +68,7 @@ const GameFilter: FC<GameFilterProps> = ({
 			<h2>Filtering</h2>
 			<Select
 				label="Platform"
-				options={data.map((platform) => platform.name)}
+				options={platforms.map((platform) => platform.name)}
 				placeholder="Filter for platform"
 				onChange={(select) => setPlatform(select.target.value)}
 				value={platform ? platform : ''}
@@ -110,6 +126,16 @@ const GameFilter: FC<GameFilterProps> = ({
 					setPlayerCount(Number.parseInt(newCount));
 				}}
 				value={playerCount?.toString() || ''}
+			/>
+			<br />
+
+			<Select
+				label="Owner"
+				options={owners.map((owner) => owner.name)}
+				values={owners.map((owner) => owner.id)}
+				placeholder="Filter for owner"
+				onChange={(select) => setOwner(select.target.value)}
+				value={owner ? owner : ''}
 			/>
 			<br />
 
