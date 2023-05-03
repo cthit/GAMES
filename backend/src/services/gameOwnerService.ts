@@ -1,6 +1,7 @@
 import { GameOwnerType } from '@prisma/client';
 import { prisma } from '../prisma.js';
 import { getAccountFromCid, getAccountFromId } from './accountService.js';
+import { getFromCache, setCache } from './cacheService.js';
 import { getGammaUser } from './gammaService.js';
 
 export const getGameOwnerIdFromCid = async (cid: string) => {
@@ -14,12 +15,17 @@ export const getGameOwnerIdFromCid = async (cid: string) => {
 };
 
 export const getGameOwnerNameFromId = async (gameOwnerId: string) => {
-	console.log('GameOwnerId:', gameOwnerId);
+	const cachedName = await getFromCache('nick-gameOwner-' + gameOwnerId);
+	if (cachedName) return cachedName as string;
+
 	const user = await getUserFromGameOwner(gameOwnerId);
 
 	if (!user?.cid) throw new Error('No CID exists for the given user.');
 
 	const gammaUser = await getGammaUser(user.cid);
+
+	const HOUR = 60;
+	setCache('nick-gameOwner-' + gameOwnerId, gammaUser.nick, HOUR); // nick prefix to avoid collisions with other cache keys
 
 	return gammaUser.nick;
 };
