@@ -26,10 +26,23 @@ async function createAccounts() {
 		}
 	});
 
-	return owner.id;
+	const user2 = await prisma.user.create({
+		data: {
+			cid: 'flongshaw'
+		}
+	});
+
+	const owner2 = await prisma.gameOwner.create({
+		data: {
+			ownerId: user2.id,
+			ownerType: 'USER'
+		}
+	});
+
+	return [owner.id, owner2.id];
 }
 
-async function createGames(ownerId: string) {
+async function createGames(gameOwnerIds: string[]) {
 	await prisma.game.create({
 		data: {
 			name: 'Jackbox 6',
@@ -41,7 +54,7 @@ async function createGames(ownerId: string) {
 			},
 			GameOwner: {
 				connect: {
-					id: ownerId
+					id: gameOwnerIds[0]
 				}
 			},
 			dateReleased: new Date('2021-06-23'),
@@ -62,7 +75,7 @@ async function createGames(ownerId: string) {
 			},
 			GameOwner: {
 				connect: {
-					id: ownerId
+					id: gameOwnerIds[1]
 				}
 			},
 			dateReleased: new Date('1999-01-01'),
@@ -76,8 +89,8 @@ async function createGames(ownerId: string) {
 async function seed() {
 	await dropTables();
 	await createPlatforms();
-	const gameOwnerId = await createAccounts();
-	await createGames(gameOwnerId);
+	const gameOwnerIds = await createAccounts();
+	await createGames(gameOwnerIds);
 }
 
 await seed();
