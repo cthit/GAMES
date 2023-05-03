@@ -5,20 +5,21 @@ import {
 	isAuthenticated,
 	isSiteAdmin
 } from '../middleware/authenticationCheckMiddleware.js';
+import { getAccountFromId } from '../services/accountService.js';
 import { getGammaSuperGroups } from '../services/gammaService.js';
 import {
-	getOrganizationsIdsAndNames,
-	getOrganization,
 	addOrganization,
-	removeOrganization,
-	removeOrganizationMember,
-	addOrganizationMember,
 	addOrganizationAdmin,
-	removeOrganizationAdmin
+	addOrganizationMember,
+	getOrganizationWithMembers,
+	getOrganizationsIdsAndNames,
+	removeOrganization,
+	removeOrganizationAdmin,
+	removeOrganizationMember
 } from '../services/organizationService.js';
-import sendApiValidationError from '../utils/sendApiValidationError.js';
-import { ErrorProperty } from '../utils/sendApiValidationError.js';
-import { getAccountFromId } from '../services/accountService.js';
+import sendApiValidationError, {
+	ErrorProperty
+} from '../utils/sendApiValidationError.js';
 
 const siteAdminRouter = Router();
 
@@ -94,7 +95,7 @@ siteAdminRouter.get('/orgs', async (req, res) => {
  *	}
  */
 siteAdminRouter.get('/orgs/:id', async (req, res) => {
-	const org = await getOrganization(req.params.id);
+	const org = await getOrganizationWithMembers(req.params.id);
 
 	if (!org) {
 		return res.status(404).json({
@@ -188,7 +189,7 @@ siteAdminRouter.post(
  *
  */
 siteAdminRouter.delete('/orgs/:id', async (req, res) => {
-	const org = await getOrganization(req.params.id);
+	const org = await getOrganizationWithMembers(req.params.id);
 
 	if (!org) {
 		return res.status(404).json({ message: 'Organization not found' });
@@ -233,7 +234,7 @@ siteAdminRouter.post(
 	'/orgs/:id/addMember',
 	validateRequestBody(addOrgMemberSchema),
 	async (req, res) => {
-		const org = await getOrganization(req.params.id);
+		const org = await getOrganizationWithMembers(req.params.id);
 
 		if (!org) {
 			return res.status(404).json({ message: 'Organization not found' });
@@ -303,7 +304,7 @@ siteAdminRouter.post(
  *
  */
 siteAdminRouter.delete('/orgs/:id/removeMember/:userId', async (req, res) => {
-	const org = await getOrganization(req.params.id);
+	const org = await getOrganizationWithMembers(req.params.id);
 
 	if (!org) {
 		return res.status(404).json({ message: 'Organization not found' });
@@ -374,7 +375,7 @@ siteAdminRouter.put(
 	'/orgs/:id/setAdminStatus',
 	validateRequestBody(setAdminStatusSchema),
 	async (req, res) => {
-		const org = await getOrganization(req.params.id);
+		const org = await getOrganizationWithMembers(req.params.id);
 
 		if (!org) {
 			return res.status(404).json({ message: 'Organization not found' });

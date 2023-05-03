@@ -1,10 +1,9 @@
 import { useApiPost } from '@/src/hooks/apiHooks';
+import debounce from 'lodash.debounce';
 import { ChangeEvent, FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
-import styles from './GamesList.module.css';
-import debounce from 'lodash.debounce';
 import GameFilter from '../GameFilter/GameFilter';
-import { release } from 'os';
+import styles from './GamesList.module.css';
 
 interface GamesListProps {}
 
@@ -18,6 +17,7 @@ interface Game {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	owner: string;
 }
 type SearchFilter = {
 	name?: string;
@@ -26,6 +26,7 @@ type SearchFilter = {
 	releaseAfter?: Date;
 	playtime?: number;
 	playerCount?: number;
+	owner?: string;
 };
 
 const GamesList: FC<GamesListProps> = () => {
@@ -37,6 +38,7 @@ const GamesList: FC<GamesListProps> = () => {
 	const [releaseAfter, setReleaseAfter] = useState<Date>();
 	const [playtime, setPlaytime] = useState<number>();
 	const [playerCount, setPlayerCount] = useState<number>();
+	const [owner, setOwner] = useState<string>();
 	const searchFilter: SearchFilter = {};
 
 	const search = debounce((e: ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +51,7 @@ const GamesList: FC<GamesListProps> = () => {
 		if (releaseAfter) searchFilter.releaseAfter = new Date(releaseAfter);
 		if (playtime) searchFilter.playtime = playtime;
 		if (playerCount) searchFilter.playerCount = playerCount;
+		if (owner) searchFilter.owner = owner;
 		postData(searchFilter);
 	}, 300);
 
@@ -60,11 +63,13 @@ const GamesList: FC<GamesListProps> = () => {
 				setReleaseAfter={setReleaseAfter}
 				setPlaytime={setPlaytime}
 				setPlayerCount={setPlayerCount}
+				setOwner={setOwner}
 				platform={platform}
 				releaseAfter={releaseAfter}
 				releaseBefore={releaseBefore}
 				playtime={playtime}
 				playerCount={playerCount}
+				owner={owner}
 				filterFunction={search}
 			/>
 			<div style={{ width: 'auto' }}>
@@ -98,6 +103,7 @@ const GamesList: FC<GamesListProps> = () => {
 								isBorrowed={game.isBorrowed}
 								playerMin={game.playerMin}
 								playerMax={game.playerMax}
+								owner={game.owner}
 							/>
 						))}
 					</ul>
