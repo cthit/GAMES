@@ -91,6 +91,7 @@ export type Filter = {
 		name: string;
 	};
 	playtimeMinutes?: number;
+	gameOwnerId?: string;
 };
 export const filterGames = async (filter: Filter) => {
 	return await prisma.game.findMany({

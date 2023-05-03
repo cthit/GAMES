@@ -30,6 +30,16 @@ export const getGameOwnerNameFromId = async (gameOwnerId: string) => {
 	return gammaUser.nick;
 };
 
+export const getGameOwnersWithGames = async () => {
+	return await prisma.gameOwner.findMany({
+		where: {
+			Games: {
+				some: {}
+			}
+		}
+	});
+};
+
 const getUserFromGameOwner = async (gameOwnerId: string) => {
 	const gameOwner = await prisma.gameOwner.findUnique({
 		where: {

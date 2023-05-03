@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
 import {
 	getGameOwnerIdFromCid,
-	getGameOwnerNameFromId
+	getGameOwnerNameFromId,
+	getGameOwnersWithGames
 } from '../services/gameOwnerService.js';
 import {
 	Filter,
@@ -164,7 +165,8 @@ const filterGamesSchema = z.object({
 	releaseBefore: z.string().datetime().optional(), // ISO date string
 	releaseAfter: z.string().datetime().optional(), // ISO date string
 	playtime: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000).optional()
+	playerCount: z.number().int().min(1).max(2000).optional(),
+	owner: z.string().cuid2().optional()
 });
 
 /**
@@ -180,6 +182,7 @@ const filterGamesSchema = z.object({
  * @apiBody {String} releaseAfter Filters to games released after a specific date (Optional)
  * @apiBody {Number} playtime Playtime of the game (Optional)
  * @apiBody {Number} playerCount amount of players for the game (Optional)
+ * @apiBody {String} owner CUID of the owner of the game (Optional)
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -190,9 +193,9 @@ const filterGamesSchema = z.object({
  *    "id": "clgkri8kk0000przwvkvbyj95",
  *    "name": "Game 1",
  *    "description": "Game 1 description",
- * 	"platformName": "Steam",
- *	   "releaseDate": "2023-04-13",
- *	   "playtimeMinutes": "60"
+ * 	  "platformName": "Steam",
+ *	  "releaseDate": "2023-04-13",
+ *	  "playtimeMinutes": "60"
  *   }
  * ]
  *
@@ -203,32 +206,41 @@ gameRouter.post(
 	validateRequestBody(filterGamesSchema),
 	async (req, res) => {
 		const body = req.body;
+
 		const filter: Filter = {};
-		if (body.name) {
-			filter.name = { contains: body.name, mode: 'insensitive' };
-		}
+		if (body.name) filter.name = { contains: body.name, mode: 'insensitive' };
+
+		if (body.owner) filter.gameOwnerId = body.owner;
+
 		if (body.releaseAfter)
 			filter.dateReleased = {
 				gte: new Date(body.releaseAfter)
 			};
+
 		if (body.releaseBefore)
 			filter.dateReleased = {
 				lte: new Date(body.releaseBefore)
 			};
+
 		if (body.releaseAfter && body.releaseBefore)
 			filter.dateReleased = {
 				lte: new Date(body.releaseBefore),
 				gte: new Date(body.releaseAfter)
 			};
+
 		if (body.playerCount) {
 			filter.playerMax = { gte: body.playerCount };
 			filter.playerMin = { lte: body.playerCount };
 		}
+
 		if (body.platform) filter.platform = { name: body.platform };
+
 		if (body.playtime) filter.playtimeMinutes = body.playtime;
+
 		const games = await filterGames(filter);
 
 		const formattedGames = await formatGames(games);
+
 		res.status(200).json(formattedGames);
 	}
 );
@@ -291,6 +303,40 @@ gameRouter.post('/remove', async (req, res) => {
 		if (e instanceof Error) res.status(400).json({ message: e.message });
 		else res.status(400).json({ message: 'Error removing game' });
 	}
+});
+
+/**
+ * @api {get} /api/v1/games/owners Get all game owners
+ * @apiName GetOwners
+ * @apiGroup Games
+ * @apiDescription Gets all game owners
+ *
+ * @apiSuccess {Object[]} Owners List of game owners
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * [
+ *  {
+ *   "id": "clgkri8kk0000przwvkvbyj95",
+ *   "name": "Game Owner 1"
+ *  },
+ *  {
+ *   "id": "clgkri8ku0000przwvkvbyj95",
+ *   "name": "Game Owner 2"
+ *  }
+ * ]
+ **/
+gameRouter.get('/owners', async (req, res) => {
+	const owners = await getGameOwnersWithGames();
+
+	const formattedOwners = await Promise.all(
+		owners.map(async (owner) => ({
+			id: owner.id,
+			name: await getGameOwnerNameFromId(owner.id)
+		}))
+	);
+
+	res.status(200).json(formattedOwners);
 });
 
 const formatGames = async (games: any[]) => {
