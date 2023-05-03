@@ -1,8 +1,7 @@
 import { useApiGet } from '@/src/hooks/apiHooks';
-import { ChangeEvent, FC, useState } from 'react';
+import { FC } from 'react';
 import SuggestionCard from '../SuggestionCard/SuggestionCard';
 import styles from './SuggestionsList.module.css';
-import debounce from 'lodash.debounce';
 
 interface SuggestionsListProps {}
 
@@ -14,6 +13,7 @@ interface Suggestion {
 	releaseDate: string;
 	playerMin: string;
 	playerMax: string;
+	motivation: string;
 }
 
 const SuggestionsList: FC<SuggestionsListProps> = () => {
@@ -31,6 +31,7 @@ const SuggestionsList: FC<SuggestionsListProps> = () => {
 				<ul className={styles.suggestionsList}>
 					{data.map((suggestion) => (
 						<SuggestionCard
+							key={suggestion.name}
 							name={suggestion.name}
 							description={suggestion.description}
 							platform={suggestion.platformName}
@@ -38,6 +39,7 @@ const SuggestionsList: FC<SuggestionsListProps> = () => {
 							releaseDate={suggestion.releaseDate}
 							playerMin={suggestion.playerMin}
 							playerMax={suggestion.playerMax}
+							motivation={suggestion.motivation}
 						/>
 					))}
 				</ul>
@@ -45,7 +47,5 @@ const SuggestionsList: FC<SuggestionsListProps> = () => {
 		</div>
 	);
 };
-
-
 
 export default SuggestionsList;
