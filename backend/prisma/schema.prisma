@@ -106,6 +106,7 @@ model Suggest {
     playtimeMinutes Int // Stored in minutes @map("playtime")
     playerMin       Int
     playerMax       Int
+    motivation      String
 
     @@map("suggests")
 }
