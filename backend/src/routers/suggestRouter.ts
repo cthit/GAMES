@@ -1,10 +1,12 @@
 import { Router } from 'express';
-import { createSuggestion, getAllSuggestions} from '../services/suggestService.js';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { platformExists } from '../services/platformService.js';
-
+import {
+	createSuggestion,
+	getAllSuggestions
+} from '../services/suggestService.js';
+import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const suggestRouter = Router();
 
@@ -30,26 +32,22 @@ const suggestRouter = Router();
  *   }
  * ]
  */
-
- suggestRouter.get('/', async (req, res) => {
-    const suggestion = await getAllSuggestions();
-    const formattedSuggestion = formatSuggestion(suggestion);
-    res.status(200).json(formattedSuggestion);
+suggestRouter.get('/', async (req, res) => {
+	const suggestion = await getAllSuggestions();
+	const formattedSuggestion = formatSuggestion(suggestion);
+	res.status(200).json(formattedSuggestion);
 });
 
 const addSuggestionSchema = z.object({
-    name: z.string().min(1).max(250),
+	name: z.string().min(1).max(250),
 	description: z.string().min(1).max(2000),
 	platform: z.string().min(1),
 	releaseDate: z.string().datetime(), // ISO date string
 	playtime: z.number().int().min(1),
 	playerMin: z.number().int().min(1),
-	playerMax: z.number().int().min(1) //Maybe check that max > min?
+	playerMax: z.number().int().min(1), //Maybe check that max > min?
+	motivation: z.string().min(1).max(2000)
 });
-
-
-
-
 
 /**
  * @api {post} /api/v1/suggestions/add Add a suggestion
@@ -92,14 +90,14 @@ suggestRouter.post(
 			);
 		}
 
-		if(body.playerMin > body.playerMax){
+		if (body.playerMin > body.playerMax) {
 			return sendApiValidationError(
 				res,
 				{
-					path: "playerMax",
-					message: 'Maximum player can not be biger than minimum'
+					path: 'playerMax',
+					message: 'Maximum player can not be bigger than minimum'
 				},
-				"Body"
+				'Body'
 			);
 		}
 
@@ -110,7 +108,8 @@ suggestRouter.post(
 			new Date(body.releaseDate),
 			body.playtime,
 			body.playerMin,
-			body.playerMax
+			body.playerMax,
+			body.motivation
 		);
 
 		res.status(200).json({ message: 'Suggestion added' });
@@ -127,6 +126,7 @@ const formatSuggestion = (suggestions: any[]) => {
 		playtimeMinutes: suggestion.playtimeMinutes,
 		playerMin: suggestion.playerMin,
 		playerMax: suggestion.playerMax,
+		motivation: suggestion.motivation
 	}));
 };
 
