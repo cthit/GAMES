@@ -213,9 +213,9 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 		filter.platform = { name: body.platform };
 	if (body.playtimeMax || body.playtimeMin) {
 		filter.playtimeMinutes = {};
-		if (body.playtimeMax && filter.playtimeMinutes)
+		if (body.playtimeMax)
 			filter.playtimeMinutes.lte = body.playtimeMax;
-		if (body.playtimeMin && filter.playtimeMinutes)
+		if (body.playtimeMin)
 			filter.playtimeMinutes.gte = body.playtimeMin;
 	}
 	const games = await filterGames(filter);
