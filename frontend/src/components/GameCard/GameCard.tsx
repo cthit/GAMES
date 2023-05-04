@@ -30,7 +30,7 @@ const GameCard: FC<GameCardProps> = ({
 	owner
 }) => {
 
-	const [rating, setRating] = useState<number>();
+	const [rating, setRating] = useState<string>();
 
 	const {
 		error: postError,
@@ -59,16 +59,16 @@ const GameCard: FC<GameCardProps> = ({
 			<form onSubmit={(e) => {
 				e.preventDefault();
 				postData({
-					game: gameId,
+					game: id,
 					rating: 1
 				});
 			}}>
 				<Select
 				label="Rating"
-				options={[1, 2, 3, 4, 5]}
+				options={['1', '2', '3', '4', '5']}
 				placeholder="Select a level"
 				onChange={(select) => setRating(select.target.value)}
-				value={platform}
+				value={rating || ''}
 				/>
 				<br />
 				<input type="submit" value="Rate" />
