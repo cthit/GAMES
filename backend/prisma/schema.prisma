@@ -30,12 +30,12 @@ model Game {
 }
 
 model PlayStatus {
-    id     String @id @default(cuid())
     game   Game   @relation(fields: [gameId], references: [id])
     gameId String
     user   User   @relation(fields: [userId], references: [id])
     userId String
 
+    @@id ([gameId, userId])
     @@map("play_status")
 }
 
