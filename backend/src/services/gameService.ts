@@ -124,7 +124,7 @@ export const filterGames = async (filter: Filter) => {
 	});
 };
 
-export const removeGame = async (gameID: string, userGroup: string) => {
+export const removeGame = async (gameID: string, gameOwnerId: string) => {
 	const game = await prisma.game.findUnique({
 		where: {
 			id: gameID
