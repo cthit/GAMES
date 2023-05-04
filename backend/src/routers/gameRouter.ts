@@ -57,8 +57,8 @@ const addGameSchema = z.object({
 	releaseDate: z.string().datetime(), // ISO date string
 	playtime: z.number().int().min(1),
 	playerMin: z.number().int().min(1),
-	playerMax: z.number().int().min(1) //Maybe check that max > min?
-	location: z.string().min(1).max(250),
+	playerMax: z.number().int().min(1), //Maybe check that max > min?
+	location: z.string().min(1).max(250)
 });
 
 /**
