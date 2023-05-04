@@ -38,7 +38,7 @@ const rateSchema = z.object({
  * 	"message": "Must be logged in to rate game"
  * }
  */
- ratingRouter.get('/rate',
+ ratingRouter.post('/rate',
     validateRequestBody(rateSchema),    
     async (req, res) => {
         const user = req.session.user;
