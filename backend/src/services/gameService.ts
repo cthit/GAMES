@@ -128,8 +128,7 @@ export const markGameAsPlayed = async (gameID: string, userID: string) => {
 	prisma.playStatus.create({
 		data: {
 			gameId: gameID,
-			userId: userID,
-			played: true
+			userId: userID
 		}
 	});
 }

@@ -32,8 +32,6 @@ model PlayStatus {
     gameId  String
     user    User   @relation(fields: [userId], references: [id])
     userId  String
-    played  Boolean @default(false)
-
     @@map("play_status")
 }
 

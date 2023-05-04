@@ -252,8 +252,7 @@ gameRouter.post('/remove', async (req, res) => {
 	}
 });
 const markPlayedSchema = z.object({
-	gameId: z.string().cuid(),
-	userId: z.string().cuid()
+	gameId: z.string()
 });
 /**
  * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
@@ -274,9 +273,10 @@ const markPlayedSchema = z.object({
  *
  * @apiUse ZodError
  */
-gameRouter.post('/markPlayed', validateRequestBody(markPlayedSchema), async (req, res) => {
+gameRouter.post('/markPlayed', async (req, res) => {
 	try {
-		await markGameAsPlayed(req.body.gameId, req.body.userId);
+		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+		await markGameAsPlayed(req.body.gameId, req.user.);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
 		if (e instanceof Error)

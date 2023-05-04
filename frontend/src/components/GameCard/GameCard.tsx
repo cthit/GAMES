@@ -26,6 +26,7 @@ const GameCard: FC<GameCardProps> = ({
 	playerMin,
 	playerMax
 }) => {
+	const { postData } = useApiPost('/games/markPlayed');
 	return (
 		<li className={styles.card}>
 			<h2>{name}</h2>
@@ -39,6 +40,16 @@ const GameCard: FC<GameCardProps> = ({
 			</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
+			<p>
+				Game is currently: {false ? 'played' : `not played`}
+				<input
+					type="button"
+					value="Mark as played"
+					onClick={() => {
+						postData({ id: id });
+					}}
+				/>
+			</p>
 			<form action="/borrow">
 				<input type="hidden" id="game" name="game" value={id} />
 				<input type="submit" value="Borrow Game" />
