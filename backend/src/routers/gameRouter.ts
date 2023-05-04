@@ -39,6 +39,7 @@ const gameRouter = Router();
  *	  "playtime": 60,
  *	  "playerMin": 1,
  *	  "playerMax": 5
+ *	  "location": "Hubben",
  * 	"isBorrowed": "false"
  *   }
  * ]
@@ -57,6 +58,7 @@ const addGameSchema = z.object({
 	playtime: z.number().int().min(1),
 	playerMin: z.number().int().min(1),
 	playerMax: z.number().int().min(1) //Maybe check that max > min?
+	location: z.string().min(1).max(250),
 });
 
 /**
@@ -78,7 +80,8 @@ const addGameSchema = z.object({
  *    "description": "Game 1 description",
  * 	  "platformName": "Steam",
  *	  "releaseDate": "2023-04-13",
- *	  "playtimeMinutes": "60"
+ *	  "playtimeMinutes": "60",
+ *	  "location": "Hubben"
  *   }
  * ]
  */
@@ -105,6 +108,7 @@ gameRouter.get('/search', async (req, res) => {
  * @apiBody {Number} playtime Playtime of the game
  * @apiBody {Number} playerMin PlayerMin of the game
  * @apiBody {Number} playMax PlayerMax of the game
+ * @apiBody {String} location Location of the game
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -151,6 +155,7 @@ gameRouter.post(
 			body.playtime,
 			body.playerMin,
 			body.playerMax,
+			body.location,
 			// @ts-expect-error GammaUser not added to Request.user type
 			await getGameOwnerIdFromCid(req.user.cid)
 		);
@@ -166,7 +171,8 @@ const filterGamesSchema = z.object({
 	releaseAfter: z.string().datetime().optional(), // ISO date string
 	playtime: z.number().int().min(1).optional(),
 	playerCount: z.number().int().min(1).max(2000).optional(),
-	owner: z.string().cuid2().optional()
+	owner: z.string().cuid2().optional(),
+	location: z.string().min(1).max(500).optional()
 });
 
 /**
@@ -183,6 +189,7 @@ const filterGamesSchema = z.object({
  * @apiBody {Number} playtime Playtime of the game (Optional)
  * @apiBody {Number} playerCount amount of players for the game (Optional)
  * @apiBody {String} owner CUID of the owner of the game (Optional)
+ * @apiBody {String} location Location of the game (Optional)
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -196,6 +203,7 @@ const filterGamesSchema = z.object({
  * 	  "platformName": "Steam",
  *	  "releaseDate": "2023-04-13",
  *	  "playtimeMinutes": "60"
+ *	  "location": "Hubben"
  *   }
  * ]
  *
@@ -236,6 +244,8 @@ gameRouter.post(
 		if (body.platform) filter.platform = { name: body.platform };
 
 		if (body.playtime) filter.playtimeMinutes = body.playtime;
+
+		if (body.location) filter.location = { contains: body.location, mode: 'insensitive' };
 
 		const games = await filterGames(filter);
 
@@ -320,6 +330,7 @@ const formatGames = async (games: any[]) => {
 			playtimeMinutes: game.playtimeMinutes,
 			playerMin: game.playerMin,
 			playerMax: game.playerMax,
+			location: game.location,
 			owner: await getGameOwnerNameFromId(game.gameOwnerId),
 			isBorrowed:
 				game.borrow.filter((b: { returned: boolean }) => {
