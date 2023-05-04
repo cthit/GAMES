@@ -1,6 +1,8 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import RemoveGame from '../RemoveGame/RemoveGame';
 import styles from './GameCard.module.css';
+import Select from '../Forms/Select/Select';
+import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface GameCardProps {
 	id: string;
@@ -27,6 +29,15 @@ const GameCard: FC<GameCardProps> = ({
 	playerMax,
 	owner
 }) => {
+
+	const [rating, setRating] = useState<number>();
+
+	const {
+		error: postError,
+		loading: postLoading,
+		postData
+	} = useApiPost('/rating/rate');
+
 	return (
 		<li className={styles.card}>
 			<h2>{name}</h2>
@@ -44,6 +55,23 @@ const GameCard: FC<GameCardProps> = ({
 			<form action="/borrow">
 				<input type="hidden" id="game" name="game" value={id} />
 				<input type="submit" value="Borrow Game" />
+			</form>
+			<form onSubmit={(e) => {
+				e.preventDefault();
+				postData({
+					game: gameId,
+					rating: 1
+				});
+			}}>
+				<Select
+				label="Rating"
+				options={[1, 2, 3, 4, 5]}
+				placeholder="Select a level"
+				onChange={(select) => setRating(select.target.value)}
+				value={platform}
+				/>
+				<br />
+				<input type="submit" value="Rate" />
 			</form>
 			<RemoveGame id={id} />
 		</li>
