@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
+import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
 	getGameOwnerNameFromId,
@@ -241,6 +242,14 @@ gameRouter.post(
 		const games = await filterGames(filter);
 
 		const formattedGames = await formatGames(games);
+		if (req.user) {
+			const uid = (await getAccountFromCid(req.user.cid))?.id;
+			for (let i = 0; i < formattedGames.length; i++) {
+				formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
+					return played.userId == uid;
+				}).length > 0
+			}
+		}
 
 		res.status(200).json(formattedGames);
 	}
@@ -275,9 +284,6 @@ gameRouter.post('/remove', async (req, res) => {
 		else res.status(400).json({ message: 'Error removing game' });
 	}
 });
-const markPlayedSchema = z.object({
-	gameId: z.string()
-});
 /**
  * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
  * @apiName markPlayed
@@ -300,7 +306,7 @@ const markPlayedSchema = z.object({
 gameRouter.post('/markPlayed', async (req, res) => {
 	try {
 		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-		await markGameAsPlayed(req.body.gameId, req.user.);
+		await markGameAsPlayed(req.body.gameId, req.user.cid);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
 		if (e instanceof Error)
@@ -361,7 +367,8 @@ const formatGames = async (games: any[]) => {
 			isBorrowed:
 				game.borrow.filter((b: { returned: boolean }) => {
 					return !b.returned;
-				}).length > 0
+				}).length > 0,
+			isPlayed: false
 		}))
 	);
 };

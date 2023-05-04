@@ -1,3 +1,4 @@
+import { useApiPost } from '@/src/hooks/apiHooks';
 import { FC } from 'react';
 import RemoveGame from '../RemoveGame/RemoveGame';
 import styles from './GameCard.module.css';
@@ -13,6 +14,7 @@ interface GameCardProps {
 	playerMin: string;
 	playerMax: string;
 	owner: string;
+	isPlayed: boolean;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -25,7 +27,8 @@ const GameCard: FC<GameCardProps> = ({
 	isBorrowed,
 	playerMin,
 	playerMax,
-	owner
+	owner,
+	isPlayed
 }) => {
 	const { postData } = useApiPost('/games/markPlayed');
 	return (
@@ -43,12 +46,12 @@ const GameCard: FC<GameCardProps> = ({
 			<p>Maximum players: {playerMax}</p>
 			<p>Owner: {owner}</p>
 			<p>
-				Game is currently: {false ? 'played' : `not played`}
+				Game is currently: {isPlayed ? 'played' : `not played`}
 				<input
 					type="button"
 					value="Mark as played"
 					onClick={() => {
-						postData({ id: id });
+						postData({ gameId: id });
 					}}
 				/>
 			</p>

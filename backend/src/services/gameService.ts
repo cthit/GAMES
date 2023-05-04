@@ -105,7 +105,8 @@ export const filterGames = async (filter: Filter) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
-			gameOwnerId: true
+			gameOwnerId: true,
+			playStatus: true
 		},
 		where: filter
 	});
@@ -133,11 +134,18 @@ export const removeGame = async (gameID: string) => {
 	});
 };
 
-export const markGameAsPlayed = async (gameID: string, userID: string) => {
-	prisma.playStatus.create({
+export const markGameAsPlayed = async (gameID: string, cid: string) => {
+	console.log(`${cid} played ${gameID}`);
+	const user = await prisma.user.findUnique({
+		where: {
+			cid: cid
+		}
+	});
+	if (!user) throw new Error('User not found');
+	await prisma.playStatus.create({
 		data: {
 			gameId: gameID,
-			userId: userID
+			userId: user.id
 		}
 	});
 }
