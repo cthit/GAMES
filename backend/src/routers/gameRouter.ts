@@ -173,7 +173,7 @@ const filterGamesSchema = z.object({
 	releaseAfter: z.string().datetime().optional(), // ISO date string
 	playtimeMin: z.number().int().min(1).optional(),
 	playtimeMax: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000).optional()
+	playerCount: z.number().int().min(1).max(2000).optional(),
 	owner: z.string().cuid2().optional(),
 	location: z.string().min(1).max(500).optional()
 });
