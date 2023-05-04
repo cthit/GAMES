@@ -171,7 +171,7 @@ const filterGamesSchema = z.object({
 	releaseAfter: z.string().datetime().optional(), // ISO date string
 	playtimeMin: z.number().int().min(1).optional(),
 	playtimeMax: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000).optional()
+	playerCount: z.number().int().min(1).max(2000).optional(),
 	owner: z.string().cuid2().optional(),
 	location: z.string().min(1).max(500).optional()
 });
@@ -202,11 +202,11 @@ const filterGamesSchema = z.object({
  *    "id": "clgkri8kk0000przwvkvbyj95",
  *    "name": "Game 1",
  *    "description": "Game 1 description",
- * 	  "platformName": "Steam",
- *	  "releaseDate": "2023-04-13",
- *	  "playtimeMin": "10",
- *	  "playtimeMax": "60"
- *	  "location": "Hubben"
+ * 	"platformName": "Steam",
+ *	  	"releaseDate": "2023-04-13",
+ *	  	"playtimeMin": "10",
+ *	  	"playtimeMax": "60"
+ *	  	"location": "Hubben"
  *   }
  * ]
  *
@@ -268,13 +268,17 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
- *  [
  *   {
- *    "id": "clgkri8kk0000przwvkvbyj95",
+ *    "message": "Game removed"
  *   }
- * ]
  *
  * @apiUse ZodError
+ *
+ * @apiError (400) {object} Unauthorized Must be logged in to add game
+ * @apiErrorExample {json} 400 :
+ * {
+ * 	"message": "Game not found"
+ * }
  */
 gameRouter.post('/remove', async (req, res) => {
 	try {
