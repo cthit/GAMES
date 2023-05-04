@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
+import { GammaUser } from '../models/gammaModels.js';
 import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
@@ -254,7 +255,7 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 
 		const formattedGames = await formatGames(games);
 		if (req.user) {
-			const uid = (await getAccountFromCid(req.user.cid))?.id;
+			const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
 			for (let i = 0; i < formattedGames.length; i++) {
 				formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
 					return played.userId == uid;
@@ -317,7 +318,7 @@ gameRouter.post('/remove', async (req, res) => {
 gameRouter.post('/markPlayed', async (req, res) => {
 	try {
 		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-		await markGameAsPlayed(req.body.gameId, req.user.cid);
+		await markGameAsPlayed(req.body.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
 		if (e instanceof Error)
