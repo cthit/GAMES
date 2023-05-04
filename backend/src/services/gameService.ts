@@ -92,9 +92,12 @@ export type Filter = {
 		lte: number;
 	};
 	platform?: {
-		name: string;
-	};
-	playtimeMinutes?: number;
+		name: string
+	},
+	playtimeMinutes?: {
+		lte?: number,
+		gte?: number
+	}
 	location?: {
 		contains: string;
 		mode: 'insensitive';

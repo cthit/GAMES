@@ -25,7 +25,8 @@ type SearchFilter = {
 	platform?: string;
 	releaseBefore?: Date;
 	releaseAfter?: Date;
-	playtime?: number;
+	playtimeMax?: number;
+	playtimeMin?: number;
 	playerCount?: number;
 	location?: string; 
 	owner?: string;
@@ -38,7 +39,8 @@ const GamesList: FC<GamesListProps> = () => {
 	const [platform, setPlatform] = useState('');
 	const [releaseBefore, setReleaseBefore] = useState<Date>();
 	const [releaseAfter, setReleaseAfter] = useState<Date>();
-	const [playtime, setPlaytime] = useState<number>();
+	const [playtimeMax, setPlaytimeMax] = useState<number>();
+	const [playtimeMin, setPlaytimeMin] = useState<number>();
 	const [playerCount, setPlayerCount] = useState<number>();
 	const [owner, setOwner] = useState<string>();
 	const searchFilter: SearchFilter = {};
@@ -51,7 +53,8 @@ const GamesList: FC<GamesListProps> = () => {
 		if (platform) searchFilter.platform = platform;
 		if (releaseBefore) searchFilter.releaseBefore = new Date(releaseBefore);
 		if (releaseAfter) searchFilter.releaseAfter = new Date(releaseAfter);
-		if (playtime) searchFilter.playtime = playtime;
+		if (playtimeMax) searchFilter.playtimeMax = playtimeMax;
+		if (playtimeMin) searchFilter.playtimeMin = playtimeMin;
 		if (playerCount) searchFilter.playerCount = playerCount;
 		if (owner) searchFilter.owner = owner;
 		postData(searchFilter);
@@ -63,13 +66,15 @@ const GamesList: FC<GamesListProps> = () => {
 				setPlatform={setPlatform}
 				setReleaseBefore={setReleaseBefore}
 				setReleaseAfter={setReleaseAfter}
-				setPlaytime={setPlaytime}
+				setPlaytimeMax={setPlaytimeMax}
+				setPlaytimeMin={setPlaytimeMin}
 				setPlayerCount={setPlayerCount}
 				setOwner={setOwner}
 				platform={platform}
 				releaseAfter={releaseAfter}
 				releaseBefore={releaseBefore}
-				playtime={playtime}
+				playtimeMax={playtimeMax}
+				playtimeMin={playtimeMin}
 				playerCount={playerCount}
 				owner={owner}
 				filterFunction={search}
