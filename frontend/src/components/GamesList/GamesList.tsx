@@ -19,6 +19,7 @@ interface Game {
 	playerMax: string;
 	location: string; 
 	owner: string;
+	isPlayed: boolean;
 }
 type SearchFilter = {
 	name?: string;
@@ -112,6 +113,7 @@ const GamesList: FC<GamesListProps> = () => {
 								playerMax={game.playerMax}
 								location={game.location}
 								owner={game.owner}
+								isPlayed={game.isPlayed}
 							/>
 						))}
 					</ul>

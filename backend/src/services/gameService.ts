@@ -116,8 +116,9 @@ export const filterGames = async (filter: Filter) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
-			location: true, 
-			gameOwnerId: true
+			location: true,
+			gameOwnerId: true,
+			playStatus: true
 		},
 		where: filter
 	});
@@ -144,3 +145,18 @@ export const removeGame = async (gameID: string) => {
 		}
 	});
 };
+
+export const markGameAsPlayed = async (gameID: string, cid: string) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			cid: cid
+		}
+	});
+	if (!user) throw new Error('User not found');
+	await prisma.playStatus.create({
+		data: {
+			gameId: gameID,
+			userId: user.id
+		}
+	});
+}
