@@ -135,7 +135,7 @@ export const removeGame = async (gameID: string, gameOwnerId: string) => {
 		}
 	});
 	if (!game) throw new Error('Game not found');
-	if (game.GameOwner?.id != userGroup) {
+	if (game.GameOwner?.id != gameOwnerId) {
 		throw new Error('User does not own this game');
 	}
 	const borrows = game.borrow.filter(
