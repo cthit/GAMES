@@ -169,8 +169,9 @@ const filterGamesSchema = z.object({
 	platform: z.string().min(1).optional(),
 	releaseBefore: z.string().datetime().optional(), // ISO date string
 	releaseAfter: z.string().datetime().optional(), // ISO date string
-	playtime: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000).optional(),
+	playtimeMin: z.number().int().min(1).optional(),
+	playtimeMax: z.number().int().min(1).optional(),
+	playerCount: z.number().int().min(1).max(2000).optional()
 	owner: z.string().cuid2().optional(),
 	location: z.string().min(1).max(500).optional()
 });
@@ -186,7 +187,8 @@ const filterGamesSchema = z.object({
  * @apiBody {String} platform Platform the game is played on (Optional)
  * @apiBody {String} releaseBefore Filters to games released before a specific date (Optional)
  * @apiBody {String} releaseAfter Filters to games released after a specific date (Optional)
- * @apiBody {Number} playtime Playtime of the game (Optional)
+ * @apiBody {Number} playtimeMin Minimum playtime of the game (Optional)
+ * @apiBody {Number} playtimeMax Maximum playtime of the game (Optional
  * @apiBody {Number} playerCount amount of players for the game (Optional)
  * @apiBody {String} owner CUID of the owner of the game (Optional)
  * @apiBody {String} location Location of the game (Optional)
@@ -202,48 +204,47 @@ const filterGamesSchema = z.object({
  *    "description": "Game 1 description",
  * 	  "platformName": "Steam",
  *	  "releaseDate": "2023-04-13",
- *	  "playtimeMinutes": "60"
+ *	  "playtimeMin": "10",
+ *	  "playtimeMax": "60"
  *	  "location": "Hubben"
  *   }
  * ]
  *
  * @apiUse ZodError
  */
-gameRouter.post(
-	'/filter',
-	validateRequestBody(filterGamesSchema),
-	async (req, res) => {
-		const body = req.body;
 
-		const filter: Filter = {};
-		if (body.name) filter.name = { contains: body.name, mode: 'insensitive' };
-
-		if (body.owner) filter.gameOwnerId = body.owner;
-
-		if (body.releaseAfter)
-			filter.dateReleased = {
-				gte: new Date(body.releaseAfter)
-			};
-
-		if (body.releaseBefore)
-			filter.dateReleased = {
-				lte: new Date(body.releaseBefore)
-			};
-
-		if (body.releaseAfter && body.releaseBefore)
-			filter.dateReleased = {
-				lte: new Date(body.releaseBefore),
-				gte: new Date(body.releaseAfter)
-			};
-
-		if (body.playerCount) {
-			filter.playerMax = { gte: body.playerCount };
-			filter.playerMin = { lte: body.playerCount };
-		}
-
-		if (body.platform) filter.platform = { name: body.platform };
-
-		if (body.playtime) filter.playtimeMinutes = body.playtime;
+gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
+	const body = req.body;
+	const filter: Filter = {};
+	if (body.name) {
+		filter.name = { contains: body.name, mode: 'insensitive' }
+	}
+	if (body.releaseAfter)
+		filter.dateReleased = {
+			gte: new Date(body.releaseAfter)
+		};
+	if (body.releaseBefore)
+		filter.dateReleased = {
+			lte: new Date(body.releaseBefore)
+		};
+	if (body.releaseAfter && body.releaseBefore)
+		filter.dateReleased = {
+			lte: new Date(body.releaseBefore),
+			gte: new Date(body.releaseAfter)
+		};
+	if (body.playerCount) {
+		filter.playerMax = { gte: body.playerCount };
+		filter.playerMin = { lte: body.playerCount };
+	}
+	if (body.platform)
+		filter.platform = { name: body.platform };
+	if (body.playtimeMax || body.playtimeMin) {
+		filter.playtimeMinutes = {};
+		if (body.playtimeMax)
+			filter.playtimeMinutes.lte = body.playtimeMax;
+		if (body.playtimeMin)
+			filter.playtimeMinutes.gte = body.playtimeMin;
+	}
 
 		if (body.location) filter.location = { contains: body.location, mode: 'insensitive' };
 
