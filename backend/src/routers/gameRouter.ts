@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
+import { GammaUser } from '../models/gammaModels.js';
+import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
 	getGameOwnerNameFromId,
@@ -11,8 +13,9 @@ import {
 	createGame,
 	filterGames,
 	getAllGames,
+	searchGames,
 	removeGame,
-	searchGames
+	markGameAsPlayed
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
@@ -171,7 +174,7 @@ const filterGamesSchema = z.object({
 	releaseAfter: z.string().datetime().optional(), // ISO date string
 	playtimeMin: z.number().int().min(1).optional(),
 	playtimeMax: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000).optional()
+	playerCount: z.number().int().min(1).max(2000).optional(),
 	owner: z.string().cuid2().optional(),
 	location: z.string().min(1).max(500).optional()
 });
@@ -251,6 +254,14 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 		const games = await filterGames(filter);
 
 		const formattedGames = await formatGames(games);
+		if (req.user) {
+			const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
+			for (let i = 0; i < formattedGames.length; i++) {
+				formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
+					return played.userId == uid;
+				}).length > 0
+			}
+		}
 
 		res.status(200).json(formattedGames);
 	}
@@ -285,6 +296,39 @@ gameRouter.post('/remove', async (req, res) => {
 		else res.status(400).json({ message: 'Error removing game' });
 	}
 });
+/**
+ * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
+ * @apiName markPlayed
+ * @apiGroup Games
+ * @apiDescription Marks the game as played for the user
+ *
+ * @apiBody {String} gameId Id of the game
+ * @apiBody {String} userId Id of the user
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *   {
+ *    "message": "Game marked as played"
+ *   }
+ *
+ * @apiUse ZodError
+ */
+gameRouter.post('/markPlayed', async (req, res) => {
+	try {
+		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+		await markGameAsPlayed(req.body.gameId, (req.user as GammaUser).cid);
+		res.status(200).json({ message: 'Game marked as played' });
+	} catch (e) {
+		if (e instanceof Error)
+			res.status(400).json({ message: e.message });
+		else
+			res.status(400).json({ message: 'Error marking game as played' });
+	}
+});
+
+
 
 /**
  * @api {get} /api/v1/games/owners Get all game owners
@@ -336,9 +380,11 @@ const formatGames = async (games: any[]) => {
 			isBorrowed:
 				game.borrow.filter((b: { returned: boolean }) => {
 					return !b.returned;
-				}).length > 0
+				}).length > 0,
+			isPlayed: false
 		}))
 	);
 };
+
 
 export default gameRouter;
