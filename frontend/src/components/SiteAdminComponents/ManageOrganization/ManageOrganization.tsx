@@ -148,7 +148,7 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 
 			<br />
 
-			<input type="submit" value="Save" />
+			<input type="submit" value="Save changes" />
 		</form>
 	);
 };

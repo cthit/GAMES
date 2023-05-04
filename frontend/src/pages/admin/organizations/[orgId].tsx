@@ -4,6 +4,7 @@ import Header from '@/src/components/Header/Header';
 import styles from '@/src/pages/admin/organizations/index.module.css';
 import { useRouter } from 'next/router';
 import ManageOrganization from '@/src/components/SiteAdminComponents/ManageOrganization/ManageOrganization';
+import RemoveOrganizationButton from '@/src/components/SiteAdminComponents/RemoveOrganizationButton/RemoveOrganizationButton';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,8 +25,9 @@ export const Home = () => {
 			</Head>
 			<Header />
 			<main className={styles.mainContainer}>
-				<h1>Admin</h1>
+				<h1>Manage organization</h1>
 				<ManageOrganization organizationId={orgId as string} />
+				<RemoveOrganizationButton orgId={orgId as string} />
 			</main>
 		</>
 	);
