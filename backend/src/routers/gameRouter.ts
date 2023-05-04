@@ -286,7 +286,11 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
  * ]
  *
  * @apiUse ZodError
- */
+ * @apiErrorExample {json} 401 Unauthorized:
+ * {
+ * 	"message": "Must be logged in to remove game"
+ * }
+*/
 gameRouter.post('/remove', async (req, res) => {
 	try {
 		if (!req.user) { res.status(401).json({ message: 'Not logged in' }); return; }
