@@ -8,6 +8,7 @@ export const createGame = async (
 	playtimeMinutes: number,
 	playerMin: number,
 	playerMax: number,
+	location: string,
 	gameOwnerId: string
 ) => {
 	await prisma.game.create({
@@ -23,6 +24,7 @@ export const createGame = async (
 			playtimeMinutes,
 			playerMin,
 			playerMax,
+			location,
 			GameOwner: {
 				connect: {
 					id: gameOwnerId
@@ -44,6 +46,7 @@ export const getAllGames = async () => {
 			borrow: true, // TODO: See what is given
 			playerMin: true,
 			playerMax: true,
+			location: true,
 			gameOwnerId: true
 		}
 	});
@@ -61,6 +64,7 @@ export const searchGames = async (term: string) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
+			location: true,
 			gameOwnerId: true
 		},
 		where: {
@@ -91,6 +95,10 @@ export type Filter = {
 		name: string;
 	};
 	playtimeMinutes?: number;
+	location?: {
+		contains: string;
+		mode: 'insensitive';
+	};
 	gameOwnerId?: string;
 };
 export const filterGames = async (filter: Filter) => {
@@ -105,6 +113,7 @@ export const filterGames = async (filter: Filter) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
+			location: true,
 			gameOwnerId: true,
 			playStatus: true
 		},

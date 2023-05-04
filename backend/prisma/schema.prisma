@@ -19,6 +19,7 @@ model Game {
     playerMin       Int
     playerMax       Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
+    location        String
     playStatus      PlayStatus[]
     borrow          Borrow[]
     request         BorrowRequest[]

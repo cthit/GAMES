@@ -17,6 +17,7 @@ interface Game {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	location: string; 
 	owner: string;
 	isPlayed: boolean;
 }
@@ -27,6 +28,7 @@ type SearchFilter = {
 	releaseAfter?: Date;
 	playtime?: number;
 	playerCount?: number;
+	location?: string; 
 	owner?: string;
 };
 
@@ -104,6 +106,7 @@ const GamesList: FC<GamesListProps> = () => {
 								isBorrowed={game.isBorrowed}
 								playerMin={game.playerMin}
 								playerMax={game.playerMax}
+								location={game.location}
 								owner={game.owner}
 								isPlayed={game.isPlayed}
 							/>

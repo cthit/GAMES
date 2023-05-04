@@ -60,7 +60,8 @@ async function createGames(gameOwnerIds: string[]) {
 			dateReleased: new Date('2021-06-23'),
 			playtimeMinutes: 20,
 			playerMin: 2,
-			playerMax: 6
+			playerMax: 6,
+			location: 'LaggIT steam account'
 		}
 	});
 
@@ -81,7 +82,8 @@ async function createGames(gameOwnerIds: string[]) {
 			dateReleased: new Date('1999-01-01'),
 			playtimeMinutes: 15,
 			playerMin: 2,
-			playerMax: 8
+			playerMax: 8,
+			location: 'DrawIT game cabinet'
 		}
 	});
 }
