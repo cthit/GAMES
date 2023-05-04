@@ -289,13 +289,15 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
  */
 gameRouter.post('/remove', async (req, res) => {
 	try {
-		await removeGame(req.body.id);
+		if (!req.user) { res.status(401).json({ message: 'Not logged in' }); return; }
+		await removeGame(req.body.id, await getGameOwnerIdFromCid((req.user as GammaUser).cid));
 		res.status(200).json({ message: 'Game removed' });
 	} catch (e) {
 		if (e instanceof Error) res.status(400).json({ message: e.message });
 		else res.status(400).json({ message: 'Error removing game' });
 	}
 });
+
 /**
  * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
  * @apiName markPlayed

@@ -124,16 +124,20 @@ export const filterGames = async (filter: Filter) => {
 	});
 };
 
-export const removeGame = async (gameID: string) => {
+export const removeGame = async (gameID: string, userGroup: string) => {
 	const game = await prisma.game.findUnique({
 		where: {
 			id: gameID
 		},
 		select: {
-			borrow: true
+			borrow: true,
+			GameOwner: true
 		}
 	});
 	if (!game) throw new Error('Game not found');
+	if (game.GameOwner?.id != userGroup) {
+		throw new Error('User does not own this game');
+	}
 	const borrows = game.borrow.filter(
 		(borrow) => !borrow.returned && borrow.borrowStart < new Date()
 	);
