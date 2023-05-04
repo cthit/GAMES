@@ -1,14 +1,18 @@
-import { Game } from '@prisma/client';
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
+import {
+	getGameOwnerIdFromCid,
+	getGameOwnerNameFromId,
+	getGameOwnersWithGames
+} from '../services/gameOwnerService.js';
 import {
 	Filter,
 	createGame,
 	filterGames,
 	getAllGames,
-	searchGames,
-	removeGame
+	removeGame,
+	searchGames
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
@@ -35,13 +39,14 @@ const gameRouter = Router();
  *	  "playtime": 60,
  *	  "playerMin": 1,
  *	  "playerMax": 5
+ *	  "location": "Hubben",
  * 	"isBorrowed": "false"
  *   }
  * ]
  */
 gameRouter.get('/', async (req, res) => {
 	const games = await getAllGames();
-	const formattedGames = formatGames(games);
+	const formattedGames = await formatGames(games);
 	res.status(200).json(formattedGames);
 });
 
@@ -52,7 +57,8 @@ const addGameSchema = z.object({
 	releaseDate: z.string().datetime(), // ISO date string
 	playtime: z.number().int().min(1),
 	playerMin: z.number().int().min(1),
-	playerMax: z.number().int().min(1) //Maybe check that max > min?
+	playerMax: z.number().int().min(1), //Maybe check that max > min?
+	location: z.string().min(1).max(250)
 });
 
 /**
@@ -74,7 +80,8 @@ const addGameSchema = z.object({
  *    "description": "Game 1 description",
  * 	  "platformName": "Steam",
  *	  "releaseDate": "2023-04-13",
- *	  "playtimeMinutes": "60"
+ *	  "playtimeMinutes": "60",
+ *	  "location": "Hubben"
  *   }
  * ]
  */
@@ -83,7 +90,7 @@ gameRouter.get('/search', async (req, res) => {
 		typeof req.query.term === 'string' ? req.query.term : ''
 	);
 
-	const formattedGames = formatGames(games);
+	const formattedGames = await formatGames(games);
 
 	res.status(200).json(formattedGames);
 });
@@ -101,6 +108,7 @@ gameRouter.get('/search', async (req, res) => {
  * @apiBody {Number} playtime Playtime of the game
  * @apiBody {Number} playerMin PlayerMin of the game
  * @apiBody {Number} playMax PlayerMax of the game
+ * @apiBody {String} location Location of the game
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -111,11 +119,21 @@ gameRouter.get('/search', async (req, res) => {
  * }
  *
  * @apiUse ZodError
+ *
+ * @apiError (401) {object} Unauthorized Must be logged in to add game
+ * @apiErrorExample {json} 401 Unauthorized:
+ * {
+ * 	"message": "Must be logged in to add game"
+ * }
  */
 gameRouter.post(
 	'/add',
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
+		if (!req.user) {
+			return res.status(401).json({ message: 'Must be logged in to add game' });
+		}
+
 		const body = req.body;
 
 		if (!(await platformExists(body.platform))) {
@@ -136,7 +154,10 @@ gameRouter.post(
 			new Date(body.releaseDate),
 			body.playtime,
 			body.playerMin,
-			body.playerMax
+			body.playerMax,
+			body.location,
+			// @ts-expect-error GammaUser not added to Request.user type
+			await getGameOwnerIdFromCid(req.user.cid)
 		);
 
 		res.status(200).json({ message: 'Game added' });
@@ -151,6 +172,8 @@ const filterGamesSchema = z.object({
 	playtimeMin: z.number().int().min(1).optional(),
 	playtimeMax: z.number().int().min(1).optional(),
 	playerCount: z.number().int().min(1).max(2000).optional()
+	owner: z.string().cuid2().optional(),
+	location: z.string().min(1).max(500).optional()
 });
 
 /**
@@ -167,6 +190,8 @@ const filterGamesSchema = z.object({
  * @apiBody {Number} playtimeMin Minimum playtime of the game (Optional)
  * @apiBody {Number} playtimeMax Maximum playtime of the game (Optional
  * @apiBody {Number} playerCount amount of players for the game (Optional)
+ * @apiBody {String} owner CUID of the owner of the game (Optional)
+ * @apiBody {String} location Location of the game (Optional)
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -177,15 +202,17 @@ const filterGamesSchema = z.object({
  *    "id": "clgkri8kk0000przwvkvbyj95",
  *    "name": "Game 1",
  *    "description": "Game 1 description",
- * 	"platformName": "Steam",
- *	   "releaseDate": "2023-04-13",
- *	   "playtimeMin": "10",
-*	   "playtimeMax": "60"
+ * 	  "platformName": "Steam",
+ *	  "releaseDate": "2023-04-13",
+ *	  "playtimeMin": "10",
+ *	  "playtimeMax": "60"
+ *	  "location": "Hubben"
  *   }
  * ]
  *
  * @apiUse ZodError
  */
+
 gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
 	const body = req.body;
 	const filter: Filter = {};
@@ -218,13 +245,16 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 		if (body.playtimeMin)
 			filter.playtimeMinutes.gte = body.playtimeMin;
 	}
-	const games = await filterGames(filter);
 
-	const formattedGames = formatGames(games);
-	res.status(200).json(formattedGames);
-});
+		if (body.location) filter.location = { contains: body.location, mode: 'insensitive' };
 
+		const games = await filterGames(filter);
 
+		const formattedGames = await formatGames(games);
+
+		res.status(200).json(formattedGames);
+	}
+);
 
 /**
  * @api {post} /api/v1/games/remove Remove a game
@@ -250,32 +280,65 @@ gameRouter.post('/remove', async (req, res) => {
 	try {
 		await removeGame(req.body.id);
 		res.status(200).json({ message: 'Game removed' });
+	} catch (e) {
+		if (e instanceof Error) res.status(400).json({ message: e.message });
+		else res.status(400).json({ message: 'Error removing game' });
 	}
-	catch (e) {
-		if (e instanceof Error)
-			res.status(400).json({ message: e.message });
-		else
-			res.status(400).json({ message: 'Error removing game' });
-	}
-})
+});
 
+/**
+ * @api {get} /api/v1/games/owners Get all game owners
+ * @apiName GetOwners
+ * @apiGroup Games
+ * @apiDescription Gets all game owners
+ *
+ * @apiSuccess {Object[]} Owners List of game owners
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * [
+ *  {
+ *   "id": "clgkri8kk0000przwvkvbyj95",
+ *   "name": "Game Owner 1"
+ *  },
+ *  {
+ *   "id": "clgkri8ku0000przwvkvbyj95",
+ *   "name": "Game Owner 2"
+ *  }
+ * ]
+ **/
+gameRouter.get('/owners', async (req, res) => {
+	const owners = await getGameOwnersWithGames();
 
+	const formattedOwners = await Promise.all(
+		owners.map(async (owner) => ({
+			id: owner.id,
+			name: await getGameOwnerNameFromId(owner.id)
+		}))
+	);
 
-const formatGames = (games: any[]) => {
-	return games.map((game) => ({
-		id: game.id,
-		name: game.name,
-		description: game.description,
-		platformName: game.platformName,
-		releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-		playtimeMinutes: game.playtimeMinutes,
-		playerMin: game.playerMin,
-		playerMax: game.playerMax,
-		isBorrowed:
-			game.borrow.filter((b: { returned: boolean }) => {
-				return !b.returned;
-			}).length > 0
-	}));
+	res.status(200).json(formattedOwners);
+});
+
+const formatGames = async (games: any[]) => {
+	return await Promise.all(
+		games.map(async (game) => ({
+			id: game.id,
+			name: game.name,
+			description: game.description,
+			platformName: game.platformName,
+			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
+			playtimeMinutes: game.playtimeMinutes,
+			playerMin: game.playerMin,
+			playerMax: game.playerMax,
+			location: game.location,
+			owner: await getGameOwnerNameFromId(game.gameOwnerId),
+			isBorrowed:
+				game.borrow.filter((b: { returned: boolean }) => {
+					return !b.returned;
+				}).length > 0
+		}))
+	);
 };
 
 export default gameRouter;

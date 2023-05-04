@@ -1,10 +1,9 @@
 import { useApiPost } from '@/src/hooks/apiHooks';
+import debounce from 'lodash.debounce';
 import { ChangeEvent, FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
-import styles from './GamesList.module.css';
-import debounce from 'lodash.debounce';
 import GameFilter from '../GameFilter/GameFilter';
-import { release } from 'os';
+import styles from './GamesList.module.css';
 
 interface GamesListProps {}
 
@@ -18,6 +17,8 @@ interface Game {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	location: string; 
+	owner: string;
 }
 type SearchFilter = {
 	name?: string;
@@ -27,6 +28,8 @@ type SearchFilter = {
 	playtimeMax?: number;
 	playtimeMin?: number;
 	playerCount?: number;
+	location?: string; 
+	owner?: string;
 };
 
 const GamesList: FC<GamesListProps> = () => {
@@ -39,6 +42,7 @@ const GamesList: FC<GamesListProps> = () => {
 	const [playtimeMax, setPlaytimeMax] = useState<number>();
 	const [playtimeMin, setPlaytimeMin] = useState<number>();
 	const [playerCount, setPlayerCount] = useState<number>();
+	const [owner, setOwner] = useState<string>();
 	const searchFilter: SearchFilter = {};
 
 	const search = debounce((e: ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +56,7 @@ const GamesList: FC<GamesListProps> = () => {
 		if (playtimeMax) searchFilter.playtimeMax = playtimeMax;
 		if (playtimeMin) searchFilter.playtimeMin = playtimeMin;
 		if (playerCount) searchFilter.playerCount = playerCount;
+		if (owner) searchFilter.owner = owner;
 		postData(searchFilter);
 	}, 300);
 
@@ -64,12 +69,14 @@ const GamesList: FC<GamesListProps> = () => {
 				setPlaytimeMax={setPlaytimeMax}
 				setPlaytimeMin={setPlaytimeMin}
 				setPlayerCount={setPlayerCount}
+				setOwner={setOwner}
 				platform={platform}
 				releaseAfter={releaseAfter}
 				releaseBefore={releaseBefore}
 				playtimeMax={playtimeMax}
 				playtimeMin={playtimeMin}
 				playerCount={playerCount}
+				owner={owner}
 				filterFunction={search}
 			/>
 			<div style={{ width: 'auto' }}>
@@ -103,6 +110,8 @@ const GamesList: FC<GamesListProps> = () => {
 								isBorrowed={game.isBorrowed}
 								playerMin={game.playerMin}
 								playerMax={game.playerMax}
+								location={game.location}
+								owner={game.owner}
 							/>
 						))}
 					</ul>

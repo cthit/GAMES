@@ -1,7 +1,6 @@
 import { FC } from 'react';
-import styles from './GameCard.module.css';
 import RemoveGame from '../RemoveGame/RemoveGame';
-import { useApiPost } from '@/src/hooks/apiHooks';
+import styles from './GameCard.module.css';
 
 interface GameCardProps {
 	id: string;
@@ -13,6 +12,8 @@ interface GameCardProps {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	location: string;
+	owner: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -24,7 +25,9 @@ const GameCard: FC<GameCardProps> = ({
 	playtimeMinutes,
 	isBorrowed,
 	playerMin,
-	playerMax
+	playerMax,
+	location,
+	owner
 }) => {
 	return (
 		<li className={styles.card}>
@@ -39,6 +42,8 @@ const GameCard: FC<GameCardProps> = ({
 			</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
+			<p>Location: {location}</p>
+			<p>Owner: {owner}</p>
 			<form action="/borrow">
 				<input type="hidden" id="game" name="game" value={id} />
 				<input type="submit" value="Borrow Game" />

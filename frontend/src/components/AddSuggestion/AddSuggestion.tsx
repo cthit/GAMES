@@ -12,7 +12,7 @@ interface Platform {
 }
 
 const AddSuggestion: FC<AddSuggestionProps> = () => {
-	const { data, error, loading } = useApiGet<Platform[]>('/platforms');
+	const { data, loading } = useApiGet<Platform[]>('/platforms');
 
 	const [name, setName] = useState('');
 	const [description, setDescription] = useState('');
@@ -21,12 +21,9 @@ const AddSuggestion: FC<AddSuggestionProps> = () => {
 	const [playtime, setPlaytime] = useState<number>();
 	const [playerMin, setPlayerMin] = useState<number>();
 	const [playerMax, setPlayerMax] = useState<number>();
+	const [motivation, setMotivation] = useState<string>('');
 
-	const {
-		error: postError,
-		loading: postLoading,
-		postData
-	} = useApiPost('/suggest/add');
+	const { postData } = useApiPost('/suggest/add');
 
 	if (loading) {
 		return <p>Loading...</p>;
@@ -47,7 +44,8 @@ const AddSuggestion: FC<AddSuggestionProps> = () => {
 					releaseDate: releaseDate?.toISOString(),
 					playtime,
 					playerMin,
-					playerMax
+					playerMax,
+					motivation
 				});
 			}}
 		>
@@ -109,6 +107,13 @@ const AddSuggestion: FC<AddSuggestionProps> = () => {
 					setPlayerMax(Number.parseInt(input.currentTarget.value))
 				}
 				value={playerMax?.toString() || ''}
+			/>
+			<br />
+
+			<TextArea
+				label="Motivation"
+				onChange={(input) => setMotivation(input.currentTarget.value)}
+				value={motivation}
 			/>
 			<br />
 

@@ -19,9 +19,12 @@ model Game {
     playerMin       Int
     playerMax       Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
+    location        String
 
-    borrow  Borrow[]
-    request BorrowRequest[]
+    borrow      Borrow[]
+    request     BorrowRequest[]
+    GameOwner   GameOwner?      @relation(fields: [gameOwnerId], references: [id])
+    gameOwnerId String?
 
     @@map("games")
 }
@@ -67,6 +70,23 @@ model Organization {
     @@map("organizations")
 }
 
+enum GameOwnerType {
+    ORGANIZATION
+    USER
+}
+
+model GameOwner {
+    id String @id @default(cuid())
+
+    ownerId   String
+    ownerType GameOwnerType
+
+    Games Game[]
+
+    @@unique([ownerId, ownerType])
+    @@map("game_owners")
+}
+
 model Borrow {
     game        Game     @relation(fields: [gameId], references: [id])
     id          String   @id @default(cuid())
@@ -106,6 +126,7 @@ model Suggest {
     playtimeMinutes Int // Stored in minutes @map("playtime")
     playerMin       Int
     playerMax       Int
+    motivation      String
 
     @@map("suggests")
 }

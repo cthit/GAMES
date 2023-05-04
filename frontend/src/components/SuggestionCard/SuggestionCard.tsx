@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import styles from './SuggestionCard.module.css';
-import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface SuggestionCardProps {
 	name: string;
@@ -10,6 +9,7 @@ interface SuggestionCardProps {
 	releaseDate: string;
 	playerMin: string;
 	playerMax: string;
+	motivation: string;
 }
 
 const SuggestionCard: FC<SuggestionCardProps> = ({
@@ -19,7 +19,8 @@ const SuggestionCard: FC<SuggestionCardProps> = ({
 	releaseDate,
 	playtimeMinutes,
 	playerMin,
-	playerMax
+	playerMax,
+	motivation
 }) => {
 	return (
 		<li className={styles.card}>
@@ -30,6 +31,8 @@ const SuggestionCard: FC<SuggestionCardProps> = ({
 			<p>Release date: {releaseDate}</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
+			<p>Motivation:</p>
+			<p>{motivation}</p>
 		</li>
 	);
 };
