@@ -12,6 +12,7 @@ interface GameCardProps {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	location: string;
 	owner: string;
 }
 
@@ -25,6 +26,7 @@ const GameCard: FC<GameCardProps> = ({
 	isBorrowed,
 	playerMin,
 	playerMax,
+	location,
 	owner
 }) => {
 	return (
@@ -40,6 +42,7 @@ const GameCard: FC<GameCardProps> = ({
 			</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
+			<p>Location: {location}</p>
 			<p>Owner: {owner}</p>
 			<form action="/borrow">
 				<input type="hidden" id="game" name="game" value={id} />
