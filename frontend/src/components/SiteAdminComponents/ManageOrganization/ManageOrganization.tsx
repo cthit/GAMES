@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import TextInput from '@/src/components/Forms/TextInput/TextInput';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { AxiosError } from 'axios';
 import Select from 'react-select';
@@ -17,11 +17,13 @@ interface SuperGroup {
 
 interface Organization {
 	name: string;
-	gammaSuperGroups: string[];
+	gammaSuperNames: string[];
 	addGammaAsOrgAdmin: boolean;
 }
 
 const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
+	const queryClient = useQueryClient();
+
 	const superGroupsQuery = useQuery<SuperGroup[], AxiosError>(
 		['siteAdmin', 'superGroups'],
 		async () => {
@@ -43,13 +45,38 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 			onSettled: (data, error) => {
 				if (error || data === undefined) return;
 				setName(data.name);
-				setSuperGroups(data.gammaSuperGroups);
+				setSuperGroups(data.gammaSuperNames);
 				setAddGammaAsAdmin(data.addGammaAsOrgAdmin);
 			}
 		}
 	);
 
-	if (superGroupsQuery.isLoading || organizationQuery.isLoading) {
+	const updateOrganizationMutation = useMutation<
+		unknown,
+		AxiosError,
+		Organization
+	>(
+		(updatedOrganization) => {
+			console.log(updatedOrganization);
+			return axios.put(
+				'/api/v1/admin/orgs/' + props.organizationId,
+				updatedOrganization
+			);
+		},
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries([
+					['siteAdmin', 'organization', props.organizationId]
+				]);
+			}
+		}
+	);
+
+	if (
+		superGroupsQuery.isLoading ||
+		organizationQuery.isLoading ||
+		updateOrganizationMutation.isLoading
+	) {
 		return <p>Loading...</p>;
 	}
 
@@ -60,20 +87,25 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 		return <p>Something went wrong: {organizationQuery.error.message}</p>;
 	}
 
-	if (superGroupsQuery.isError) {
+	if (superGroupsQuery.isError)
 		return <p>Something went wrong: {superGroupsQuery.error.message}</p>;
-	}
 
+	if (updateOrganizationMutation.isError)
+		return (
+			<p>
+				Something went when updating organization wrong:{' '}
+				{updateOrganizationMutation.error.message}
+			</p>
+		);
 	return (
 		<form
 			onSubmit={async (e) => {
 				e.preventDefault();
-				await axios.post('/api/v1/admin/orgs/add', {
+				await updateOrganizationMutation.mutateAsync({
 					name: name,
-					gammaSuperGroups: superGroups,
+					gammaSuperNames: superGroups,
 					addGammaAsOrgAdmin: addGammaAsAdmin
 				});
-				location.href = './';
 			}}
 		>
 			<TextInput
@@ -84,6 +116,7 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 			/>
 			<br />
 
+			<label>Gamma super groups</label>
 			<Select
 				name="Gamma super groups"
 				isMulti
@@ -91,6 +124,12 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 					label: superGroup.prettyName,
 					value: superGroup.name
 				}))}
+				value={superGroupsQuery.data
+					.filter((superGroup) => superGroups?.includes(superGroup.name))
+					.map((superGroup) => ({
+						label: superGroup.prettyName,
+						value: superGroup.name
+					}))}
 				className="basic-multi-select"
 				classNamePrefix="select"
 				onChange={(select) =>
@@ -109,7 +148,7 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 
 			<br />
 
-			<input type="submit" value="Submit" />
+			<input type="submit" value="Save" />
 		</form>
 	);
 };

@@ -13,7 +13,7 @@ const OrganizationListEntry: FC<OrganizationListEntryProps> = ({
 	return (
 		<li className={styles.card}>
 			<h2>{name}</h2>
-			<a href={`/admin/organizations/${id}}`}>Manage Organization</a>
+			<a href={`/admin/organizations/${id}`}>Manage Organization</a>
 		</li>
 	);
 };

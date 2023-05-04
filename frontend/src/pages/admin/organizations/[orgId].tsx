@@ -1,8 +1,9 @@
 import { Inter } from 'next/font/google';
 import Head from 'next/head';
 import Header from '@/src/components/Header/Header';
-import styles from '@/src/pages/index.module.css';
+import styles from '@/src/pages/admin/organizations/index.module.css';
 import { useRouter } from 'next/router';
+import ManageOrganization from '@/src/components/SiteAdminComponents/ManageOrganization/ManageOrganization';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,7 +25,7 @@ export const Home = () => {
 			<Header />
 			<main className={styles.mainContainer}>
 				<h1>Admin</h1>
-				<h2>Organization: {orgId}</h2>
+				<ManageOrganization organizationId={orgId as string} />
 			</main>
 		</>
 	);

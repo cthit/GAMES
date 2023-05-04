@@ -11,6 +11,7 @@ import {
 	addOrganization,
 	addOrganizationAdmin,
 	addOrganizationMember,
+	getOrganization,
 	getOrganizationWithMembers,
 	getOrganizationsIdsAndNames,
 	removeOrganization,
@@ -20,6 +21,7 @@ import {
 import sendApiValidationError, {
 	ErrorProperty
 } from '../utils/sendApiValidationError.js';
+import { updateOrganization } from '../services/organizationService.js';
 
 const siteAdminRouter = Router();
 
@@ -106,9 +108,9 @@ siteAdminRouter.get('/orgs/:id', async (req, res) => {
 	res.status(200).json(org);
 });
 
-const addOrganizationSchema = z.object({
+const addOrEditOrganizationSchema = z.object({
 	name: z.string().min(1).max(250),
-	gammaSuperGroups: z.array(z.string()),
+	gammaSuperNames: z.array(z.string()),
 	addGammaAsOrgAdmin: z.boolean()
 });
 
@@ -137,22 +139,11 @@ const addOrganizationSchema = z.object({
  */
 siteAdminRouter.post(
 	'/orgs/add',
-	validateRequestBody(addOrganizationSchema),
+	validateRequestBody(addOrEditOrganizationSchema),
 	async (req, res) => {
-		const existingSuperGroups = (await getGammaSuperGroups()).map(
-			(sg) => sg.name
+		var validationErrors: ErrorProperty[] = await validateGammaGroups(
+			req.body.gammaSuperNames
 		);
-
-		var validationErrors: ErrorProperty[] = [];
-
-		for (const superGroup of req.body.gammaSuperGroups) {
-			if (!existingSuperGroups.includes(superGroup)) {
-				validationErrors.push({
-					path: 'gammaSuperGroups',
-					message: `Gamma super group ${superGroup} does not exist`
-				});
-			}
-		}
 
 		if (validationErrors.length > 0) {
 			return sendApiValidationError(res, validationErrors, 'Body');
@@ -160,7 +151,7 @@ siteAdminRouter.post(
 
 		await addOrganization(
 			req.body.name,
-			req.body.gammaSuperGroups,
+			req.body.gammaSuperNames,
 			req.body.addGammaAsOrgAdmin
 		);
 
@@ -189,7 +180,7 @@ siteAdminRouter.post(
  *
  */
 siteAdminRouter.delete('/orgs/:id', async (req, res) => {
-	const org = await getOrganizationWithMembers(req.params.id);
+	const org = await getOrganization(req.params.id);
 
 	if (!org) {
 		return res.status(404).json({ message: 'Organization not found' });
@@ -199,6 +190,57 @@ siteAdminRouter.delete('/orgs/:id', async (req, res) => {
 
 	res.status(200).json({ message: 'Organization deleted' });
 });
+
+/**
+ * @api {post} /api/v1/admin/orgs/:id Update organization
+ * @apiPermission siteAdmin
+ * @apiName UpdateOrganization
+ * @apiGroup SiteAdmin
+ * @apiDescription Updates an organization
+ *
+ * @apiBody {String} name The name of the organization
+ * @apiBody {String[]} gammaSuperGroups The gamma super groups to link to the organization
+ * @apiBody {Number} addGammaAsOrgAdmin Whether to add the gamma super groups members as organization admins
+ *
+ * @apiSuccess {String} message The organization was updated
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *      "message": "Organization updated"
+ *  }
+ *
+ * @apiUse ZodError
+ *
+ */
+siteAdminRouter.put(
+	'/orgs/:id',
+	validateRequestBody(addOrEditOrganizationSchema),
+	async (req, res) => {
+		const org = await getOrganization(req.params.id);
+		if (!org) {
+			return res.status(404).json({ message: 'Organization not found' });
+		}
+
+		var validationErrors: ErrorProperty[] = await validateGammaGroups(
+			req.body.gammaSuperNames
+		);
+
+		if (validationErrors.length > 0) {
+			return sendApiValidationError(res, validationErrors, 'Body');
+		}
+
+		await updateOrganization(
+			req.params.id,
+			req.body.name,
+			req.body.gammaSuperNames,
+			req.body.addGammaAsOrgAdmin
+		);
+
+		res.status(200).json({ message: 'Organization updated' });
+	}
+);
 
 const addOrgMemberSchema = z.object({
 	userId: z.string().cuid(),
@@ -420,3 +462,21 @@ siteAdminRouter.put(
 );
 
 export default siteAdminRouter;
+
+async function validateGammaGroups(gammaSuperGroups: string[]) {
+	const existingSuperGroups = (await getGammaSuperGroups()).map(
+		(sg) => sg.name
+	);
+
+	var validationErrors: ErrorProperty[] = [];
+
+	for (const superGroup of gammaSuperGroups) {
+		if (!existingSuperGroups.includes(superGroup)) {
+			validationErrors.push({
+				path: 'gammaSuperGroups',
+				message: `Gamma super group ${superGroup} does not exist`
+			});
+		}
+	}
+	return validationErrors;
+}
