@@ -1,7 +1,6 @@
 import { FC } from 'react';
-import styles from './GameCard.module.css';
 import RemoveGame from '../RemoveGame/RemoveGame';
-import { useApiPost } from '@/src/hooks/apiHooks';
+import styles from './GameCard.module.css';
 
 interface GameCardProps {
 	id: string;
@@ -13,6 +12,7 @@ interface GameCardProps {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	owner: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -24,7 +24,8 @@ const GameCard: FC<GameCardProps> = ({
 	playtimeMinutes,
 	isBorrowed,
 	playerMin,
-	playerMax
+	playerMax,
+	owner
 }) => {
 	const { postData } = useApiPost('/games/markPlayed');
 	return (
@@ -40,6 +41,7 @@ const GameCard: FC<GameCardProps> = ({
 			</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
+			<p>Owner: {owner}</p>
 			<p>
 				Game is currently: {false ? 'played' : `not played`}
 				<input

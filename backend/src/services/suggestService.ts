@@ -7,7 +7,8 @@ export const createSuggestion = async (
 	releaseDate: Date,
 	playtimeMinutes: number,
 	playerMin: number,
-	playerMax: number
+	playerMax: number,
+	motivation: string
 ) => {
 	await prisma.suggest.create({
 		data: {
@@ -21,7 +22,8 @@ export const createSuggestion = async (
 			dateReleased: releaseDate,
 			playtimeMinutes,
 			playerMin,
-			playerMax
+			playerMax,
+			motivation
 		}
 	});
 };
@@ -35,9 +37,8 @@ export const getAllSuggestions = async () => {
 			dateReleased: true,
 			playtimeMinutes: true,
 			playerMin: true,
-			playerMax: true
+			playerMax: true,
+			motivation: true
 		}
 	});
 };
-
-

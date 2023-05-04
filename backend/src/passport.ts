@@ -1,22 +1,14 @@
-import session from 'express-session';
-import redis from 'redis';
 import RedisStore from 'connect-redis';
 import { Express } from 'express';
+import session from 'express-session';
 import passport from 'passport';
 import { init } from './authentication/gamma.strategy.js';
+import { initializeCache } from './services/cacheService.js';
 
 const initializePassport = async (app: Express) => {
 	init(passport);
 
-	const redisClient = redis.createClient({
-		socket: {
-			host: process.env.REDIS_HOST,
-			port: Number(process.env.REDIS_PORT)
-		},
-		password: process.env.REDIS_PASS
-	});
-
-	await redisClient.connect();
+	const redisClient = await initializeCache();
 
 	app.use(
 		session({
