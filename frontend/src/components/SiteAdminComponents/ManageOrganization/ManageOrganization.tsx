@@ -5,6 +5,8 @@ import axios from 'axios';
 import { AxiosError } from 'axios';
 import Select from 'react-select';
 import Checkbox from '../../Forms/Checkbox/Checkbox';
+import OrganizationMemberList from '../OrganizationMemberList/OrganizationMemberList';
+import AddOrganizationMember from '../AddOrganizationMember/AddOrganizationMember';
 
 interface ManageOrganizationProps {
 	organizationId: string;
@@ -15,10 +17,19 @@ interface SuperGroup {
 	prettyName: string;
 }
 
+interface Member {
+	organizationId: string;
+	userId: string;
+	addedFromGamma: boolean;
+	isAdmin: boolean;
+}
+
 interface Organization {
+	id: string;
 	name: string;
 	gammaSuperNames: string[];
 	addGammaAsOrgAdmin: boolean;
+	members: Member[];
 }
 
 const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
@@ -54,10 +65,14 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 	const updateOrganizationMutation = useMutation<
 		unknown,
 		AxiosError,
-		Organization
+		{
+			organizationId: string;
+			name: string;
+			gammaSuperGroups: string[];
+			addGammaAsOrgAdmin: boolean;
+		}
 	>(
 		(updatedOrganization) => {
-			console.log(updatedOrganization);
 			return axios.put(
 				'/api/v1/admin/orgs/' + props.organizationId,
 				updatedOrganization
@@ -98,58 +113,72 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 			</p>
 		);
 	return (
-		<form
-			onSubmit={async (e) => {
-				e.preventDefault();
-				await updateOrganizationMutation.mutateAsync({
-					name: name,
-					gammaSuperNames: superGroups,
-					addGammaAsOrgAdmin: addGammaAsAdmin
-				});
-			}}
-		>
-			<TextInput
-				label="Name of organization"
-				type="text"
-				onChange={(input) => setName(input.currentTarget.value)}
-				value={name}
-			/>
-			<br />
+		<>
+			<form
+				onSubmit={async (e) => {
+					e.preventDefault();
+					await updateOrganizationMutation.mutateAsync({
+						organizationId: props.organizationId,
+						name: name,
+						gammaSuperNames: superGroups,
+						addGammaAsOrgAdmin: addGammaAsAdmin
+					});
+				}}
+			>
+				<TextInput
+					label="Name of organization"
+					type="text"
+					onChange={(input) => setName(input.currentTarget.value)}
+					value={name}
+				/>
+				<br />
 
-			<label>Gamma super groups</label>
-			<Select
-				name="Gamma super groups"
-				isMulti
-				options={superGroupsQuery.data.map((superGroup) => ({
-					label: superGroup.prettyName,
-					value: superGroup.name
-				}))}
-				value={superGroupsQuery.data
-					.filter((superGroup) => superGroups?.includes(superGroup.name))
-					.map((superGroup) => ({
+				<label>Gamma super groups</label>
+				<Select
+					name="Gamma super groups"
+					isMulti
+					options={superGroupsQuery.data.map((superGroup) => ({
 						label: superGroup.prettyName,
 						value: superGroup.name
 					}))}
-				className="basic-multi-select"
-				classNamePrefix="select"
-				onChange={(select) =>
-					setSuperGroups(select.map((option) => option.value))
-				}
+					value={superGroupsQuery.data
+						.filter((superGroup) => superGroups?.includes(superGroup.name))
+						.map((superGroup) => ({
+							label: superGroup.prettyName,
+							value: superGroup.name
+						}))}
+					className="basic-multi-select"
+					classNamePrefix="select"
+					onChange={(select) =>
+						setSuperGroups(select.map((option) => option.value))
+					}
+				/>
+				<br />
+
+				<Checkbox
+					label="Add gamma users as organization admins"
+					onChange={(e) => {
+						setAddGammaAsAdmin(e.currentTarget.checked);
+					}}
+					checked={addGammaAsAdmin}
+				/>
+
+				<br />
+
+				<input type="submit" value="Save changes" />
+			</form>
+
+			<AddOrganizationMember
+				organizationId={props.organizationId}
+				currentMemberIds={organizationQuery.data.members.map(
+					(member) => member.userId
+				)}
 			/>
-			<br />
 
-			<Checkbox
-				label="Add gamma users as organization admins"
-				onChange={(e) => {
-					setAddGammaAsAdmin(e.currentTarget.checked);
-				}}
-				checked={addGammaAsAdmin}
-			/>
+			<hr />
 
-			<br />
-
-			<input type="submit" value="Save changes" />
-		</form>
+			<OrganizationMemberList organization={organizationQuery.data} />
+		</>
 	);
 };
 

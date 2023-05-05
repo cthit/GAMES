@@ -5,8 +5,11 @@ import {
 	isAuthenticated,
 	isSiteAdmin
 } from '../middleware/authenticationCheckMiddleware.js';
-import { getAccountFromId } from '../services/accountService.js';
-import { getGammaSuperGroups } from '../services/gammaService.js';
+import {
+	getAccountFromId,
+	getAllAccounts
+} from '../services/accountService.js';
+import { getGammaSuperGroups, getGammaUser } from '../services/gammaService.js';
 import {
 	addOrganization,
 	addOrganizationAdmin,
@@ -22,6 +25,8 @@ import sendApiValidationError, {
 	ErrorProperty
 } from '../utils/sendApiValidationError.js';
 import { updateOrganization } from '../services/organizationService.js';
+import { getFromCache, setCache } from '../services/cacheService.js';
+import { GammaUser } from '../models/gammaModels.js';
 
 const siteAdminRouter = Router();
 
@@ -110,7 +115,7 @@ siteAdminRouter.get('/orgs/:id', async (req, res) => {
 
 const addOrEditOrganizationSchema = z.object({
 	name: z.string().min(1).max(250),
-	gammaSuperNames: z.array(z.string()),
+	gammaSuperGroups: z.array(z.string()),
 	addGammaAsOrgAdmin: z.boolean()
 });
 
@@ -142,7 +147,7 @@ siteAdminRouter.post(
 	validateRequestBody(addOrEditOrganizationSchema),
 	async (req, res) => {
 		var validationErrors: ErrorProperty[] = await validateGammaGroups(
-			req.body.gammaSuperNames
+			req.body.gammaSuperGroups
 		);
 
 		if (validationErrors.length > 0) {
@@ -151,7 +156,7 @@ siteAdminRouter.post(
 
 		await addOrganization(
 			req.body.name,
-			req.body.gammaSuperNames,
+			req.body.gammaSuperGroups,
 			req.body.addGammaAsOrgAdmin
 		);
 
@@ -224,7 +229,7 @@ siteAdminRouter.put(
 		}
 
 		var validationErrors: ErrorProperty[] = await validateGammaGroups(
-			req.body.gammaSuperNames
+			req.body.gammaSuperGroups
 		);
 
 		if (validationErrors.length > 0) {
@@ -234,7 +239,7 @@ siteAdminRouter.put(
 		await updateOrganization(
 			req.params.id,
 			req.body.name,
-			req.body.gammaSuperNames,
+			req.body.gammaSuperGroups,
 			req.body.addGammaAsOrgAdmin
 		);
 
@@ -248,7 +253,7 @@ const addOrgMemberSchema = z.object({
 });
 
 /**
- * @api {post} /api/v1/admin/orgs/:id/addMember Add organization
+ * @api {post} /api/v1/admin/orgs/:id/member Add organization
  * @apiParam {String} id Organization id
  * @apiPermission siteAdmin
  * @apiName AddOrganization
@@ -273,7 +278,7 @@ const addOrgMemberSchema = z.object({
  *
  */
 siteAdminRouter.post(
-	'/orgs/:id/addMember',
+	'/orgs/:id/member',
 	validateRequestBody(addOrgMemberSchema),
 	async (req, res) => {
 		const org = await getOrganizationWithMembers(req.params.id);
@@ -323,7 +328,7 @@ siteAdminRouter.post(
 );
 
 /**
- * @api {delete} /api/v1/admin/orgs/removeMember/:userID Remove organization member
+ * @api {delete} /api/v1/admin/orgs/:id/member/:userID Remove organization member
  * @apiParam {String} id Organization id
  * @apiParam {String} userId User id
  * @apiPermission siteAdmin
@@ -339,13 +344,13 @@ siteAdminRouter.post(
  *  HTTP/1.1 200 OK
  *
  *  {
- *      "message": "Organization deleted"
+ *      "message": "Member removed from organization"
  *  }
  *
  * @apiUse ZodError
  *
  */
-siteAdminRouter.delete('/orgs/:id/removeMember/:userId', async (req, res) => {
+siteAdminRouter.delete('/orgs/:id/member/:userId', async (req, res) => {
 	const org = await getOrganizationWithMembers(req.params.id);
 
 	if (!org) {
@@ -381,6 +386,7 @@ siteAdminRouter.delete('/orgs/:id/removeMember/:userId', async (req, res) => {
 	}
 
 	await removeOrganizationMember(req.params.id, req.params.userId);
+	res.status(200).json({ message: 'Member removed from organization' });
 });
 
 const setAdminStatusSchema = z.object({
@@ -460,6 +466,32 @@ siteAdminRouter.put(
 		res.status(200).json({ message: 'Admin status updated' });
 	}
 );
+
+siteAdminRouter.get('/accounts', async (req, res) => {
+	const accounts = await getAllAccounts();
+
+	const accountsWithNicks = (
+		await Promise.all(
+			accounts.map(async (a) => {
+				const nick = await getFromCache('nick-from-id-' + a.id);
+				if (nick) return { ...a, nick };
+
+				try {
+					const gammaUser = await getGammaUser(a.cid);
+					const HOUR = 3600;
+					await setCache('nick-from-id-' + a.id, gammaUser.nick, HOUR);
+					return { ...a, nick: gammaUser.nick };
+				} catch (e) {
+					//TODO log error
+					console.log('Error getting user from Gamma');
+					return null;
+				}
+			})
+		)
+	).filter((a) => a !== null);
+
+	res.status(200).json(accountsWithNicks);
+});
 
 export default siteAdminRouter;
 

@@ -15,7 +15,6 @@ interface Organization {
 
 const OrganizationList: FC<OrganizationListProps> = () => {
 	const queryClient = useQueryClient();
-	const apiPath = '/games/filter';
 	const { data, isLoading, isError, error } = useQuery<
 		Organization[],
 		AxiosError
