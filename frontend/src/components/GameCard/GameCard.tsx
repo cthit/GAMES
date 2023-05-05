@@ -58,9 +58,10 @@ const GameCard: FC<GameCardProps> = ({
 			</form>
 			<form onSubmit={(e) => {
 				e.preventDefault();
+				if (!rating) return;
 				postData({
 					game: id,
-					rating: 1
+					rating: parseInt(rating)
 				});
 			}}>
 				<Select
@@ -73,6 +74,7 @@ const GameCard: FC<GameCardProps> = ({
 				<br />
 				<input type="submit" value="Rate" />
 			</form>
+			<p>Average rating: {ratingAvg}</p>
 			<RemoveGame id={id} />
 		</li>
 	);
