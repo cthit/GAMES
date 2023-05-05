@@ -16,6 +16,7 @@ import {
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { getAverageRating } from '../services/ratingService.js';
 
 const gameRouter = Router();
 
@@ -325,7 +326,7 @@ const formatGames = async (games: any[]) => {
 				game.borrow.filter((b: { returned: boolean }) => {
 					return !b.returned;
 				}).length > 0,
-			ratingAvg: game.rating.map((r: { rating: number }) => r.rating).reduce((accumulator: number, currentValue: number) => accumulator + currentValue, 0) / game.rating.length
+			ratingAvg: await getAverageRating(game.id)
 		}))
 	);
 };
