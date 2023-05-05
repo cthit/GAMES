@@ -44,7 +44,8 @@ export const getAllGames = async () => {
 			borrow: true, // TODO: See what is given
 			playerMin: true,
 			playerMax: true,
-			gameOwnerId: true
+			gameOwnerId: true,
+			rating: true
 		}
 	});
 };
@@ -105,7 +106,8 @@ export const filterGames = async (filter: Filter) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
-			gameOwnerId: true
+			gameOwnerId: true,
+			rating: true
 		},
 		where: filter
 	});

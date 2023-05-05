@@ -4,6 +4,10 @@ import styles from './GameCard.module.css';
 import Select from '../Forms/Select/Select';
 import { useApiPost } from '@/src/hooks/apiHooks';
 
+interface Rating {
+	rating: number;
+}
+
 interface GameCardProps {
 	id: string;
 	name: string;
@@ -15,6 +19,7 @@ interface GameCardProps {
 	playerMin: string;
 	playerMax: string;
 	owner: string;
+	ratingAvg: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -27,7 +32,8 @@ const GameCard: FC<GameCardProps> = ({
 	isBorrowed,
 	playerMin,
 	playerMax,
-	owner
+	owner,
+	ratingAvg
 }) => {
 
 	const [rating, setRating] = useState<string>();

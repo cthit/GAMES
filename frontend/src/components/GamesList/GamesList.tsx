@@ -18,6 +18,7 @@ interface Game {
 	playerMin: string;
 	playerMax: string;
 	owner: string;
+	ratingAvg: string;
 }
 type SearchFilter = {
 	name?: string;
@@ -104,6 +105,7 @@ const GamesList: FC<GamesListProps> = () => {
 								playerMin={game.playerMin}
 								playerMax={game.playerMax}
 								owner={game.owner}
+								ratingAvg={game.ratingAvg}
 							/>
 						))}
 					</ul>
