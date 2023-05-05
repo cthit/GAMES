@@ -1,21 +1,36 @@
 import { prisma } from '../prisma.js';
+import { getFromCache, setCache } from './cacheService.js';
 
 export const createRating = async (
     game: string,
-    user: string,
+    userCid: string,
     rating: number,
 ) => {
+    let user = await prisma.user.findFirst({
+        where: {
+            cid: userCid
+        },
+        select: {
+            id: true
+        }
+    });
+    if (!user) {
+        return null;
+    }
+    let userId = user.id;
     await prisma.rating.upsert({
         where: {
-            gameId: game,
-            userId: user
+            userId_gameId: {
+                gameId: game,
+                userId: userId
+            }
         },
         update: {
             rating: rating
         },
         create: {
             gameId: game,
-            userId: user,
+            userId: userId,
             rating: rating
         }
     });
@@ -36,12 +51,18 @@ export const getUserRating = async (
 export const getAverageRating = async (
     game: string,
 ) => {
-    return await prisma.rating.aggregate({
+    let rating = await getFromCache(`rating:${game}`);
+    if (rating) return rating;
+
+    rating = await prisma.rating.aggregate({
         where: {
             gameId: game
         },
-        avg: {
+        _avg: {
             rating: true
         }
     });
+
+    await setCache(`rating:${game}`, rating);
+    return rating;
 }
