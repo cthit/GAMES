@@ -8,6 +8,7 @@ import {
     getAverageRating
 } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { GammaUser } from '../models/gammaModels.js';
 
 const ratingRouter = Router();
 
@@ -75,8 +76,8 @@ const getRatingSchema = z.object({
  ratingRouter.get('/user',
     validateRequestBody(getRatingSchema),  
     async (req, res) => {
-        const user = req.session.user;
-        getUserRating(req.body.game, user);
+        const user = req.user as GammaUser;
+        getUserRating(req.body.game, user.cid);
 	    res.status(200).json({});
 });
 
