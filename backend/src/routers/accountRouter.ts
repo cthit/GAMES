@@ -51,9 +51,8 @@ accountRouter.get(
 
 		const HOUR = 3600;
 		setCache('nick-from-id-' + req.params.id, gammaUser.nick, HOUR);
-		return res
-			.status(200)
-			.json({ usedId: req.params.id, nick: gammaUser.nick });
+
+		res.status(200).json({ usedId: req.params.id, nick: gammaUser.nick });
 	}
 );
 
