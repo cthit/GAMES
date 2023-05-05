@@ -228,7 +228,7 @@ siteAdminRouter.put(
 			return res.status(404).json({ message: 'Organization not found' });
 		}
 
-		var validationErrors: ErrorProperty[] = await validateGammaGroups(
+		let validationErrors: ErrorProperty[] = await validateGammaGroups(
 			req.body.gammaSuperGroups
 		);
 
@@ -500,7 +500,7 @@ async function validateGammaGroups(gammaSuperGroups: string[]) {
 		(sg) => sg.name
 	);
 
-	var validationErrors: ErrorProperty[] = [];
+	let validationErrors: ErrorProperty[] = [];
 
 	for (const superGroup of gammaSuperGroups) {
 		if (!existingSuperGroups.includes(superGroup)) {
