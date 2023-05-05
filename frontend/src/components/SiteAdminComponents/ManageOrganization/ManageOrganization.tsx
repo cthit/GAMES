@@ -120,7 +120,7 @@ const ManageOrganization: FC<ManageOrganizationProps> = (props) => {
 					await updateOrganizationMutation.mutateAsync({
 						organizationId: props.organizationId,
 						name: name,
-						gammaSuperNames: superGroups,
+						gammaSuperGroups: superGroups,
 						addGammaAsOrgAdmin: addGammaAsAdmin
 					});
 				}}
