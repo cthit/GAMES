@@ -128,11 +128,20 @@ gameRouter.get('/search', async (req, res) => {
  * {
  * 	"message": "Must be logged in to add game"
  * }
- */
+ * @apiErrorExample {json} 400 Bad Request:
+ * {
+ * 	"message": "Something went wrong adding the game"
+ * }
+ * @apiErrorExample {json} 500 Internal Server Error:
+ * {
+ * 	"message": "Internal server error or something"
+ * }
+*/
 gameRouter.post(
 	'/add',
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
+		try {
 		if (!req.user) {
 			return res.status(401).json({ message: 'Must be logged in to add game' });
 		}
@@ -164,6 +173,13 @@ gameRouter.post(
 		);
 
 		res.status(200).json({ message: 'Game added' });
+		} catch (e) {
+			if (e instanceof Error) {
+				res.status(400).json({ message: "Something went wrong adding the game" });
+			} else {
+				res.status(500).json({ message: "Uwu oopsie woopsie, the devs made a fucky wucky! Sowwy" });
+			}
+		}
 	}
 );
 
@@ -286,16 +302,22 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
  * ]
  *
  * @apiUse ZodError
- */
+ * @apiErrorExample {json} 401 Unauthorized:
+ * {
+ * 	"message": "Must be logged in to remove game"
+ * }
+*/
 gameRouter.post('/remove', async (req, res) => {
 	try {
-		await removeGame(req.body.id);
+		if (!req.user) { res.status(401).json({ message: 'Must be logged in to remove game' }); return; }
+		await removeGame(req.body.id, await getGameOwnerIdFromCid((req.user as GammaUser).cid));
 		res.status(200).json({ message: 'Game removed' });
 	} catch (e) {
 		if (e instanceof Error) res.status(400).json({ message: e.message });
 		else res.status(400).json({ message: 'Error removing game' });
 	}
 });
+
 /**
  * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
  * @apiName markPlayed
