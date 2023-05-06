@@ -44,7 +44,7 @@ const rateSchema = z.object({
     async (req, res) => {
         const user = req.session.user;
         createRating(req.body.game, user, req.body.rating);
-	    res.status(200).json({});
+	    res.status(200).json({"message": "Game rated successfully"});
 });
 
 const getRatingSchema = z.object({
