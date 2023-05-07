@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { GammaUser } from '../models/gammaModels.js';
 import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
