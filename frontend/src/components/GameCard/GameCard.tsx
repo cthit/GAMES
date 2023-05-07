@@ -20,6 +20,7 @@ interface GameCardProps {
 	playerMax: string;
 	owner: string;
 	ratingAvg: string;
+	ratingUser: string;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -33,10 +34,11 @@ const GameCard: FC<GameCardProps> = ({
 	playerMin,
 	playerMax,
 	owner,
-	ratingAvg
+	ratingAvg,
+	ratingUser
 }) => {
 
-	const [rating, setRating] = useState<string>();
+	const [rating, setRating] = useState<string>(ratingUser);
 
 	const {
 		error: postError,
