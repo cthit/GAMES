@@ -1,8 +1,8 @@
 import { FC, useState } from 'react';
+import { useApiPost } from '@/src/hooks/apiHooks';
 import RemoveGame from '../RemoveGame/RemoveGame';
 import styles from './GameCard.module.css';
 import Select from '../Forms/Select/Select';
-import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface Rating {
 	rating: number;
@@ -18,9 +18,11 @@ interface GameCardProps {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
+	location: string;
 	owner: string;
 	ratingAvg: string;
 	ratingUser: string;
+	isPlayed: boolean;
 }
 
 const GameCard: FC<GameCardProps> = ({
@@ -33,7 +35,9 @@ const GameCard: FC<GameCardProps> = ({
 	isBorrowed,
 	playerMin,
 	playerMax,
+  location,
 	owner,
+	isPlayed,
 	ratingAvg,
 	ratingUser
 }) => {
@@ -43,9 +47,11 @@ const GameCard: FC<GameCardProps> = ({
 	const {
 		error: postError,
 		loading: postLoading,
-		postData
+		postData: ratePostData
 	} = useApiPost('/rating/rate');
 
+	const { postData } = useApiPost('/games/markPlayed');
+  
 	return (
 		<li className={styles.card}>
 			<h2>{name}</h2>
@@ -59,7 +65,18 @@ const GameCard: FC<GameCardProps> = ({
 			</p>
 			<p>Minimum players: {playerMin}</p>
 			<p>Maximum players: {playerMax}</p>
+			<p>Location: {location}</p>
 			<p>Owner: {owner}</p>
+			<p>
+				Game is currently: {isPlayed ? 'played' : `not played`}
+				<input
+					type="button"
+					value="Mark as played"
+					onClick={() => {
+						postData({ gameId: id });
+					}}
+				/>
+			</p>
 			<form action="/borrow">
 				<input type="hidden" id="game" name="game" value={id} />
 				<input type="submit" value="Borrow Game" />
@@ -67,7 +84,7 @@ const GameCard: FC<GameCardProps> = ({
 			<form onSubmit={(e) => {
 				e.preventDefault();
 				if (!rating) return;
-				postData({
+				ratePostData({
 					game: id,
 					rating: parseInt(rating)
 				});

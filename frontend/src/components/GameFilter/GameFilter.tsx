@@ -9,13 +9,15 @@ interface GameFilterProps {
 	setPlatform: (s: string) => void;
 	setReleaseBefore: (a: Date) => void;
 	setReleaseAfter: (a: Date) => void;
-	setPlaytime: (x: number) => void;
+	setPlaytimeMax: (x: number) => void;
+	setPlaytimeMin: (x: number) => void;
 	setPlayerCount: (x: number) => void;
 	setOwner: (s: string) => void;
 	platform: string | undefined;
 	releaseAfter: Date | undefined;
 	releaseBefore: Date | undefined;
-	playtime: number | undefined;
+	playtimeMax: number | undefined;
+	playtimeMin: number | undefined;
 	playerCount: number | undefined;
 	owner: string | undefined;
 	filterFunction: any;
@@ -34,12 +36,14 @@ const GameFilter: FC<GameFilterProps> = ({
 	setPlatform,
 	setReleaseBefore,
 	setReleaseAfter,
-	setPlaytime,
+	setPlaytimeMax,
+	setPlaytimeMin,
 	setPlayerCount,
 	setOwner,
 	platform,
 	playerCount,
-	playtime,
+	playtimeMax,
+	playtimeMin,
 	releaseAfter,
 	releaseBefore,
 	owner,
@@ -102,16 +106,30 @@ const GameFilter: FC<GameFilterProps> = ({
 			<br />
 
 			<NumberInput
-				label="Playtime"
+				label="Min Playtime"
 				type="number"
 				onChange={(input) => {
 					let newTime = '';
 					for (const element of input.currentTarget.value) {
 						newTime += nums.includes(element) ? element : '';
 					}
-					setPlaytime(Number.parseInt(newTime));
+					setPlaytimeMin(Number.parseInt(newTime));
 				}}
-				value={playtime?.toString() || ''}
+				value={playtimeMin?.toString() || ''}
+			/>
+			<br />
+
+			<NumberInput
+				label="Max Playtime"
+				type="number"
+				onChange={(input) => {
+					let newTime = '';
+					for (const element of input.currentTarget.value) {
+						newTime += nums.includes(element) ? element : '';
+					}
+					setPlaytimeMax(Number.parseInt(newTime));
+				}}
+				value={playtimeMax?.toString() || ''}
 			/>
 			<br />
 

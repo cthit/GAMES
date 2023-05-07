@@ -8,10 +8,10 @@ generator client {
 }
 
 model Game {
-    id              String   @id @default(cuid())
+    id              String          @id @default(cuid())
     name            String
     description     String
-    platform        Platform @relation(fields: [platformName], references: [name])
+    platform        Platform        @relation(fields: [platformName], references: [name])
     platformName    String
     dateReleased    DateTime
     //dateAdded DateTime
@@ -19,14 +19,25 @@ model Game {
     playerMin       Int
     playerMax       Int
     playtimeMinutes Int // Stored in minutes @map("playtime")
-
-    borrow      Borrow[]
-    request     BorrowRequest[]
-    GameOwner   GameOwner?      @relation(fields: [gameOwnerId], references: [id])
-    gameOwnerId String?
-    rating      Rating[]
+    location        String
+    playStatus      PlayStatus[]
+    borrow          Borrow[]
+    request         BorrowRequest[]
+    GameOwner       GameOwner?      @relation(fields: [gameOwnerId], references: [id])
+    gameOwnerId     String?
+    rating          Rating[]
 
     @@map("games")
+}
+
+model PlayStatus {
+    game   Game   @relation(fields: [gameId], references: [id])
+    gameId String
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+
+    @@id ([gameId, userId])
+    @@map("play_status")
 }
 
 model Platform {
@@ -43,6 +54,7 @@ model User {
 
     organizationsMember OrganizationMember[]
     ratings             Rating[]
+    playStatus          PlayStatus[]
 
     @@map("users")
 }

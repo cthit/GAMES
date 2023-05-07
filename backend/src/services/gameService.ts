@@ -8,6 +8,7 @@ export const createGame = async (
 	playtimeMinutes: number,
 	playerMin: number,
 	playerMax: number,
+	location: string,
 	gameOwnerId: string
 ) => {
 	await prisma.game.create({
@@ -23,6 +24,7 @@ export const createGame = async (
 			playtimeMinutes,
 			playerMin,
 			playerMax,
+			location,
 			GameOwner: {
 				connect: {
 					id: gameOwnerId
@@ -44,8 +46,9 @@ export const getAllGames = async () => {
 			borrow: true, // TODO: See what is given
 			playerMin: true,
 			playerMax: true,
-			gameOwnerId: true,
-			rating: true
+			rating: true,
+			location: true,
+			gameOwnerId: true
 		}
 	});
 };
@@ -62,6 +65,7 @@ export const searchGames = async (term: string) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
+			location: true,
 			gameOwnerId: true
 		},
 		where: {
@@ -89,9 +93,16 @@ export type Filter = {
 		lte: number;
 	};
 	platform?: {
-		name: string;
+		name: string
+	},
+	playtimeMinutes?: {
+		lte?: number,
+		gte?: number
+	}
+	location?: {
+		contains: string;
+		mode: 'insensitive';
 	};
-	playtimeMinutes?: number;
 	gameOwnerId?: string;
 };
 export const filterGames = async (filter: Filter) => {
@@ -106,23 +117,29 @@ export const filterGames = async (filter: Filter) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
+			rating: true,
+			location: true,
 			gameOwnerId: true,
-			rating: true
+			playStatus: true
 		},
 		where: filter
 	});
 };
 
-export const removeGame = async (gameID: string) => {
+export const removeGame = async (gameID: string, gameOwnerId: string) => {
 	const game = await prisma.game.findUnique({
 		where: {
 			id: gameID
 		},
 		select: {
-			borrow: true
+			borrow: true,
+			GameOwner: true
 		}
 	});
 	if (!game) throw new Error('Game not found');
+	if (game.GameOwner?.id != gameOwnerId) {
+		throw new Error('User does not own this game');
+	}
 	const borrows = game.borrow.filter(
 		(borrow) => !borrow.returned && borrow.borrowStart < new Date()
 	);
@@ -134,3 +151,18 @@ export const removeGame = async (gameID: string) => {
 		}
 	});
 };
+
+export const markGameAsPlayed = async (gameID: string, cid: string) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			cid: cid
+		}
+	});
+	if (!user) throw new Error('User not found');
+	await prisma.playStatus.create({
+		data: {
+			gameId: gameID,
+			userId: user.id
+		}
+	});
+}
