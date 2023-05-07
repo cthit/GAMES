@@ -1,19 +1,13 @@
 import { prisma } from '../prisma.js';
 import { getFromCache, setCache } from './cacheService.js';
+import { getAccountFromCid } from '../services/accountService.js';
 
 export const createRating = async (
     game: string,
     userCid: string,
     rating: number,
 ) => {
-    let user = await prisma.user.findFirst({
-        where: {
-            cid: userCid
-        },
-        select: {
-            id: true
-        }
-    });
+    let user = await getAccountFromCid(userCid);
     if (!user) {
         return null;
     }
@@ -40,14 +34,7 @@ export const getUserRating = async (
     game: string,
     user: string,
 ) => {
-    const dbUser = await prisma.user.findFirst({
-        where: {
-            cid: user
-        },
-        select: {
-            id: true
-        }
-    });
+    const dbUser = await getAccountFromCid(user);
     if (dbUser === null) return null;
     const userId = dbUser.id;
     const rating = await prisma.rating.findFirst({
