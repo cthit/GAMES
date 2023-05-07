@@ -40,12 +40,24 @@ export const getUserRating = async (
     game: string,
     user: string,
 ) => {
-    return await prisma.rating.findFirst({
+    const dbUser = await prisma.user.findFirst({
         where: {
-            gameId: game,
-            userId: user
+            cid: user
+        },
+        select: {
+            id: true
         }
     });
+    if (dbUser === null) return null;
+    const userId = dbUser.id;
+    const rating = await prisma.rating.findFirst({
+        where: {
+            gameId: game,
+            userId: userId
+        }
+    });
+    if (rating === null) return null;
+    return rating.rating;
 }
 
 export const getAverageRating = async (

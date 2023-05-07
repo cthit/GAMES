@@ -16,7 +16,8 @@ import {
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
-import { getAverageRating } from '../services/ratingService.js';
+import { getAverageRating, getUserRating } from '../services/ratingService.js';
+import { GammaUser } from '../models/gammaModels.js';
 
 const gameRouter = Router();
 
@@ -46,7 +47,7 @@ const gameRouter = Router();
  */
 gameRouter.get('/', async (req, res) => {
 	const games = await getAllGames();
-	const formattedGames = await formatGames(games);
+	const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
 	res.status(200).json(formattedGames);
 });
 
@@ -88,7 +89,7 @@ gameRouter.get('/search', async (req, res) => {
 		typeof req.query.term === 'string' ? req.query.term : ''
 	);
 
-	const formattedGames = await formatGames(games);
+	const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
 
 	res.status(200).json(formattedGames);
 });
@@ -240,7 +241,7 @@ gameRouter.post(
 
 		const games = await filterGames(filter);
 
-		const formattedGames = await formatGames(games);
+		const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
 
 		res.status(200).json(formattedGames);
 	}
@@ -310,7 +311,7 @@ gameRouter.get('/owners', async (req, res) => {
 	res.status(200).json(formattedOwners);
 });
 
-const formatGames = async (games: any[]) => {
+const formatGames = async (games: any[], user: GammaUser | null) => {
 	return await Promise.all(
 		games.map(async (game) => ({
 			id: game.id,
@@ -326,7 +327,8 @@ const formatGames = async (games: any[]) => {
 				game.borrow.filter((b: { returned: boolean }) => {
 					return !b.returned;
 				}).length > 0,
-			ratingAvg: await getAverageRating(game.id)
+			ratingAvg: await getAverageRating(game.id),
+			ratingUser: user ? await getUserRating(game.id, user.cid) : null
 		}))
 	);
 };

@@ -39,11 +39,15 @@ const rateSchema = z.object({
  * 	"message": "Must be logged in to rate game"
  * }
  */
- ratingRouter.post('/rate',
+ratingRouter.post('/rate',
     validateRequestBody(rateSchema),    
     async (req, res) => {
-        const user = req.session.user;
-        createRating(req.body.game, user, req.body.rating);
+        if (!req.isAuthenticated()) {
+            res.status(401).json({"message": "Must be logged in to rate game"});
+            return;
+        }
+        const user = req.user as GammaUser;
+        createRating(req.body.game, user.cid, req.body.rating);
 	    res.status(200).json({"message": "Game rated successfully"});
 });
 
@@ -73,12 +77,16 @@ const getRatingSchema = z.object({
  * 	"message": "Must be logged in to get own rating"
  * }
  */
- ratingRouter.get('/user',
+ratingRouter.get('/user',
     validateRequestBody(getRatingSchema),  
     async (req, res) => {
+        if (!req.isAuthenticated()) {
+            res.status(401).json({"message": "Must be logged in to get own rating"});
+            return;
+        }
         const user = req.user as GammaUser;
-        getUserRating(req.body.game, user.cid);
-	    res.status(200).json({});
+        const rating = getUserRating(req.body.game, user.cid);
+	    res.status(200).json({rating: rating});
 });
 
 /**
@@ -98,7 +106,7 @@ const getRatingSchema = z.object({
  * @apiUse ZodError
  * 
  */
- ratingRouter.get('/game',
+ratingRouter.get('/game',
     validateRequestBody(getRatingSchema),  
     async (req, res) => {
         getAverageRating(req.body.game);
