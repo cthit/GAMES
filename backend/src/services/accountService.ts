@@ -45,6 +45,10 @@ export const getAccountFromId = async (id: string) => {
 	});
 };
 
+export const getAllAccounts = async () => {
+	return await prisma.user.findMany();
+};
+
 export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 	const account = await getAccountFromCid(user.cid);
 
@@ -76,7 +80,7 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 
 	await Promise.all(
 		orgsToAddUserAsMember.map(async (org) => {
-			prisma.organizationMember.create({
+			await prisma.organizationMember.create({
 				data: {
 					userId: account.id,
 					organizationId: org.id,
@@ -104,7 +108,7 @@ export const addUserToGammaConnectedOrgs = async (user: GammaUser) => {
 
 	await Promise.all(
 		orgsToSetUserAsAdmin.map(async (org) => {
-			prisma.organizationMember.update({
+			await prisma.organizationMember.update({
 				where: {
 					organizationId_userId: {
 						organizationId: org.id,
