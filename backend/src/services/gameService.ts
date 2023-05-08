@@ -46,6 +46,7 @@ export const getAllGames = async () => {
 			borrow: true, // TODO: See what is given
 			playerMin: true,
 			playerMax: true,
+			rating: true,
 			location: true,
 			gameOwnerId: true
 		}
@@ -116,6 +117,7 @@ export const filterGames = async (filter: Filter) => {
 			playerMin: true,
 			playerMax: true,
 			borrow: true,
+			rating: true,
 			location: true,
 			gameOwnerId: true,
 			playStatus: true
