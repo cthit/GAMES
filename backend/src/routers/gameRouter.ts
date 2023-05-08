@@ -233,55 +233,56 @@ const filterGamesSchema = z.object({
  * @apiUse ZodError
  */
 
-gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, res) => {
-	const body = req.body;
-	const filter: Filter = {};
-	if (body.name) {
-		filter.name = { contains: body.name, mode: 'insensitive' }
-	}
-	if (body.releaseAfter)
-		filter.dateReleased = {
-			gte: new Date(body.releaseAfter)
-		};
-	if (body.releaseBefore)
-		filter.dateReleased = {
-			lte: new Date(body.releaseBefore)
-		};
-	if (body.releaseAfter && body.releaseBefore)
-		filter.dateReleased = {
-			lte: new Date(body.releaseBefore),
-			gte: new Date(body.releaseAfter)
-		};
-	if (body.playerCount) {
-		filter.playerMax = { gte: body.playerCount };
-		filter.playerMin = { lte: body.playerCount };
-	}
-	if (body.platform)
-		filter.platform = { name: body.platform };
-	if (body.playtimeMax || body.playtimeMin) {
-		filter.playtimeMinutes = {};
-		if (body.playtimeMax)
-			filter.playtimeMinutes.lte = body.playtimeMax;
-		if (body.playtimeMin)
-			filter.playtimeMinutes.gte = body.playtimeMin;
-	}
-
-	if (body.location) filter.location = { contains: body.location, mode: 'insensitive' };
-
-	const games = await filterGames(filter);
-
-	const formattedGames = await formatGames(games);
-	if (req.user) {
-		const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
-		for (let i = 0; i < formattedGames.length; i++) {
-			formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
-				return played.userId == uid;
-			}).length > 0
+gameRouter.post(
+	'/filter',
+	validateRequestBody(filterGamesSchema),
+	async (req, res) => {
+		const body = req.body;
+		const filter: Filter = {};
+		if (body.name) {
+			filter.name = { contains: body.name, mode: 'insensitive' };
 		}
-	}
+		if (body.releaseAfter)
+			filter.dateReleased = {
+				gte: new Date(body.releaseAfter)
+			};
+		if (body.releaseBefore)
+			filter.dateReleased = {
+				lte: new Date(body.releaseBefore)
+			};
+		if (body.releaseAfter && body.releaseBefore)
+			filter.dateReleased = {
+				lte: new Date(body.releaseBefore),
+				gte: new Date(body.releaseAfter)
+			};
+		if (body.playerCount) {
+			filter.playerMax = { gte: body.playerCount };
+			filter.playerMin = { lte: body.playerCount };
+		}
+		if (body.platform) filter.platform = { name: body.platform };
+		if (body.playtimeMax || body.playtimeMin) {
+			filter.playtimeMinutes = {};
+			if (body.playtimeMax) filter.playtimeMinutes.lte = body.playtimeMax;
+			if (body.playtimeMin) filter.playtimeMinutes.gte = body.playtimeMin;
+		}
 
-	res.status(200).json(formattedGames);
-}
+		if (body.location)
+			filter.location = { contains: body.location, mode: 'insensitive' };
+
+		const games = await filterGames(filter);
+
+		const formattedGames = await formatGames(games);
+		if (req.user) {
+			const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
+			for (let i = 0; i < formattedGames.length; i++) {
+				formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
+					return played.userId == uid;
+				}).length > 0
+			}
+		}
+
+		res.status(200).json(formattedGames);
+	}
 );
 
 /**

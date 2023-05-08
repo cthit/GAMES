@@ -1,0 +1,15 @@
+.mainContainer {
+    display: flex; 
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 50px;
+}
+
+.break {
+    flex-basis: 100%;
+    height: 0;
+}

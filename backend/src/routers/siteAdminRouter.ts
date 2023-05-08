@@ -5,12 +5,16 @@ import {
 	isAuthenticated,
 	isSiteAdmin
 } from '../middleware/authenticationCheckMiddleware.js';
-import { getAccountFromId } from '../services/accountService.js';
-import { getGammaSuperGroups } from '../services/gammaService.js';
+import {
+	getAccountFromId,
+	getAllAccounts
+} from '../services/accountService.js';
+import { getGammaSuperGroups, getGammaUser } from '../services/gammaService.js';
 import {
 	addOrganization,
 	addOrganizationAdmin,
 	addOrganizationMember,
+	getOrganization,
 	getOrganizationWithMembers,
 	getOrganizationsIdsAndNames,
 	removeOrganization,
@@ -20,6 +24,9 @@ import {
 import sendApiValidationError, {
 	ErrorProperty
 } from '../utils/sendApiValidationError.js';
+import { updateOrganization } from '../services/organizationService.js';
+import { getFromCache, setCache } from '../services/cacheService.js';
+import { GammaUser } from '../models/gammaModels.js';
 
 const siteAdminRouter = Router();
 
@@ -106,7 +113,7 @@ siteAdminRouter.get('/orgs/:id', async (req, res) => {
 	res.status(200).json(org);
 });
 
-const addOrganizationSchema = z.object({
+const addOrEditOrganizationSchema = z.object({
 	name: z.string().min(1).max(250),
 	gammaSuperGroups: z.array(z.string()),
 	addGammaAsOrgAdmin: z.boolean()
@@ -137,22 +144,11 @@ const addOrganizationSchema = z.object({
  */
 siteAdminRouter.post(
 	'/orgs/add',
-	validateRequestBody(addOrganizationSchema),
+	validateRequestBody(addOrEditOrganizationSchema),
 	async (req, res) => {
-		const existingSuperGroups = (await getGammaSuperGroups()).map(
-			(sg) => sg.name
+		var validationErrors: ErrorProperty[] = await validateGammaGroups(
+			req.body.gammaSuperGroups
 		);
-
-		var validationErrors: ErrorProperty[] = [];
-
-		for (const superGroup of req.body.gammaSuperGroups) {
-			if (!existingSuperGroups.includes(superGroup)) {
-				validationErrors.push({
-					path: 'gammaSuperGroups',
-					message: `Gamma super group ${superGroup} does not exist`
-				});
-			}
-		}
 
 		if (validationErrors.length > 0) {
 			return sendApiValidationError(res, validationErrors, 'Body');
@@ -189,7 +185,7 @@ siteAdminRouter.post(
  *
  */
 siteAdminRouter.delete('/orgs/:id', async (req, res) => {
-	const org = await getOrganizationWithMembers(req.params.id);
+	const org = await getOrganization(req.params.id);
 
 	if (!org) {
 		return res.status(404).json({ message: 'Organization not found' });
@@ -200,13 +196,64 @@ siteAdminRouter.delete('/orgs/:id', async (req, res) => {
 	res.status(200).json({ message: 'Organization deleted' });
 });
 
+/**
+ * @api {post} /api/v1/admin/orgs/:id Update organization
+ * @apiPermission siteAdmin
+ * @apiName UpdateOrganization
+ * @apiGroup SiteAdmin
+ * @apiDescription Updates an organization
+ *
+ * @apiBody {String} name The name of the organization
+ * @apiBody {String[]} gammaSuperGroups The gamma super groups to link to the organization
+ * @apiBody {Number} addGammaAsOrgAdmin Whether to add the gamma super groups members as organization admins
+ *
+ * @apiSuccess {String} message The organization was updated
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *      "message": "Organization updated"
+ *  }
+ *
+ * @apiUse ZodError
+ *
+ */
+siteAdminRouter.put(
+	'/orgs/:id',
+	validateRequestBody(addOrEditOrganizationSchema),
+	async (req, res) => {
+		const org = await getOrganization(req.params.id);
+		if (!org) {
+			return res.status(404).json({ message: 'Organization not found' });
+		}
+
+		let validationErrors: ErrorProperty[] = await validateGammaGroups(
+			req.body.gammaSuperGroups
+		);
+
+		if (validationErrors.length > 0) {
+			return sendApiValidationError(res, validationErrors, 'Body');
+		}
+
+		await updateOrganization(
+			req.params.id,
+			req.body.name,
+			req.body.gammaSuperGroups,
+			req.body.addGammaAsOrgAdmin
+		);
+
+		res.status(200).json({ message: 'Organization updated' });
+	}
+);
+
 const addOrgMemberSchema = z.object({
 	userId: z.string().cuid(),
 	isOrgAdmin: z.boolean()
 });
 
 /**
- * @api {post} /api/v1/admin/orgs/:id/addMember Add organization
+ * @api {post} /api/v1/admin/orgs/:id/member Add organization
  * @apiParam {String} id Organization id
  * @apiPermission siteAdmin
  * @apiName AddOrganization
@@ -231,7 +278,7 @@ const addOrgMemberSchema = z.object({
  *
  */
 siteAdminRouter.post(
-	'/orgs/:id/addMember',
+	'/orgs/:id/member',
 	validateRequestBody(addOrgMemberSchema),
 	async (req, res) => {
 		const org = await getOrganizationWithMembers(req.params.id);
@@ -281,7 +328,7 @@ siteAdminRouter.post(
 );
 
 /**
- * @api {delete} /api/v1/admin/orgs/removeMember/:userID Remove organization member
+ * @api {delete} /api/v1/admin/orgs/:id/member/:userID Remove organization member
  * @apiParam {String} id Organization id
  * @apiParam {String} userId User id
  * @apiPermission siteAdmin
@@ -297,13 +344,13 @@ siteAdminRouter.post(
  *  HTTP/1.1 200 OK
  *
  *  {
- *      "message": "Organization deleted"
+ *      "message": "Member removed from organization"
  *  }
  *
  * @apiUse ZodError
  *
  */
-siteAdminRouter.delete('/orgs/:id/removeMember/:userId', async (req, res) => {
+siteAdminRouter.delete('/orgs/:id/member/:userId', async (req, res) => {
 	const org = await getOrganizationWithMembers(req.params.id);
 
 	if (!org) {
@@ -339,6 +386,7 @@ siteAdminRouter.delete('/orgs/:id/removeMember/:userId', async (req, res) => {
 	}
 
 	await removeOrganizationMember(req.params.id, req.params.userId);
+	res.status(200).json({ message: 'Member removed from organization' });
 });
 
 const setAdminStatusSchema = z.object({
@@ -419,4 +467,48 @@ siteAdminRouter.put(
 	}
 );
 
+siteAdminRouter.get('/accounts', async (req, res) => {
+	const accounts = await getAllAccounts();
+
+	const accountsWithNicks = (
+		await Promise.all(
+			accounts.map(async (a) => {
+				const nick = await getFromCache('nick-from-id-' + a.id);
+				if (nick) return { ...a, nick };
+
+				try {
+					const gammaUser = await getGammaUser(a.cid);
+					const HOUR = 3600;
+					await setCache('nick-from-id-' + a.id, gammaUser.nick, HOUR);
+					return { ...a, nick: gammaUser.nick };
+				} catch (e) {
+					//TODO log error
+					console.log('Error getting user from Gamma');
+					return null;
+				}
+			})
+		)
+	).filter((a) => a !== null);
+
+	res.status(200).json(accountsWithNicks);
+});
+
 export default siteAdminRouter;
+
+async function validateGammaGroups(gammaSuperGroups: string[]) {
+	const existingSuperGroups = (await getGammaSuperGroups()).map(
+		(sg) => sg.name
+	);
+
+	let validationErrors: ErrorProperty[] = [];
+
+	for (const superGroup of gammaSuperGroups) {
+		if (!existingSuperGroups.includes(superGroup)) {
+			validationErrors.push({
+				path: 'gammaSuperGroups',
+				message: `Gamma super group ${superGroup} does not exist`
+			});
+		}
+	}
+	return validationErrors;
+}
