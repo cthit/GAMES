@@ -77,15 +77,14 @@ const getRatingSchema = z.object({
  * 	"message": "Must be logged in to get own rating"
  * }
  */
-ratingRouter.get('/user',
-    validateRequestBody(getRatingSchema),  
+ratingRouter.get('/user/:gameId',
     async (req, res) => {
         if (!req.isAuthenticated()) {
             res.status(401).json({"message": "Must be logged in to get own rating"});
             return;
         }
         const user = req.user as GammaUser;
-        const rating = getUserRating(req.body.game, user.cid);
+        const rating = await getUserRating(req.params.gameId, user.cid);
 	    res.status(200).json({rating: rating});
 });
 
@@ -106,11 +105,10 @@ ratingRouter.get('/user',
  * @apiUse ZodError
  * 
  */
-ratingRouter.get('/game',
-    validateRequestBody(getRatingSchema),  
+ratingRouter.get('/game/:gameId',
     async (req, res) => {
-        getAverageRating(req.body.game);
-	    res.status(200).json({});
+        let rating = await getAverageRating(req.params.gameId);
+	    res.status(200).json({rating: rating});
 });
 
 export default ratingRouter;

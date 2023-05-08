@@ -28,6 +28,7 @@ export const createRating = async (
             rating: rating
         }
     });
+    _getAverageRatingNoCache(game);
 }
 
 export const getUserRating = async (
@@ -53,6 +54,10 @@ export const getAverageRating = async (
     const rating = await getFromCache(`rating:${game}`);
     if (rating) return rating;
 
+    return await _getAverageRatingNoCache(game);
+}
+
+const _getAverageRatingNoCache = async ( game: string ) => {
     const ratingDb = await prisma.rating.aggregate({
         where: {
             gameId: game
@@ -62,8 +67,8 @@ export const getAverageRating = async (
         }
     });
 
-    let ratingVal = ratingDb._avg.rating;
+    let rating = ratingDb._avg.rating;
 
-    await setCache(`rating:${game}`, ratingVal, 5);
+    await setCache(`rating:${game}`, rating, 5);
     return rating;
 }
