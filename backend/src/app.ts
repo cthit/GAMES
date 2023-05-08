@@ -11,6 +11,7 @@ import platformRouter from './routers/platformRouter.js';
 import siteAdminRouter from './routers/siteAdminRouter.js';
 import suggestRouter from './routers/suggestRouter.js';
 import ratingRouter from './routers/ratingRouter.js'
+import accountRouter from './routers/accountRouter.js';
 
 config(); // Load .env file
 
@@ -33,6 +34,7 @@ app.use('/api/v1/admin', siteAdminRouter);
 app.use('/api/v1/borrow/request', borrowRequestRouter);
 app.use('/api/v1/suggest', suggestRouter);
 app.use('/api/v1/rating', ratingRouter);
+app.use('/api/v1/account', accountRouter);
 
 app.listen(8080, () => {
 	console.log('Server is running on port 8080');

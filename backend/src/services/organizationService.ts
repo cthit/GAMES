@@ -123,7 +123,7 @@ export const removeOrganizationAdmin = async (
 			}
 		},
 		data: {
-			isAdmin: true
+			isAdmin: false
 		}
 	});
 };
