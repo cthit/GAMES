@@ -1,7 +1,12 @@
-import { useApiPost } from '@/src/hooks/apiHooks';
 import { FC, useState } from 'react';
+import { useApiPost } from '@/src/hooks/apiHooks';
 import RemoveGame from '../RemoveGame/RemoveGame';
 import styles from './GameCard.module.css';
+import Select from '../Forms/Select/Select';
+
+interface Rating {
+	rating: number;
+}
 
 interface GameCardProps {
 	id: string;
@@ -15,6 +20,8 @@ interface GameCardProps {
 	playerMax: string;
 	location: string;
 	owner: string;
+	ratingAvg: string;
+	ratingUser: string;
 	isPlayed: boolean;
 }
 
@@ -30,10 +37,21 @@ const GameCard: FC<GameCardProps> = ({
 	playerMax,
 	location,
 	owner,
-	isPlayed
+	isPlayed,
+	ratingAvg,
+	ratingUser
 }) => {
+	const [rating, setRating] = useState<string>(ratingUser);
+
+	const {
+		error: postError,
+		loading: postLoading,
+		postData: ratePostData
+	} = useApiPost('/rating/rate');
+
 	const [apiPath, setApiPath] = useState('/games/markPlayed');
 	const { postData } = useApiPost(apiPath);
+
 	return (
 		<li className={styles.card}>
 			<h2>{name}</h2>
@@ -69,6 +87,27 @@ const GameCard: FC<GameCardProps> = ({
 				<input type="hidden" id="game" name="game" value={id} />
 				<input type="submit" value="Borrow Game" />
 			</form>
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					if (!rating) return;
+					ratePostData({
+						game: id,
+						rating: parseInt(rating)
+					});
+				}}
+			>
+				<Select
+					label="Rating"
+					options={['1', '2', '3', '4', '5']}
+					placeholder="Select a level"
+					onChange={(select) => setRating(select.target.value)}
+					value={rating || ''}
+				/>
+				<br />
+				<input type="submit" value="Rate" />
+			</form>
+			<p>Average rating: {ratingAvg}</p>
 			<RemoveGame id={id} />
 		</li>
 	);

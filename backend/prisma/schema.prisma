@@ -25,6 +25,7 @@ model Game {
     request         BorrowRequest[]
     GameOwner       GameOwner?      @relation(fields: [gameOwnerId], references: [id])
     gameOwnerId     String?
+    rating          Rating[]
 
     @@map("games")
 }
@@ -52,6 +53,7 @@ model User {
     cid String @unique
 
     organizationsMember OrganizationMember[]
+    ratings             Rating[]
     playStatus          PlayStatus[]
 
     @@map("users")
@@ -140,4 +142,15 @@ model Suggest {
     motivation      String
 
     @@map("suggests")
+}
+
+model Rating {
+    user        User     @relation(fields: [userId], references: [id])
+    userId      String
+    game        Game     @relation(fields: [gameId], references: [id])
+    gameId      String
+    rating      Int
+
+    @@map("ratings")
+    @@id([userId, gameId])
 }
