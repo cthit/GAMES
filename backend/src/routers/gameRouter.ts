@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { validateRequestBody } from 'zod-express-middleware';
+import {
+	validateRequestBody,
+	validateRequestQuery
+} from 'zod-express-middleware';
+import { GammaUser } from '../models/gammaModels.js';
 import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
@@ -11,23 +15,43 @@ import {
 	Filter,
 	createGame,
 	filterGames,
-	getAllGames,
-	searchGames,
+	markGameAsPlayed,
 	removeGame,
-	markGameAsPlayed
+	searchAndFilterGames,
+	searchGames
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
-import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
-import { GammaUser } from '../models/gammaModels.js';
+import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const gameRouter = Router();
 
+const gamesQuerySchema = z.object({
+	search: z.string().min(1).max(500).optional(),
+	platform: z.string().min(1).optional(),
+	releaseBefore: z.string().datetime().optional(), // ISO date string
+	releaseAfter: z.string().datetime().optional(), // ISO date string
+	playtimeMin: z.number().int().min(1).optional(),
+	playtimeMax: z.number().int().min(1).optional(),
+	playerCount: z.number().int().min(1).max(2000).optional(),
+	owner: z.string().cuid2().optional(),
+	location: z.string().min(1).max(500).optional()
+});
 /**
  * @api {get} /api/v1/games Request Games
  * @apiName GetGames
  * @apiGroup Games
- * @apiDescription Get all public games
+ * @apiDescription Get all public games matching the specified query
+ *
+ * @apiQuery {String} search Search term
+ * @apiQuery {String} platform Platform the game is played on
+ * @apiQuery {String} releaseBefore Filters to games released before a specific date
+ * @apiQuery {String} releaseAfter Filters to games released after a specific date
+ * @apiQuery {Number} playtimeMin Minimum playtime of the games
+ * @apiQuery {Number} playtimeMax Maximum playtime of the games
+ * @apiQuery {Number} playerCount Amount of players that should be able to play the games
+ * @apiQuery {String} owner CUID of the owner of the games
+ * @apiQuery {String} location Location of the games
  *
  * @apiSuccess {Object[]} games List of games
  *
@@ -48,11 +72,34 @@ const gameRouter = Router();
  *   }
  * ]
  */
-gameRouter.get('/', async (req, res) => {
-	const games = await getAllGames();
-	const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
-	res.status(200).json(formattedGames);
-});
+gameRouter.get(
+	'/',
+	validateRequestQuery(gamesQuerySchema),
+	async (req, res) => {
+		// I actually hate this, but I couldn't use the zod schema transform function
+		// because validateRequestQuery doesn't support it apparently
+		const query = {
+			...req.query,
+			playerMax: req.query.playerCount,
+			playerMin: req.query.playerCount,
+			releaseBefore: req.query.releaseBefore
+				? new Date(req.query.releaseBefore)
+				: undefined,
+			releaseAfter: req.query.releaseAfter
+				? new Date(req.query.releaseAfter)
+				: undefined
+		};
+
+		const games = await searchAndFilterGames(query);
+
+		const formattedGames = await formatGames(
+			games,
+			req.isAuthenticated() ? (req.user as GammaUser) : null
+		);
+
+		res.status(200).json(formattedGames);
+	}
+);
 
 const addGameSchema = z.object({
 	name: z.string().min(1).max(250),
@@ -94,7 +141,10 @@ gameRouter.get('/search', async (req, res) => {
 		typeof req.query.term === 'string' ? req.query.term : ''
 	);
 
-	const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
+	const formattedGames = await formatGames(
+		games,
+		req.isAuthenticated() ? (req.user as GammaUser) : null
+	);
 
 	res.status(200).json(formattedGames);
 });
@@ -137,48 +187,54 @@ gameRouter.get('/search', async (req, res) => {
  * {
  * 	"message": "Internal server error or something"
  * }
-*/
+ */
 gameRouter.post(
 	'/add',
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
 		try {
-		if (!req.user) {
-			return res.status(401).json({ message: 'Must be logged in to add game' });
-		}
+			if (!req.user) {
+				return res
+					.status(401)
+					.json({ message: 'Must be logged in to add game' });
+			}
 
-		const body = req.body;
+			const body = req.body;
 
-		if (!(await platformExists(body.platform))) {
-			return sendApiValidationError(
-				res,
-				{
-					path: 'platform',
-					message: 'Platform does not exist'
-				},
-				'Body'
+			if (!(await platformExists(body.platform))) {
+				return sendApiValidationError(
+					res,
+					{
+						path: 'platform',
+						message: 'Platform does not exist'
+					},
+					'Body'
+				);
+			}
+
+			await createGame(
+				body.name,
+				body.description,
+				body.platform,
+				new Date(body.releaseDate),
+				body.playtime,
+				body.playerMin,
+				body.playerMax,
+				body.location,
+				// @ts-expect-error GammaUser not added to Request.user type
+				await getGameOwnerIdFromCid(req.user.cid)
 			);
-		}
 
-		await createGame(
-			body.name,
-			body.description,
-			body.platform,
-			new Date(body.releaseDate),
-			body.playtime,
-			body.playerMin,
-			body.playerMax,
-			body.location,
-			// @ts-expect-error GammaUser not added to Request.user type
-			await getGameOwnerIdFromCid(req.user.cid)
-		);
-
-		res.status(200).json({ message: 'Game added' });
+			res.status(200).json({ message: 'Game added' });
 		} catch (e) {
 			if (e instanceof Error) {
-				res.status(400).json({ message: "Something went wrong adding the game" });
+				res
+					.status(400)
+					.json({ message: 'Something went wrong adding the game' });
 			} else {
-				res.status(500).json({ message: "Uwu oopsie woopsie, the devs made a fucky wucky! Sowwy" });
+				res.status(500).json({
+					message: 'Uwu oopsie woopsie, the devs made a fucky wucky! Sowwy'
+				});
 			}
 		}
 	}
@@ -271,13 +327,17 @@ gameRouter.post(
 
 		const games = await filterGames(filter);
 
-		const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
+		const formattedGames = await formatGames(
+			games,
+			req.isAuthenticated() ? (req.user as GammaUser) : null
+		);
 		if (req.user) {
 			const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
 			for (let i = 0; i < formattedGames.length; i++) {
-				formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
-					return played.userId == uid;
-				}).length > 0
+				formattedGames[i].isPlayed =
+					games[i].playStatus.filter((played) => {
+						return played.userId == uid;
+					}).length > 0;
 			}
 		}
 
@@ -308,11 +368,17 @@ gameRouter.post(
  * {
  * 	"message": "Must be logged in to remove game"
  * }
-*/
+ */
 gameRouter.post('/remove', async (req, res) => {
 	try {
-		if (!req.user) { res.status(401).json({ message: 'Must be logged in to remove game' }); return; }
-		await removeGame(req.body.id, await getGameOwnerIdFromCid((req.user as GammaUser).cid));
+		if (!req.user) {
+			res.status(401).json({ message: 'Must be logged in to remove game' });
+			return;
+		}
+		await removeGame(
+			req.body.id,
+			await getGameOwnerIdFromCid((req.user as GammaUser).cid)
+		);
 		res.status(200).json({ message: 'Game removed' });
 	} catch (e) {
 		if (e instanceof Error) res.status(400).json({ message: e.message });
@@ -345,14 +411,10 @@ gameRouter.post('/markPlayed', async (req, res) => {
 		await markGameAsPlayed(req.body.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
-		if (e instanceof Error)
-			res.status(400).json({ message: e.message });
-		else
-			res.status(400).json({ message: 'Error marking game as played' });
+		if (e instanceof Error) res.status(400).json({ message: e.message });
+		else res.status(400).json({ message: 'Error marking game as played' });
 	}
 });
-
-
 
 /**
  * @api {get} /api/v1/games/owners Get all game owners
@@ -411,6 +473,5 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 		}))
 	);
 };
-
 
 export default gameRouter;
