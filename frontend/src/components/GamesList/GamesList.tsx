@@ -1,4 +1,4 @@
-import { useApiPost } from '@/src/hooks/apiHooks';
+import { usePublicGames } from '@/src/hooks/api/usePublicGames';
 import debounce from 'lodash.debounce';
 import { ChangeEvent, FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
@@ -7,38 +7,19 @@ import styles from './GamesList.module.css';
 
 interface GamesListProps {}
 
-interface Game {
-	id: string;
-	name: string;
-	description: string;
-	platformName: string;
-	playtimeMinutes: string;
-	releaseDate: string;
-	isBorrowed: boolean;
-	playerMin: string;
-	playerMax: string;
-	location: string; 
-	owner: string;
-	ratingAvg: string;
-	ratingUser: string;
-	isPlayed: boolean;
-}
 type SearchFilter = {
-	name?: string;
+	search?: string;
 	platform?: string;
 	releaseBefore?: Date;
 	releaseAfter?: Date;
 	playtimeMax?: number;
 	playtimeMin?: number;
 	playerCount?: number;
-	location?: string; 
+	location?: string;
 	owner?: string;
 };
 
 const GamesList: FC<GamesListProps> = () => {
-	const apiPath = '/games/filter';
-	const [isSearching, setIsSearching] = useState(false);
-	const { postData, error, loading, data } = useApiPost<Game[]>(apiPath);
 	const [platform, setPlatform] = useState('');
 	const [releaseBefore, setReleaseBefore] = useState<Date>();
 	const [releaseAfter, setReleaseAfter] = useState<Date>();
@@ -47,12 +28,9 @@ const GamesList: FC<GamesListProps> = () => {
 	const [playerCount, setPlayerCount] = useState<number>();
 	const [owner, setOwner] = useState<string>();
 	const searchFilter: SearchFilter = {};
+	const { data, error, isLoading } = usePublicGames();
 
 	const search = debounce((e: ChangeEvent<HTMLInputElement>) => {
-		setIsSearching(true);
-		if (e !== undefined) {
-			if (e.target.value) searchFilter.name = e.target.value;
-		}
 		if (platform) searchFilter.platform = platform;
 		if (releaseBefore) searchFilter.releaseBefore = new Date(releaseBefore);
 		if (releaseAfter) searchFilter.releaseAfter = new Date(releaseAfter);
@@ -60,7 +38,6 @@ const GamesList: FC<GamesListProps> = () => {
 		if (playtimeMin) searchFilter.playtimeMin = playtimeMin;
 		if (playerCount) searchFilter.playerCount = playerCount;
 		if (owner) searchFilter.owner = owner;
-		postData(searchFilter);
 	}, 300);
 
 	return (
@@ -91,17 +68,13 @@ const GamesList: FC<GamesListProps> = () => {
 					onLoad={search}
 				/>
 
-				{loading ? <p>Loading...</p> : null}
+				{isLoading ? <p>Loading...</p> : null}
 
-				{error ? <p>Error: {error}</p> : null}
-
-				{postData?.length == 0 && isSearching ? (
-					<p>No games matching your search</p>
-				) : null}
+				{error ? <p>Error: {error.message}</p> : null}
 
 				{data ? (
 					<ul className={styles.gamesList}>
-						{data.map((game: Game) => (
+						{data.map((game) => (
 							<GameCard
 								key={game.id}
 								id={game.id}
