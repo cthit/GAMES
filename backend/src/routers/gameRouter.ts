@@ -15,7 +15,8 @@ import {
 	getAllGames,
 	searchGames,
 	removeGame,
-	markGameAsPlayed
+	markGameAsPlayed,
+	markGameAsNotPlayed
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
@@ -142,37 +143,37 @@ gameRouter.post(
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
 		try {
-		if (!req.user) {
-			return res.status(401).json({ message: 'Must be logged in to add game' });
-		}
+			if (!req.user) {
+				return res.status(401).json({ message: 'Must be logged in to add game' });
+			}
 
-		const body = req.body;
+			const body = req.body;
 
-		if (!(await platformExists(body.platform))) {
-			return sendApiValidationError(
-				res,
-				{
-					path: 'platform',
-					message: 'Platform does not exist'
-				},
-				'Body'
+			if (!(await platformExists(body.platform))) {
+				return sendApiValidationError(
+					res,
+					{
+						path: 'platform',
+						message: 'Platform does not exist'
+					},
+					'Body'
+				);
+			}
+
+			await createGame(
+				body.name,
+				body.description,
+				body.platform,
+				new Date(body.releaseDate),
+				body.playtime,
+				body.playerMin,
+				body.playerMax,
+				body.location,
+				// @ts-expect-error GammaUser not added to Request.user type
+				await getGameOwnerIdFromCid(req.user.cid)
 			);
-		}
 
-		await createGame(
-			body.name,
-			body.description,
-			body.platform,
-			new Date(body.releaseDate),
-			body.playtime,
-			body.playerMin,
-			body.playerMax,
-			body.location,
-			// @ts-expect-error GammaUser not added to Request.user type
-			await getGameOwnerIdFromCid(req.user.cid)
-		);
-
-		res.status(200).json({ message: 'Game added' });
+			res.status(200).json({ message: 'Game added' });
 		} catch (e) {
 			if (e instanceof Error) {
 				res.status(400).json({ message: "Something went wrong adding the game" });
@@ -265,22 +266,22 @@ gameRouter.post('/filter', validateRequestBody(filterGamesSchema), async (req, r
 			filter.playtimeMinutes.gte = body.playtimeMin;
 	}
 
-		if (body.location) filter.location = { contains: body.location, mode: 'insensitive' };
+	if (body.location) filter.location = { contains: body.location, mode: 'insensitive' };
 
-		const games = await filterGames(filter);
+	const games = await filterGames(filter);
 
-		const formattedGames = await formatGames(games);
-		if (req.user) {
-			const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
-			for (let i = 0; i < formattedGames.length; i++) {
-				formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
-					return played.userId == uid;
-				}).length > 0
-			}
+	const formattedGames = await formatGames(games);
+	if (req.user) {
+		const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
+		for (let i = 0; i < formattedGames.length; i++) {
+			formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
+				return played.userId == uid;
+			}).length > 0
 		}
-
-		res.status(200).json(formattedGames);
 	}
+
+	res.status(200).json(formattedGames);
+}
 );
 
 /**
@@ -335,6 +336,17 @@ gameRouter.post('/remove', async (req, res) => {
  *    "message": "Game marked as played"
  *   }
  *
+ * @apiErrorExample {json} Unauthorized:
+ * HTTP/1.1 401 Unauthorized
+ *   {
+ *    "message": "Unauthorized"
+ *   }
+ *
+ * @apiErrorExample {json} Internal server Error:
+ * HTTP/1.1 500 Internal server error
+ *   {
+ *    "message": "Error marking game as not played"
+ *   }
  * @apiUse ZodError
  */
 gameRouter.post('/markPlayed', async (req, res) => {
@@ -344,9 +356,52 @@ gameRouter.post('/markPlayed', async (req, res) => {
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
 		if (e instanceof Error)
-			res.status(400).json({ message: e.message });
+			res.status(500).json({ message: e.message });
 		else
-			res.status(400).json({ message: 'Error marking game as played' });
+			res.status(500).json({ message: 'Error marking game as played' });
+	}
+});
+
+/**
+ * @api {post} /api/v1/games/markNotPlayed Saves that a user has played a game
+ * @apiName markPlayed
+ * @apiGroup Games
+ * @apiDescription Marks the game as played for the user
+ *
+ * @apiBody {String} gameId Id of the game
+ * @apiBody {String} userId Id of the user
+ *
+ * @apiSuccess {String} message Message indicating success
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *   {
+ *    "message": "Game marked as not played"
+ *   }
+ * @apiErrorExample {json} Unauthorized:
+ * HTTP/1.1 401 Unauthorized
+ *   {
+ *    "message": "Unauthorized"
+ *   }
+ *
+ * @apiErrorExample {json} Internal server Error:
+ * HTTP/1.1 500 Internal server error
+ *   {
+ *    "message": "Error marking game as not played"
+ *   }
+ *
+ * @apiUse ZodError
+ */
+gameRouter.post('/markNotPlayed', async (req, res) => {
+	try {
+		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+		await markGameAsNotPlayed(req.body.gameId, (req.user as GammaUser).cid);
+		res.status(200).json({ message: 'Game marked as not played' });
+	} catch (e) {
+		if (e instanceof Error)
+			res.status(500).json({ message: e.message });
+		else
+			res.status(500).json({ message: 'Error marking game as not played' });
 	}
 });
 

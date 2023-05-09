@@ -164,3 +164,20 @@ export const markGameAsPlayed = async (gameID: string, cid: string) => {
 		}
 	});
 }
+export const markGameAsNotPlayed = async (gameID: string, cid: string) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			cid: cid
+		}
+	});
+	if (!user) throw new Error('User not found');
+	await prisma.playStatus.delete({
+		where: {
+			gameId_userId: {
+				gameId: gameID,
+				userId: user.id
+			}
+		}
+	}
+	)
+}
