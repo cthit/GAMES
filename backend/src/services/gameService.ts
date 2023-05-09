@@ -42,6 +42,9 @@ export const searchAndFilterGames = async (filter?: BetterFilter) => {
 			gameOwnerId: {
 				equals: filter?.gameOwnerId
 			}
+		},
+		include: {
+			borrow: {}
 		}
 	});
 };
