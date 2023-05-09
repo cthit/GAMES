@@ -35,12 +35,13 @@ const GameCard: FC<GameCardProps> = ({
 	isBorrowed,
 	playerMin,
 	playerMax,
-	location,
+  location,
 	owner,
 	isPlayed,
 	ratingAvg,
 	ratingUser
 }) => {
+
 	const [rating, setRating] = useState<string>(ratingUser);
 
 	const {
@@ -87,22 +88,20 @@ const GameCard: FC<GameCardProps> = ({
 				<input type="hidden" id="game" name="game" value={id} />
 				<input type="submit" value="Borrow Game" />
 			</form>
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					if (!rating) return;
-					ratePostData({
-						game: id,
-						rating: parseInt(rating)
-					});
-				}}
-			>
+			<form onSubmit={(e) => {
+				e.preventDefault();
+				if (!rating) return;
+				ratePostData({
+					game: id,
+					rating: parseInt(rating)
+				});
+			}}>
 				<Select
-					label="Rating"
-					options={['1', '2', '3', '4', '5']}
-					placeholder="Select a level"
-					onChange={(select) => setRating(select.target.value)}
-					value={rating || ''}
+				label="Rating"
+				options={['1', '2', '3', '4', '5']}
+				placeholder="Select a level"
+				onChange={(select) => setRating(select.target.value)}
+				value={rating || ''}
 				/>
 				<br />
 				<input type="submit" value="Rate" />
