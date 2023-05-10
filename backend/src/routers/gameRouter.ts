@@ -49,7 +49,7 @@ const gamesQuerySchema = z
 			: undefined;
 		return {
 			...data,
-			playerCount: playerCount,
+			playerMax: playerCount,
 			playerMin: playerCount,
 			playtimeMin: data.playtimeMin ? parseInt(data.playtimeMin) : undefined,
 			playtimeMax: data.playtimeMax ? parseInt(data.playtimeMax) : undefined,
