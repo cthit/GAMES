@@ -1,6 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
+interface Group {
+	id: string;
+	becomesActive?: number;
+	becomesInactive?: number;
+	description: {
+		sv: string;
+		en: string;
+	};
+	function?: {
+		sv: string;
+		en: string;
+	};
+	email: string;
+	name: string;
+	prettyName: string;
+	superGroup?: SuperGroup;
+	active?: boolean;
+}
+
+export interface SuperGroup {
+	id: string;
+	name: string;
+	prettyName: string;
+	type: string;
+	email: string;
+}
+
 interface User {
 	cid: string;
 	nick: string;
@@ -14,7 +41,7 @@ interface User {
 	gdpr: boolean;
 	language: string;
 	authorities: [{ id: string; authority: string }];
-	//	groups: GammaGroup[];
+	groups: Group[];
 	websiteURLs?: string;
 	//Internal extension
 	isSiteAdmin: boolean;
