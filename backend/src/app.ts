@@ -10,12 +10,16 @@ import gameRouter from './routers/gameRouter.js';
 import platformRouter from './routers/platformRouter.js';
 import siteAdminRouter from './routers/siteAdminRouter.js';
 import suggestRouter from './routers/suggestRouter.js';
-import ratingRouter from './routers/ratingRouter.js'
+import ratingRouter from './routers/ratingRouter.js';
 import accountRouter from './routers/accountRouter.js';
+import { configureLogging } from './logging.js';
+import { logExceptions } from './middleware/exceptionLoggingMiddleware.js';
 
 config(); // Load .env file
 
 const app = express();
+
+configureLogging();
 
 await initializePassport(app);
 
@@ -36,6 +40,7 @@ app.use('/api/v1/suggest', suggestRouter);
 app.use('/api/v1/rating', ratingRouter);
 app.use('/api/v1/account', accountRouter);
 
+app.use(logExceptions); // Error handling middleware, must be last
 app.listen(8080, () => {
 	console.log('Server is running on port 8080');
 });
