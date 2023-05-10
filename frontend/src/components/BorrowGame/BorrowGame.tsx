@@ -20,8 +20,6 @@ const BorrowGame: FC<BorrowGameProps> = () => {
         game = queryParams.get("game")
     }
 
-    const username = "User"; // TODO: Use actual username when auth is implemented
-
     let canBorrow = false; // TODO: Check if user has borrow permissions for game when auth is implemented
 
     const {
@@ -45,7 +43,6 @@ const BorrowGame: FC<BorrowGameProps> = () => {
 				e.preventDefault();
 				postData({
                     gameId: game,
-                    user: username,
                     borrowStart: startDate,
                     borrowEnd: endDate
 				});

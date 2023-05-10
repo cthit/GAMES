@@ -20,6 +20,7 @@ import { platformExists } from '../services/platformService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import { GammaUser } from '../models/gammaModels.js';
+import { BorrowRequestStatus } from '@prisma/client';
 
 const gameRouter = Router();
 
@@ -50,7 +51,10 @@ const gameRouter = Router();
  */
 gameRouter.get('/', async (req, res) => {
 	const games = await getAllGames();
-	const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
+	const formattedGames = await formatGames(
+		games,
+		req.isAuthenticated() ? (req.user as GammaUser) : null
+	);
 	res.status(200).json(formattedGames);
 });
 
@@ -94,7 +98,10 @@ gameRouter.get('/search', async (req, res) => {
 		typeof req.query.term === 'string' ? req.query.term : ''
 	);
 
-	const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
+	const formattedGames = await formatGames(
+		games,
+		req.isAuthenticated() ? (req.user as GammaUser) : null
+	);
 
 	res.status(200).json(formattedGames);
 });
@@ -137,48 +144,54 @@ gameRouter.get('/search', async (req, res) => {
  * {
  * 	"message": "Internal server error or something"
  * }
-*/
+ */
 gameRouter.post(
 	'/add',
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
 		try {
-		if (!req.user) {
-			return res.status(401).json({ message: 'Must be logged in to add game' });
-		}
+			if (!req.user) {
+				return res
+					.status(401)
+					.json({ message: 'Must be logged in to add game' });
+			}
 
-		const body = req.body;
+			const body = req.body;
 
-		if (!(await platformExists(body.platform))) {
-			return sendApiValidationError(
-				res,
-				{
-					path: 'platform',
-					message: 'Platform does not exist'
-				},
-				'Body'
+			if (!(await platformExists(body.platform))) {
+				return sendApiValidationError(
+					res,
+					{
+						path: 'platform',
+						message: 'Platform does not exist'
+					},
+					'Body'
+				);
+			}
+
+			await createGame(
+				body.name,
+				body.description,
+				body.platform,
+				new Date(body.releaseDate),
+				body.playtime,
+				body.playerMin,
+				body.playerMax,
+				body.location,
+				// @ts-expect-error GammaUser not added to Request.user type
+				await getGameOwnerIdFromCid(req.user.cid)
 			);
-		}
 
-		await createGame(
-			body.name,
-			body.description,
-			body.platform,
-			new Date(body.releaseDate),
-			body.playtime,
-			body.playerMin,
-			body.playerMax,
-			body.location,
-			// @ts-expect-error GammaUser not added to Request.user type
-			await getGameOwnerIdFromCid(req.user.cid)
-		);
-
-		res.status(200).json({ message: 'Game added' });
+			res.status(200).json({ message: 'Game added' });
 		} catch (e) {
 			if (e instanceof Error) {
-				res.status(400).json({ message: "Something went wrong adding the game" });
+				res
+					.status(400)
+					.json({ message: 'Something went wrong adding the game' });
 			} else {
-				res.status(500).json({ message: "Uwu oopsie woopsie, the devs made a fucky wucky! Sowwy" });
+				res.status(500).json({
+					message: 'Uwu oopsie woopsie, the devs made a fucky wucky! Sowwy'
+				});
 			}
 		}
 	}
@@ -271,13 +284,17 @@ gameRouter.post(
 
 		const games = await filterGames(filter);
 
-		const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
+		const formattedGames = await formatGames(
+			games,
+			req.isAuthenticated() ? (req.user as GammaUser) : null
+		);
 		if (req.user) {
 			const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
 			for (let i = 0; i < formattedGames.length; i++) {
-				formattedGames[i].isPlayed = games[i].playStatus.filter((played) => {
-					return played.userId == uid;
-				}).length > 0
+				formattedGames[i].isPlayed =
+					games[i].playStatus.filter((played) => {
+						return played.userId == uid;
+					}).length > 0;
 			}
 		}
 
@@ -308,11 +325,17 @@ gameRouter.post(
  * {
  * 	"message": "Must be logged in to remove game"
  * }
-*/
+ */
 gameRouter.post('/remove', async (req, res) => {
 	try {
-		if (!req.user) { res.status(401).json({ message: 'Must be logged in to remove game' }); return; }
-		await removeGame(req.body.id, await getGameOwnerIdFromCid((req.user as GammaUser).cid));
+		if (!req.user) {
+			res.status(401).json({ message: 'Must be logged in to remove game' });
+			return;
+		}
+		await removeGame(
+			req.body.id,
+			await getGameOwnerIdFromCid((req.user as GammaUser).cid)
+		);
 		res.status(200).json({ message: 'Game removed' });
 	} catch (e) {
 		if (e instanceof Error) res.status(400).json({ message: e.message });
@@ -345,14 +368,10 @@ gameRouter.post('/markPlayed', async (req, res) => {
 		await markGameAsPlayed(req.body.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
-		if (e instanceof Error)
-			res.status(400).json({ message: e.message });
-		else
-			res.status(400).json({ message: 'Error marking game as played' });
+		if (e instanceof Error) res.status(400).json({ message: e.message });
+		else res.status(400).json({ message: 'Error marking game as played' });
 	}
 });
-
-
 
 /**
  * @api {get} /api/v1/games/owners Get all game owners
@@ -402,8 +421,8 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 			location: game.location,
 			owner: await getGameOwnerNameFromId(game.gameOwnerId),
 			isBorrowed:
-				game.borrow.filter((b: { returned: boolean }) => {
-					return !b.returned;
+				game.request.filter((b: { status: BorrowRequestStatus }) => {
+					return b.status === BorrowRequestStatus.BORROWED;
 				}).length > 0,
 			ratingAvg: await getAverageRating(game.id),
 			ratingUser: user ? await getUserRating(game.id, user.cid) : null,
@@ -411,6 +430,5 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 		}))
 	);
 };
-
 
 export default gameRouter;

@@ -1,14 +1,20 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
-import { BorrowRequestState, createBorrowRequest, respondBorrowRequest, getActiveBorrowRequests } from '../services/borrowRequestService.js';
+import {
+	BorrowRequestState,
+	createBorrowRequest,
+	respondBorrowRequest,
+	getActiveBorrowRequests
+} from '../services/borrowRequestService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { GammaUser } from '../models/gammaModels.js';
+import { getAccountFromId } from '../services/accountService.js';
 
 const borrowRequestRouter = Router();
 
 const borrowRequestSchema = z.object({
 	gameId: z.string().min(1),
-	user: z.string().min(1),
 	borrowStart: z.string().datetime(),
 	borrowEnd: z.string().datetime()
 });
@@ -34,44 +40,65 @@ const borrowRequestSchema = z.object({
  *
  * @apiUse ZodError
  */
-borrowRequestRouter.post('/', validateRequestBody(borrowRequestSchema), async (req, res) => {
-	const body = req.body;
-	const status = await createBorrowRequest(
+borrowRequestRouter.post(
+	'/',
+	validateRequestBody(borrowRequestSchema),
+	async (req, res) => {
+		if (!req.isAuthenticated()) {
+			res.status(401).json({ message: 'Must be logged in to get own rating' });
+			return;
+		}
+		const user = req.user as GammaUser;
+		const body = req.body;
+		const status = await createBorrowRequest(
 			body.gameId,
-			body.user,
+			user.cid,
 			new Date(body.borrowStart),
 			new Date(body.borrowEnd)
 		);
-	if (status == BorrowRequestState.InPast) return sendApiValidationError(res,
-		{
-			path: 'gameId',
-			message: 'A game cannot be borrowed in the past'
-		},
-		'Body');
-	if (status == BorrowRequestState.Inverted) return sendApiValidationError(res,
-		{
-			path: 'gameId',
-			message: 'A game cannot be returned before it is borrowed'
-		},
-		'Body');
-	if (status == BorrowRequestState.Overlapping) return sendApiValidationError(res,
-		{
-			path: 'gameId',
-			message: 'The game is already borrowed during this period'
-		},
-		'Body');
-	if (status == BorrowRequestState.NotValid) return sendApiValidationError(res,
-		{
-			path: 'gameId',
-			message: 'The gameId given is not valid'
-		},
-		'Body');
-	res.status(200).json({ message: 'Borrow was successfully requested' });
-});
+		if (status == BorrowRequestState.InPast)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'gameId',
+					message: 'A game cannot be borrowed in the past'
+				},
+				'Body'
+			);
+		if (status == BorrowRequestState.Inverted)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'gameId',
+					message: 'A game cannot be returned before it is borrowed'
+				},
+				'Body'
+			);
+		if (status == BorrowRequestState.Overlapping)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'gameId',
+					message: 'The game is already borrowed during this period'
+				},
+				'Body'
+			);
+		if (status == BorrowRequestState.NotValid)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'gameId',
+					message: 'The gameId given is not valid'
+				},
+				'Body'
+			);
+		res.status(200).json({ message: 'Borrow was successfully requested' });
+	}
+);
 
 const borrowRequestResponseSchema = z.object({
 	gameId: z.string().min(1),
-    approved: z.boolean(),
+	approved: z.boolean(),
 	startDate: z.string().datetime(),
 	endDate: z.string().datetime()
 });
@@ -102,14 +129,24 @@ borrowRequestRouter.post(
 	validateRequestBody(borrowRequestResponseSchema),
 	async (req, res) => {
 		const body = req.body;
-		const status = await respondBorrowRequest(body.gameId, new Date(body.startDate), new Date(body.endDate), body.approved);
-		if (status == BorrowRequestState.NotValid) return sendApiValidationError(res,
-			{
-				path: 'gameId',
-				message: 'The gameId given is not valid'
-			},
-			'Body');
-        let requestResponse = `Request ${(body.approved ? 'accepted' : 'rejected')} successfully`;
+		const status = await respondBorrowRequest(
+			body.gameId,
+			new Date(body.startDate),
+			new Date(body.endDate),
+			body.approved
+		);
+		if (status == BorrowRequestState.NotValid)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'gameId',
+					message: 'The gameId given is not valid'
+				},
+				'Body'
+			);
+		let requestResponse = `Request ${
+			body.approved ? 'accepted' : 'rejected'
+		} successfully`;
 		res.status(200).json({ message: requestResponse });
 	}
 );
@@ -136,25 +173,24 @@ borrowRequestRouter.post(
  *
  * @apiUse ZodError
  */
-borrowRequestRouter.get(
-	'/list',
-	async (_, res) => {
-		const requests = await getActiveBorrowRequests();
-		res.status(200).json(formatBorrowRequests(requests));
-	}
-);
+borrowRequestRouter.get('/list', async (_, res) => {
+	const requests = await getActiveBorrowRequests();
+	res.status(200).json(await formatBorrowRequests(requests));
+});
 
-const formatBorrowRequests = (requests: any[]) => {
-	return requests.map((request) => {
-		return {
-			gameId: request.gameId,
-			user: request.user,
-			borrowStart: request.borrowStart,
-			borrowEnd: request.borrowEnd,
-			approved: request.approved,
-			name: request.game["name"]
-		};
-	});
+const formatBorrowRequests = async (requests: any[]) => {
+	return await Promise.all(
+		requests.map(async (request) => {
+			return {
+				gameId: request.gameId,
+				user: (await getAccountFromId(request.userId))?.cid,
+				borrowStart: request.borrowStart,
+				borrowEnd: request.borrowEnd,
+				approved: request.approved,
+				name: request.game.name
+			};
+		})
+	);
 };
 
 export default borrowRequestRouter;

@@ -1,3 +1,4 @@
+import { BorrowRequestStatus } from '@prisma/client';
 import { prisma } from '../prisma.js';
 
 export const createGame = async (
@@ -43,7 +44,7 @@ export const getAllGames = async () => {
 			platformName: true,
 			dateReleased: true,
 			playtimeMinutes: true,
-			borrow: true, // TODO: See what is given
+			request: true, // TODO: See what is given
 			playerMin: true,
 			playerMax: true,
 			rating: true,
@@ -64,7 +65,7 @@ export const searchGames = async (term: string) => {
 			playtimeMinutes: true,
 			playerMin: true,
 			playerMax: true,
-			borrow: true,
+			request: true,
 			location: true,
 			gameOwnerId: true
 		},
@@ -116,7 +117,7 @@ export const filterGames = async (filter: Filter) => {
 			playtimeMinutes: true,
 			playerMin: true,
 			playerMax: true,
-			borrow: true,
+			request: true,
 			rating: true,
 			location: true,
 			gameOwnerId: true,
@@ -132,7 +133,7 @@ export const removeGame = async (gameID: string, gameOwnerId: string) => {
 			id: gameID
 		},
 		select: {
-			borrow: true,
+			request: true,
 			GameOwner: true
 		}
 	});
@@ -140,8 +141,8 @@ export const removeGame = async (gameID: string, gameOwnerId: string) => {
 	if (game.GameOwner?.id != gameOwnerId) {
 		throw new Error('User does not own this game');
 	}
-	const borrows = game.borrow.filter(
-		(borrow) => !borrow.returned && borrow.borrowStart < new Date()
+	const borrows = game.request.filter(
+		(request) => request.status === BorrowRequestStatus.BORROWED && request.borrowStart < new Date()
 	);
 	if (borrows.length > 0) throw new Error('Game is currently borrowed');
 
