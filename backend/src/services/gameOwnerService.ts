@@ -24,7 +24,7 @@ export const getGameOwnerById = async (gameOwnerId: string) => {
 };
 
 export const getGameOwnerNameFromId = async (gameOwnerId: string) => {
-	const cachedName = await getFromCache<String>(
+	const cachedName = await getFromCache<string>(
 		'name-gameOwner-' + gameOwnerId
 	);
 	if (cachedName) return cachedName;
