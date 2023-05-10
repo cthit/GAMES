@@ -8,27 +8,12 @@ interface GamesListProps {}
 
 const GamesList: FC<GamesListProps> = () => {
 	const [search, setSearch] = useState('');
-	const filter = useFilter();
+	const filter = useFilterState();
 	const { data, error, isLoading } = usePublicGames(search, filter.full);
 
 	return (
 		<>
-			<GameFilter
-				setPlatform={filter.setPlatform}
-				setReleaseBefore={filter.setReleaseBefore}
-				setReleaseAfter={filter.setReleaseAfter}
-				setPlaytimeMax={filter.setPlaytimeMax}
-				setPlaytimeMin={filter.setPlaytimeMin}
-				setPlayerCount={filter.setPlayerCount}
-				setOwner={filter.setOwner}
-				platform={filter.full.platform}
-				releaseAfter={filter.full.releaseAfter}
-				releaseBefore={filter.full.releaseBefore}
-				playtimeMax={filter.full.playtimeMax}
-				playtimeMin={filter.full.playtimeMin}
-				playerCount={filter.full.playerCount}
-				owner={filter.full.owner}
-			/>
+			<GameFilter filterState={filter} />
 			<div style={{ width: 'auto' }}>
 				<input
 					className={styles.gamesListSearchBar}
@@ -45,23 +30,7 @@ const GamesList: FC<GamesListProps> = () => {
 				{data ? (
 					<ul className={styles.gamesList}>
 						{data.map((game) => (
-							<GameCard
-								key={game.id}
-								id={game.id}
-								name={game.name}
-								description={game.description}
-								platform={game.platformName}
-								playtimeMinutes={game.playtimeMinutes}
-								releaseDate={game.releaseDate}
-								isBorrowed={game.isBorrowed}
-								playerMin={game.playerMin}
-								playerMax={game.playerMax}
-								location={game.location}
-								owner={game.owner}
-								ratingAvg={game.ratingAvg}
-								ratingUser={game.ratingUser}
-								isPlayed={game.isPlayed}
-							/>
+							<GameCard key={game.id} game={game} />
 						))}
 					</ul>
 				) : null}
@@ -70,7 +39,7 @@ const GamesList: FC<GamesListProps> = () => {
 	);
 };
 
-const useFilter = () => {
+export const useFilterState = () => {
 	// This hook is an example of why sometimes you want to pass state up.
 	const [platform, setPlatform] = useState<string>();
 	const [releaseBefore, setReleaseBefore] = useState<Date>();

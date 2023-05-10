@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { useDebounce } from '../useDebounce';
 
-interface Game {
+export interface Game {
 	id: string;
 	name: string;
 	description: string;
