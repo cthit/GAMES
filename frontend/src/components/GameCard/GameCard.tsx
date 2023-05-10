@@ -1,13 +1,10 @@
+import { useAddRating } from '@/src/hooks/api/useAddRating';
+import { useMarkAsPlayed } from '@/src/hooks/api/useMarkAsPlayed';
 import { Game } from '@/src/hooks/api/usePublicGames';
-import { useApiPost } from '@/src/hooks/apiHooks';
 import { FC, useState } from 'react';
 import Select from '../Forms/Select/Select';
 import RemoveGame from '../RemoveGame/RemoveGame';
 import styles from './GameCard.module.css';
-
-interface Rating {
-	rating: number;
-}
 
 interface GameCardProps {
 	game: Game;
@@ -16,9 +13,8 @@ interface GameCardProps {
 const GameCard: FC<GameCardProps> = ({ game }) => {
 	const [rating, setRating] = useState<string>(game.ratingUser);
 
-	const { postData: ratePostData } = useApiPost('/rating/rate');
-
-	const { postData } = useApiPost('/games/markPlayed');
+	const { mutate: addRating } = useAddRating();
+	const { mutate: markAsPlayed } = useMarkAsPlayed();
 
 	return (
 		<li className={styles.card}>
@@ -41,7 +37,7 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 					type="button"
 					value="Mark as played"
 					onClick={() => {
-						postData({ gameId: game.id });
+						markAsPlayed({ gameId: game.id });
 					}}
 				/>
 			</p>
@@ -53,7 +49,7 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 				onSubmit={(e) => {
 					e.preventDefault();
 					if (!rating) return;
-					ratePostData({
+					addRating({
 						game: game.id,
 						rating: parseInt(rating)
 					});
