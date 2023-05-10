@@ -355,8 +355,8 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 			location: game.location,
 			owner: await getGameOwnerNameFromId(game.gameOwnerId),
 			isBorrowed:
-				game.borrow.filter((b: { returned: boolean }) => {
-					return !b.returned;
+				game.request.filter((b: { status: BorrowRequestStatus }) => {
+					return b.status === BorrowRequestStatus.BORROWED;
 				}).length > 0,
 			ratingAvg: await getAverageRating(game.id),
 			ratingUser: user ? await getUserRating(game.id, user.cid) : null,
