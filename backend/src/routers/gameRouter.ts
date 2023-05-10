@@ -322,13 +322,12 @@ gameRouter.post('/remove', async (req, res) => {
 });
 
 /**
- * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
+ * @api {get} /api/v1/games/markPlayed Saves that a user has played a game
  * @apiName markPlayed
  * @apiGroup Games
  * @apiDescription Marks the game as played for the user
  *
- * @apiBody {String} gameId Id of the game
- * @apiBody {String} userId Id of the user
+ * @apiParam {String} gameId Id of the game
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -351,10 +350,10 @@ gameRouter.post('/remove', async (req, res) => {
  *   }
  * @apiUse ZodError
  */
-gameRouter.post('/markPlayed', async (req, res) => {
+gameRouter.get('/markPlayed/:gameId', async (req, res) => {
 	try {
 		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-		await markGameAsPlayed(req.body.gameId, (req.user as GammaUser).cid);
+		await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
 		if (e instanceof Error)
@@ -365,13 +364,12 @@ gameRouter.post('/markPlayed', async (req, res) => {
 });
 
 /**
- * @api {post} /api/v1/games/markNotPlayed Saves that a user has played a game
+ * @api {get} /api/v1/games/markNotPlayed Saves that a user has played a game
  * @apiName markPlayed
  * @apiGroup Games
  * @apiDescription Marks the game as played for the user
  *
- * @apiBody {String} gameId Id of the game
- * @apiBody {String} userId Id of the user
+ * @apiParam {String} gameId Id of the game
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -394,10 +392,10 @@ gameRouter.post('/markPlayed', async (req, res) => {
  *
  * @apiUse ZodError
  */
-gameRouter.post('/markNotPlayed', async (req, res) => {
+gameRouter.get('/markNotPlayed/:gameId', async (req, res) => {
 	try {
 		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-		await markGameAsNotPlayed(req.body.gameId, (req.user as GammaUser).cid);
+		await markGameAsNotPlayed(req.params.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as not played' });
 	} catch (e) {
 		if (e instanceof Error)

@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { useApiPost } from '@/src/hooks/apiHooks';
+import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
 import RemoveGame from '../RemoveGame/RemoveGame';
 import styles from './GameCard.module.css';
 import Select from '../Forms/Select/Select';
@@ -50,8 +50,8 @@ const GameCard: FC<GameCardProps> = ({
 		postData: ratePostData
 	} = useApiPost('/rating/rate');
 
-	const [apiPath, setApiPath] = useState('/games/markPlayed');
-	const { postData } = useApiPost(apiPath);
+	const [apiPath, setApiPath] = useState('');
+	const { data } = useApiGet(apiPath);
 
 	return (
 		<li className={styles.card}>
@@ -75,11 +75,9 @@ const GameCard: FC<GameCardProps> = ({
 					value={`Mark as ${isPlayed ? 'not played' : 'played'}`}
 					onClick={() => {
 						if (isPlayed) {
-							setApiPath('/games/markNotPlayed');
-							postData({ gameId: id });
+							setApiPath(`/games/markNotPlayed/${id}`);
 						} else {
-							setApiPath('/games/markPlayed');
-							postData({ gameId: id });
+							setApiPath(`/games/markPlayed/${id}`);
 						}
 					}}
 				/>
