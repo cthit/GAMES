@@ -131,30 +131,11 @@ export const removeGame = async (gameId: string) => {
 
 	if (borrows.length > 0) throw new Error('Game is currently borrowed');
 
-	// This cannot be split up into separate functions because prisma.$transaction
-	// relies on the prisma instance
-	return prisma.$transaction([
-		prisma.game.delete({
-			where: {
-				id: gameId
-			}
-		}),
-		prisma.rating.deleteMany({
-			where: {
-				gameId
-			}
-		}),
-		prisma.playStatus.deleteMany({
-			where: {
-				gameId
-			}
-		}),
-		prisma.borrow.deleteMany({
-			where: {
-				gameId
-			}
-		})
-	]);
+	await prisma.game.delete({
+		where: {
+			id: gameId
+		}
+	});
 };
 
 export const markGameAsPlayed = async (gameID: string, cid: string) => {
