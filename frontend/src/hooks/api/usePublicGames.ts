@@ -35,7 +35,8 @@ export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
 	const changedFilter = useDebounce(filter, 500);
 
 	const filterKeys = changedFilter
-		? Object.keys(changedFilter).map((key) => key + changedFilter[key])
+		? // @ts-ignore It does have keys that are strings. TypeScript is just being dumb.
+		  Object.keys(changedFilter).map((key) => key + '-' + changedFilter[key])
 		: [];
 
 	const query = useQuery<Game[], AxiosError>({
