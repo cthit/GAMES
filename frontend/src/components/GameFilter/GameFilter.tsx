@@ -1,65 +1,27 @@
-import { useApiGet } from '@/src/hooks/apiHooks';
+import { useGameOwners } from '@/src/hooks/api/useGameOwners';
+import { usePlatforms } from '@/src/hooks/api/usePlatforms';
 import { FC } from 'react';
 import DateInput from '../Forms/DateInput/DateInput';
 import NumberInput from '../Forms/NumberInput/NumberInput';
 import Select from '../Forms/Select/Select';
+import { useFilterState } from '../GamesList/GamesList';
 import styles from './GameFilter.module.css';
 
 interface GameFilterProps {
-	setPlatform: (s: string) => void;
-	setReleaseBefore: (a: Date) => void;
-	setReleaseAfter: (a: Date) => void;
-	setPlaytimeMax: (x: number) => void;
-	setPlaytimeMin: (x: number) => void;
-	setPlayerCount: (x: number) => void;
-	setOwner: (s: string) => void;
-	platform: string | undefined;
-	releaseAfter: Date | undefined;
-	releaseBefore: Date | undefined;
-	playtimeMax: number | undefined;
-	playtimeMin: number | undefined;
-	playerCount: number | undefined;
-	owner: string | undefined;
-	filterFunction: any;
-}
-
-interface Platform {
-	name: string;
-}
-
-interface Owner {
-	id: string;
-	name: string;
+	filterState: ReturnType<typeof useFilterState>;
 }
 
 const GameFilter: FC<GameFilterProps> = ({
-	setPlatform,
-	setReleaseBefore,
-	setReleaseAfter,
-	setPlaytimeMax,
-	setPlaytimeMin,
-	setPlayerCount,
-	setOwner,
-	platform,
-	playerCount,
-	playtimeMax,
-	playtimeMin,
-	releaseAfter,
-	releaseBefore,
-	owner,
-	filterFunction
+	filterState: filter
 }: GameFilterProps) => {
-	const { data: platforms, loading: platformsLoading } =
-		useApiGet<Platform[]>('/platforms');
-	const { data: owners, loading: ownersLoading } =
-		useApiGet<Owner[]>('/games/owners');
+	const { data: platforms, isLoading: platformsLoading } = usePlatforms();
+	const { data: owners, isLoading: ownersLoading } = useGameOwners();
 
 	const nums = '0123456789';
 	const dateReg =
 		/^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$/;
 
 	if (platformsLoading || ownersLoading) {
-		filterFunction();
 		return <p>Loading...</p>;
 	}
 
@@ -74,19 +36,19 @@ const GameFilter: FC<GameFilterProps> = ({
 				label="Platform"
 				options={platforms.map((platform) => platform.name)}
 				placeholder="Filter for platform"
-				onChange={(select) => setPlatform(select.target.value)}
-				value={platform ? platform : ''}
+				onChange={(select) => filter.setPlatform(select.target.value)}
+				value={filter.full.platform ? filter.full.platform : ''}
 			/>
 			<br />
 
 			<DateInput
 				label="Released before"
 				onChange={(input) =>
-					setReleaseBefore(new Date(input.currentTarget.value))
+					filter.setReleaseBefore(new Date(input.currentTarget.value))
 				}
 				value={
-					dateReg.test(releaseBefore + '')
-						? releaseBefore?.toISOString().split('T')[0]
+					dateReg.test(filter.full.releaseBefore + '')
+						? filter.full.releaseBefore?.toISOString().split('T')[0]
 						: undefined
 				}
 			/>
@@ -95,11 +57,11 @@ const GameFilter: FC<GameFilterProps> = ({
 			<DateInput
 				label="Released after"
 				onChange={(input) =>
-					setReleaseAfter(new Date(input.currentTarget.value))
+					filter.setReleaseAfter(new Date(input.currentTarget.value))
 				}
 				value={
-					dateReg.test(releaseAfter + '')
-						? releaseAfter?.toISOString().split('T')[0]
+					dateReg.test(filter.full.releaseAfter + '')
+						? filter.full.releaseAfter?.toISOString().split('T')[0]
 						: undefined
 				}
 			/>
@@ -113,9 +75,9 @@ const GameFilter: FC<GameFilterProps> = ({
 					for (const element of input.currentTarget.value) {
 						newTime += nums.includes(element) ? element : '';
 					}
-					setPlaytimeMin(Number.parseInt(newTime));
+					filter.setPlaytimeMin(Number.parseInt(newTime));
 				}}
-				value={playtimeMin?.toString() || ''}
+				value={filter.full.playtimeMin?.toString() || ''}
 			/>
 			<br />
 
@@ -127,9 +89,9 @@ const GameFilter: FC<GameFilterProps> = ({
 					for (const element of input.currentTarget.value) {
 						newTime += nums.includes(element) ? element : '';
 					}
-					setPlaytimeMax(Number.parseInt(newTime));
+					filter.setPlaytimeMax(Number.parseInt(newTime));
 				}}
-				value={playtimeMax?.toString() || ''}
+				value={filter.full.playtimeMax?.toString() || ''}
 			/>
 			<br />
 
@@ -141,9 +103,9 @@ const GameFilter: FC<GameFilterProps> = ({
 					for (const element of input.currentTarget.value) {
 						newCount += nums.includes(element) ? element : '';
 					}
-					setPlayerCount(Number.parseInt(newCount));
+					filter.setPlayerCount(Number.parseInt(newCount));
 				}}
-				value={playerCount?.toString() || ''}
+				value={filter.full.playerCount?.toString() || ''}
 			/>
 			<br />
 
@@ -152,18 +114,10 @@ const GameFilter: FC<GameFilterProps> = ({
 				options={owners.map((owner) => owner.name)}
 				values={owners.map((owner) => owner.id)}
 				placeholder="Filter for owner"
-				onChange={(select) => setOwner(select.target.value)}
-				value={owner ? owner : ''}
+				onChange={(select) => filter.setOwner(select.target.value)}
+				value={filter.full.owner ? filter.full.owner : ''}
 			/>
 			<br />
-
-			<input
-				type="button"
-				value="Submit"
-				onClick={() => {
-					filterFunction();
-				}}
-			/>
 		</form>
 	);
 };
