@@ -64,7 +64,6 @@ const GamesList: FC<GamesListProps> = () => {
 		if (owner) searchFilter.owner = owner;
 		if (isPlayed != undefined) searchFilter.isPlayed = isPlayed;
 		postData(searchFilter);
-		console.log(searchFilter);
 	}, 300);
 
 	return (
