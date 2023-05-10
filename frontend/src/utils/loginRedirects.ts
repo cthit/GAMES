@@ -15,9 +15,7 @@ export const redirectIfNotAdmin: GetServerSideProps = async ({ req }) => {
 
 	const user = await res.json();
 
-	console.log(user);
-
-	if (!user.isAdmin) {
+	if (!user.isSiteAdmin) {
 		return {
 			redirect: {
 				destination: '/'
