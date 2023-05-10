@@ -1,7 +1,7 @@
-import { Authority, GammaGroup } from '../models/gammaModels.js';
-import Strategy from './strategy.js';
 import passport from 'passport';
-import { GammaUser } from '../models/gammaModels.js';
+import { Authority, GammaGroup, GammaUser } from '../models/gammaModels.js';
+import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
+import Strategy from './strategy.js';
 
 const default_options = {
 	authorizationURL: 'http://localhost:8081/api/oauth/authorize',
@@ -40,7 +40,11 @@ export const init = (pass: passport.PassportStatic) => {
 			clientSecret: process.env.GAMMA_CLIENT_SECRET || '',
 			callbackURL: process.env.GAMMA_CALLBACK_URL || ''
 		},
-		(accessToken, profile, cb: (_: any, __: GammaUser, ___: any) => void) => {
+		async (
+			accessToken,
+			profile,
+			cb: (_: any, __: GammaUser, ___: any) => void
+		) => {
 			const groups = profile.groups.filter(
 				(g) => g.superGroup?.type != 'ALUMNI'
 			);
@@ -51,7 +55,8 @@ export const init = (pass: passport.PassportStatic) => {
 					...profile,
 					groups,
 					isSiteAdmin: isAdmin(profile.authorities, groups),
-					language: profile.language ?? 'en'
+					language: profile.language ?? 'en',
+					gameOwnerId: await getGameOwnerIdFromCid(profile.cid)
 				},
 				null
 			);
@@ -65,7 +70,6 @@ export const init = (pass: passport.PassportStatic) => {
 	});
 
 	passport.serializeUser((user: Express.User, cb) => {
-
 		cb(null, user);
 	});
 };

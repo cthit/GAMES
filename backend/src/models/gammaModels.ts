@@ -48,4 +48,5 @@ export interface GammaUser {
 	//Internal extension
 	isSiteAdmin: boolean;
 	accessToken?: string;
+	gameOwnerId: string;
 }

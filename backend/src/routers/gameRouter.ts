@@ -13,6 +13,7 @@ import {
 } from '../services/gameOwnerService.js';
 import {
 	createGame,
+	getGameById,
 	markGameAsPlayed,
 	removeGame,
 	searchAndFilterGames
@@ -311,6 +312,33 @@ gameRouter.get('/owners', async (req, res) => {
 	);
 
 	res.status(200).json(formattedOwners);
+});
+
+/**
+ * @api {get} /api/v1/game/:gameId/owner Get the owner of a game
+ * @apiParam {String} gameId Game id
+ * @apiName GetGameOwner
+ * @apiGroup Games
+ * @apiDescription Gets the current owner of a given game
+ *
+ * @apiSuccess {String} gameOwner The ID of the owner of the game
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "gameOwner": "clgzcxo5o0002lpr0sz7d5t5k"
+ * }
+ *
+ * @apiUse ZodError
+ */
+gameRouter.get('/:gameId/owner', async (req, res) => {
+	const game = await getGameById(req.params.gameId);
+
+	if (!game) return res.status(404).json({ message: 'Game not found' });
+
+	return res.status(200).json({
+		gameOwner: game?.gameOwnerId
+	});
 });
 
 const formatGames = async (games: any[], user: GammaUser | null) => {

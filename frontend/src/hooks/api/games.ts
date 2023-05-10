@@ -77,3 +77,11 @@ export const useGameRemover = () => {
 		}
 	});
 };
+
+export const useGameOwner = (gameId: string) => {
+	return useQuery<{ gameOwner: string }, AxiosError>({
+		queryKey: ['gameOwner', gameId],
+		queryFn: () =>
+			axios.get(`/api/v1/games/${gameId}/owner`).then((res) => res.data)
+	});
+};

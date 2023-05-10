@@ -45,6 +45,7 @@ interface User {
 	websiteURLs?: string;
 	//Internal extension
 	isSiteAdmin: boolean;
+	gameOwnerId: string;
 }
 
 export const useUser = () => {
