@@ -162,7 +162,9 @@ gameRouter.post(
 	async (req, res) => {
 		try {
 			if (!req.user) {
-				return res.status(401).json({ message: 'Must be logged in to add game' });
+				return res
+					.status(401)
+					.json({ message: 'Must be logged in to add game' });
 			}
 
 			const body = req.body;

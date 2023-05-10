@@ -2,7 +2,6 @@ import { useAddRating } from '@/src/hooks/api/useAddRating';
 import { useMarkAsPlayed } from '@/src/hooks/api/useMarkAsPlayed';
 import { Game } from '@/src/hooks/api/usePublicGames';
 import { FC, useState } from 'react';
-import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
 import Select from '../Forms/Select/Select';
 import RemoveGame from '../RemoveGame/RemoveGame';
 import styles from './GameCard.module.css';
@@ -16,15 +15,6 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 
 	const { mutate: addRating } = useAddRating();
 	const { mutate: markAsPlayed } = useMarkAsPlayed();
-
-	const {
-		error: postError,
-		loading: postLoading,
-		postData: ratePostData
-	} = useApiPost('/rating/rate');
-
-	const [apiPath, setApiPath] = useState('');
-	const { data } = useApiGet(apiPath);
 
 	return (
 		<li className={styles.card}>
@@ -47,11 +37,7 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 					type="button"
 					value={`Mark as ${game.isPlayed ? 'not played' : 'played'}`}
 					onClick={() => {
-						if (game.isPlayed) {
-							setApiPath(`/games/markNotPlayed/${game.id}`);
-						} else {
-							setApiPath(`/games/markPlayed/${game.id}`);
-						}
+						markAsPlayed({ gameId: game.id });
 					}}
 				/>
 			</p>
