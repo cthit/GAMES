@@ -60,7 +60,8 @@ const gamesQuerySchema = z
 			releaseBefore: data.releaseBefore
 				? new Date(data.releaseBefore)
 				: undefined,
-			releaseAfter: data.releaseAfter ? new Date(data.releaseAfter) : undefined
+			releaseAfter: data.releaseAfter ? new Date(data.releaseAfter) : undefined,
+			gameOwnerId: data.owner
 		};
 	});
 
