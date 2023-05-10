@@ -1,3 +1,4 @@
+import { isValidDateObject } from '@/src/utils/validation';
 import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { useDebounce } from '../useDebounce';
@@ -47,11 +48,11 @@ export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
 					params: {
 						search,
 						platform: filter?.platform ? filter.platform : undefined,
-						releaseBefore: filter?.releaseBefore
-							? filter.releaseBefore
+						releaseBefore: isValidDateObject(filter?.releaseBefore)
+							? filter?.releaseBefore
 							: undefined,
-						releaseAfter: filter?.releaseAfter
-							? filter.releaseAfter
+						releaseAfter: isValidDateObject(filter?.releaseAfter)
+							? filter?.releaseAfter
 							: undefined,
 						playtimeMax: filter?.playtimeMax ? filter.playtimeMax : undefined,
 						playtimeMin: filter?.playtimeMin ? filter.playtimeMin : undefined,
