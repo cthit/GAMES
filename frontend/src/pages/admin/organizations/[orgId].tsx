@@ -1,12 +1,12 @@
-import { Inter } from 'next/font/google';
-import Head from 'next/head';
 import Header from '@/src/components/Header/Header';
-import styles from '@/src/pages/admin/organizations/index.module.css';
-import { useRouter } from 'next/router';
 import ManageOrganization from '@/src/components/SiteAdminComponents/ManageOrganization/ManageOrganization';
 import RemoveOrganizationButton from '@/src/components/SiteAdminComponents/RemoveOrganizationButton/RemoveOrganizationButton';
+import styles from '@/src/pages/admin/organizations/index.module.css';
+import { redirectIfNotAdmin } from '@/src/utils/loginRedirects';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-const inter = Inter({ subsets: ['latin'] });
+export const getServerSideProps = redirectIfNotAdmin;
 
 export const Home = () => {
 	const router = useRouter();

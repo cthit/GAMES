@@ -1,9 +1,12 @@
-import { Inter } from 'next/font/google';
-import Head from 'next/head';
 import Header from '@/src/components/Header/Header';
 import styles from '@/src/pages/index.module.css';
+import { redirectIfNotAdmin } from '@/src/utils/loginRedirects';
+import { Inter } from 'next/font/google';
+import Head from 'next/head';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const getServerSideProps = redirectIfNotAdmin;
 
 export const Home = () => {
 	return (

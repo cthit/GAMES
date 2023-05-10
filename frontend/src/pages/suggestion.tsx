@@ -1,10 +1,7 @@
-import { Inter } from 'next/font/google';
 import Head from 'next/head';
-import SuggestionsList from '../components/SuggestionsList/SuggestionsList';
 import Header from '../components/Header/Header';
+import SuggestionsList from '../components/SuggestionsList/SuggestionsList';
 import styles from './suggestion.module.css';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const Home = () => {
 	return (
