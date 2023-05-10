@@ -1,5 +1,56 @@
 import { prisma } from '../prisma.js';
 
+export type BetterFilter = {
+	search?: string | undefined;
+	releaseBefore?: Date | undefined;
+	releaseAfter?: Date | undefined;
+	playerMax?: number | undefined;
+	playerMin?: number | undefined;
+	platform?: string | undefined;
+	playtimeMin?: number | undefined;
+	playtimeMax?: number | undefined;
+	location?: string | undefined;
+	gameOwnerId?: string | undefined;
+};
+export const searchAndFilterGames = async (filter?: BetterFilter) => {
+	return await prisma.game.findMany({
+		where: {
+			name: {
+				contains: filter?.search,
+				mode: 'insensitive'
+			},
+			dateReleased: {
+				lte: filter?.releaseBefore,
+				gte: filter?.releaseAfter
+			},
+			playerMax: {
+				gte: filter?.playerMax
+			},
+			playerMin: {
+				lte: filter?.playerMin
+			},
+			platformName: {
+				contains: filter?.platform,
+				mode: 'insensitive'
+			},
+			playtimeMinutes: {
+				gte: filter?.playtimeMin,
+				lte: filter?.playtimeMax
+			},
+			location: {
+				contains: filter?.location,
+				mode: 'insensitive'
+			},
+			gameOwnerId: {
+				equals: filter?.gameOwnerId
+			}
+		},
+		include: {
+			borrow: {}
+		}
+	});
+};
+
 export const createGame = async (
 	name: string,
 	description: string,
@@ -93,12 +144,12 @@ export type Filter = {
 		lte: number;
 	};
 	platform?: {
-		name: string
-	},
+		name: string;
+	};
 	playtimeMinutes?: {
-		lte?: number,
-		gte?: number
-	}
+		lte?: number;
+		gte?: number;
+	};
 	location?: {
 		contains: string;
 		mode: 'insensitive';
@@ -180,6 +231,5 @@ export const markGameAsNotPlayed = async (gameID: string, cid: string) => {
 				userId: user.id
 			}
 		}
-	}
-	)
+	});
 }
