@@ -1,6 +1,6 @@
 import LoginStatus from '@/src/components/LoginStatus/LoginStatus';
 import { useUser } from '@/src/hooks/api/auth';
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import styles from './Header.module.css';
 
 interface HeaderProps {}
@@ -56,10 +56,6 @@ const ProtectedLinks = () => {
 
 const AdminLinks = () => {
 	const { data, isLoading } = useUser();
-
-	useEffect(() => {
-		console.log(data);
-	}, [data]);
 
 	if (isLoading) return null;
 

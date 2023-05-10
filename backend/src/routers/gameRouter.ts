@@ -8,7 +8,8 @@ import { GammaUser } from '../models/gammaModels.js';
 import {
 	getGameOwnerIdFromCid,
 	getGameOwnerNameFromId,
-	getGameOwnersWithGames
+	getGameOwnersWithGames,
+	isGameOwner
 } from '../services/gameOwnerService.js';
 import {
 	createGame,
@@ -208,43 +209,43 @@ gameRouter.post(
 );
 
 /**
- * @api {post} /api/v1/games/remove Remove a game
- * @apiName Remove
+ * @api {delete} /api/v1/games/:id Remove a game
+ * @apiName Remove Game
  * @apiGroup Games
- * @apiDescription Remove a game
+ * @apiDescription Removes the given game
  *
- * @apiBody {String} id
+ * @apiParam {String} gameId The CUID of the game to delete
  *
  * @apiSuccess {String} message Message indicating success
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
- *  [
- *   {
- *    "id": "clgkri8kk0000przwvkvbyj95",
- *   }
- * ]
+ * {
+ * 	"message": "Game Removed"
+ * }
  *
- * @apiUse ZodError
  * @apiErrorExample {json} 401 Unauthorized:
  * {
  * 	"message": "Must be logged in to remove game"
  * }
  */
-gameRouter.post('/remove', async (req, res) => {
+gameRouter.delete('/:id', async (req, res) => {
 	try {
 		if (!req.user) {
 			res.status(401).json({ message: 'Must be logged in to remove game' });
 			return;
 		}
-		await removeGame(
-			req.body.id,
-			await getGameOwnerIdFromCid((req.user as GammaUser).cid)
-		);
+
+		// @ts-ignore It is in fact a GammaUser
+		if (!isGameOwner(req.user, req.params.id))
+			return res.status(403).json({ message: 'You do not own that game!' });
+
+		await removeGame(req.params.id);
+
 		res.status(200).json({ message: 'Game removed' });
 	} catch (e) {
 		if (e instanceof Error) res.status(400).json({ message: e.message });
-		else res.status(400).json({ message: 'Error removing game' });
+		else res.status(500).json({ message: 'Error removing game' });
 	}
 });
 

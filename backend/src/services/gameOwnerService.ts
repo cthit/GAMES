@@ -1,7 +1,9 @@
 import { GameOwnerType } from '@prisma/client';
+import { GammaUser } from '../models/gammaModels.js';
 import { prisma } from '../prisma.js';
 import { getAccountFromCid, getAccountFromId } from './accountService.js';
 import { getFromCache, setCache } from './cacheService.js';
+import { getGameById } from './gameService.js';
 import { getGammaUser } from './gammaService.js';
 import { getOrganization } from './organizationService.js';
 
@@ -64,6 +66,16 @@ export const getGameOwnersWithGames = async () => {
 			}
 		}
 	});
+};
+
+export const isGameOwner = async (user: GammaUser, gameId: string) => {
+	const game = await getGameById(gameId);
+
+	if (!game) return false;
+
+	const gameOwner = await getGameOwnerIdFromCid(user.cid);
+
+	return gameOwner === game.gameOwnerId;
 };
 
 const getGameOwnerFromIdAndType = async (id: string, type: GameOwnerType) => {

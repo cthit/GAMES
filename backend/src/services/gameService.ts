@@ -1,6 +1,6 @@
 import { prisma } from '../prisma.js';
 
-export type BetterFilter = {
+export interface Filter {
 	search?: string | undefined;
 	releaseBefore?: Date | undefined;
 	releaseAfter?: Date | undefined;
@@ -11,8 +11,9 @@ export type BetterFilter = {
 	playtimeMax?: number | undefined;
 	location?: string | undefined;
 	gameOwnerId?: string | undefined;
-};
-export const searchAndFilterGames = async (filter?: BetterFilter) => {
+}
+
+export const searchAndFilterGames = async (filter?: Filter) => {
 	return await prisma.game.findMany({
 		where: {
 			name: {
@@ -104,103 +105,56 @@ export const getAllGames = async () => {
 	});
 };
 
-export const searchGames = async (term: string) => {
-	return await prisma.game.findMany({
-		select: {
-			id: true,
-			name: true,
-			description: true,
-			platformName: true,
-			dateReleased: true,
-			playtimeMinutes: true,
-			playerMin: true,
-			playerMax: true,
-			borrow: true,
-			location: true,
-			gameOwnerId: true
-		},
+export const getGameById = async (gameId: string) => {
+	return await prisma.game.findUnique({
 		where: {
-			name: {
-				contains: term,
-				mode: 'insensitive'
-			}
+			id: gameId
 		}
 	});
 };
 
-export type Filter = {
-	name?: {
-		contains: string;
-		mode: 'insensitive';
-	};
-	dateReleased?: {
-		lte?: Date;
-		gte?: Date;
-	};
-	playerMax?: {
-		gte: number;
-	};
-	playerMin?: {
-		lte: number;
-	};
-	platform?: {
-		name: string;
-	};
-	playtimeMinutes?: {
-		lte?: number;
-		gte?: number;
-	};
-	location?: {
-		contains: string;
-		mode: 'insensitive';
-	};
-	gameOwnerId?: string;
-};
-export const filterGames = async (filter: Filter) => {
-	return await prisma.game.findMany({
-		select: {
-			id: true,
-			name: true,
-			description: true,
-			platformName: true,
-			dateReleased: true,
-			playtimeMinutes: true,
-			playerMin: true,
-			playerMax: true,
-			borrow: true,
-			rating: true,
-			location: true,
-			gameOwnerId: true,
-			playStatus: true
-		},
-		where: filter
-	});
-};
-
-export const removeGame = async (gameID: string, gameOwnerId: string) => {
+export const removeGame = async (gameId: string) => {
 	const game = await prisma.game.findUnique({
 		where: {
-			id: gameID
+			id: gameId
 		},
-		select: {
-			borrow: true,
-			GameOwner: true
+		include: {
+			borrow: true
 		}
 	});
+
 	if (!game) throw new Error('Game not found');
-	if (game.GameOwner?.id != gameOwnerId) {
-		throw new Error('User does not own this game');
-	}
+
 	const borrows = game.borrow.filter(
 		(borrow) => !borrow.returned && borrow.borrowStart < new Date()
 	);
+
 	if (borrows.length > 0) throw new Error('Game is currently borrowed');
 
-	return await prisma.game.delete({
-		where: {
-			id: gameID
-		}
-	});
+	// This cannot be split up into separate functions because prisma.$transaction
+	// relies on the prisma instance
+	return prisma.$transaction([
+		prisma.game.delete({
+			where: {
+				id: gameId
+			}
+		}),
+		prisma.rating.deleteMany({
+			where: {
+				gameId
+			}
+		}),
+		prisma.playStatus.deleteMany({
+			where: {
+				gameId
+			}
+		}),
+		prisma.borrow.deleteMany({
+			where: {
+				gameId
+			}
+		})
+	]);
 };
 
 export const markGameAsPlayed = async (gameID: string, cid: string) => {
