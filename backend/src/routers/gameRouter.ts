@@ -193,7 +193,8 @@ const filterGamesSchema = z.object({
 	playtimeMax: z.number().int().min(1).optional(),
 	playerCount: z.number().int().min(1).max(2000).optional(),
 	owner: z.string().cuid2().optional(),
-	location: z.string().min(1).max(500).optional()
+	location: z.string().min(1).max(500).optional(),
+	isPlayed: z.boolean().optional()
 });
 
 /**
@@ -269,6 +270,8 @@ gameRouter.post(
 		if (body.location)
 			filter.location = { contains: body.location, mode: 'insensitive' };
 
+
+
 		const games = await filterGames(filter);
 
 		const formattedGames = await formatGames(games, req.isAuthenticated() ? req.user as GammaUser : null);
@@ -279,6 +282,12 @@ gameRouter.post(
 					return played.userId == uid;
 				}).length > 0
 			}
+		}
+		if (body.isPlayed != undefined) {
+			res.status(200).json(formattedGames.filter((game) => {
+				game.isPlayed == body.isPlayed;
+			}));
+			return;
 		}
 
 		res.status(200).json(formattedGames);
