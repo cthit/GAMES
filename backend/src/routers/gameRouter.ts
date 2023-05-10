@@ -5,20 +5,16 @@ import {
 	validateRequestBody
 } from 'zod-express-middleware';
 import { GammaUser } from '../models/gammaModels.js';
-import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
 	getGameOwnerNameFromId,
 	getGameOwnersWithGames
 } from '../services/gameOwnerService.js';
 import {
-	Filter,
 	createGame,
-	filterGames,
 	markGameAsPlayed,
 	removeGame,
-	searchAndFilterGames,
-	searchGames
+	searchAndFilterGames
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
@@ -66,7 +62,7 @@ const gamesQuerySchema = z
 	});
 
 /**
- * @api {get} /api/v1/games Request Games
+ * @api {get} /api/v1/games Get Games
  * @apiName GetGames
  * @apiGroup Games
  * @apiDescription Get all public games matching the specified query
@@ -96,7 +92,10 @@ const gamesQuerySchema = z
  *	  "playerMin": 1,
  *	  "playerMax": 5
  *	  "location": "Hubben",
- * 	"isBorrowed": "false"
+ * 	  "isBorrowed": "false",
+ * 	  "isPlayed": "false",
+ *    (nullable) "ratingAvg": 4.5,
+ *    (nullable) "ratingUser": 4,
  *   }
  * ]
  */
@@ -120,43 +119,6 @@ const addGameSchema = z.object({
 	playerMin: z.number().int().min(1),
 	playerMax: z.number().int().min(1), //Maybe check that max > min?
 	location: z.string().min(1).max(250)
-});
-
-/**
- * @api {get} /api/v1/games/search Search Games
- * @apiName SearchGames
- * @apiGroup Games
- * @apiDescription Get all public games that includes the search term
- *
- * @apiQuery {String} term Search term
- *
- * @apiSuccess {Object[]} games List of games
- *
- * @apiSuccessExample Success-Response:
- *  HTTP/1.1 200 OK
- *  [
- *   {
- *    "id": "clgkri8kk0000przwvkvbyj95",
- *    "name": "Game 1",
- *    "description": "Game 1 description",
- * 	  "platformName": "Steam",
- *	  "releaseDate": "2023-04-13",
- *	  "playtimeMinutes": "60",
- *	  "location": "Hubben"
- *   }
- * ]
- */
-gameRouter.get('/search', async (req, res) => {
-	const games = await searchGames(
-		typeof req.query.term === 'string' ? req.query.term : ''
-	);
-
-	const formattedGames = await formatGames(
-		games,
-		req.isAuthenticated() ? (req.user as GammaUser) : null
-	);
-
-	res.status(200).json(formattedGames);
 });
 
 /**
@@ -247,111 +209,6 @@ gameRouter.post(
 				});
 			}
 		}
-	}
-);
-
-const filterGamesSchema = z.object({
-	name: z.string().min(1).max(500).optional(),
-	platform: z.string().min(1).optional(),
-	releaseBefore: z.string().datetime().optional(), // ISO date string
-	releaseAfter: z.string().datetime().optional(), // ISO date string
-	playtimeMin: z.number().int().min(1).optional(),
-	playtimeMax: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000).optional(),
-	owner: z.string().cuid2().optional(),
-	location: z.string().min(1).max(500).optional()
-});
-
-/**
- * @api {post} /api/v1/games/filter Filter which games to show
- * @apiName Filter
- * @apiGroup Games
- * @apiDescription Filters the games returned
- *
- * @apiBody {String} name Name of the game (Optional)
- * @apiBody {String} description Description of the game (Optional)
- * @apiBody {String} platform Platform the game is played on (Optional)
- * @apiBody {String} releaseBefore Filters to games released before a specific date (Optional)
- * @apiBody {String} releaseAfter Filters to games released after a specific date (Optional)
- * @apiBody {Number} playtimeMin Minimum playtime of the game (Optional)
- * @apiBody {Number} playtimeMax Maximum playtime of the game (Optional
- * @apiBody {Number} playerCount amount of players for the game (Optional)
- * @apiBody {String} owner CUID of the owner of the game (Optional)
- * @apiBody {String} location Location of the game (Optional)
- *
- * @apiSuccess {String} message Message indicating success
- *
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- *  [
- *   {
- *    "id": "clgkri8kk0000przwvkvbyj95",
- *    "name": "Game 1",
- *    "description": "Game 1 description",
- * 	  "platformName": "Steam",
- *	  "releaseDate": "2023-04-13",
- *	  "playtimeMin": "10",
- *	  "playtimeMax": "60"
- *	  "location": "Hubben"
- *   }
- * ]
- *
- * @apiUse ZodError
- */
-
-gameRouter.post(
-	'/filter',
-	validateRequestBody(filterGamesSchema),
-	async (req, res) => {
-		const body = req.body;
-		const filter: Filter = {};
-		if (body.name) {
-			filter.name = { contains: body.name, mode: 'insensitive' };
-		}
-		if (body.releaseAfter)
-			filter.dateReleased = {
-				gte: new Date(body.releaseAfter)
-			};
-		if (body.releaseBefore)
-			filter.dateReleased = {
-				lte: new Date(body.releaseBefore)
-			};
-		if (body.releaseAfter && body.releaseBefore)
-			filter.dateReleased = {
-				lte: new Date(body.releaseBefore),
-				gte: new Date(body.releaseAfter)
-			};
-		if (body.playerCount) {
-			filter.playerMax = { gte: body.playerCount };
-			filter.playerMin = { lte: body.playerCount };
-		}
-		if (body.platform) filter.platform = { name: body.platform };
-		if (body.playtimeMax || body.playtimeMin) {
-			filter.playtimeMinutes = {};
-			if (body.playtimeMax) filter.playtimeMinutes.lte = body.playtimeMax;
-			if (body.playtimeMin) filter.playtimeMinutes.gte = body.playtimeMin;
-		}
-
-		if (body.location)
-			filter.location = { contains: body.location, mode: 'insensitive' };
-
-		const games = await filterGames(filter);
-
-		const formattedGames = await formatGames(
-			games,
-			req.isAuthenticated() ? (req.user as GammaUser) : null
-		);
-		if (req.user) {
-			const uid = (await getAccountFromCid((req.user as GammaUser).cid))?.id;
-			for (let i = 0; i < formattedGames.length; i++) {
-				formattedGames[i].isPlayed =
-					games[i].playStatus.filter((played) => {
-						return played.userId == uid;
-					}).length > 0;
-			}
-		}
-
-		res.status(200).json(formattedGames);
 	}
 );
 
