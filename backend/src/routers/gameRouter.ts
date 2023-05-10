@@ -30,14 +30,9 @@ const gamesQuerySchema = z
 		platform: z.string().min(1).optional(),
 		releaseBefore: z.string().datetime().optional(), // ISO date string
 		releaseAfter: z.string().datetime().optional(), // ISO date string
-		playtimeMin: z.string().min(1).regex(isInt, intMessage).optional(),
-		playtimeMax: z.string().min(1).regex(isInt, intMessage).optional(),
-		playerCount: z
-			.string()
-			.min(1)
-			.max(2000)
-			.regex(isInt, intMessage)
-			.optional(),
+		playtimeMin: z.string().min(1).max(6).regex(isInt, intMessage).optional(),
+		playtimeMax: z.string().min(1).max(6).regex(isInt, intMessage).optional(),
+		playerCount: z.string().min(1).max(4).regex(isInt, intMessage).optional(),
 		owner: z.string().cuid2().optional(),
 		location: z.string().min(1).max(500).optional()
 	})
