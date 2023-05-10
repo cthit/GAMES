@@ -101,8 +101,6 @@ const gamesQuerySchema = z
  * ]
  */
 gameRouter.get('/', processRequestQuery(gamesQuerySchema), async (req, res) => {
-	console.log(JSON.stringify(req.query));
-
 	const games = await searchAndFilterGames(req.query);
 
 	const formattedGames = await formatGames(

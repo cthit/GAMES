@@ -13,8 +13,7 @@ export type BetterFilter = {
 	gameOwnerId?: string | undefined;
 };
 export const searchAndFilterGames = async (filter?: BetterFilter) => {
-	console.log('Filter: ' + JSON.stringify(filter));
-	const games = await prisma.game.findMany({
+	return await prisma.game.findMany({
 		where: {
 			name: {
 				contains: filter?.search,
@@ -50,10 +49,6 @@ export const searchAndFilterGames = async (filter?: BetterFilter) => {
 			borrow: {}
 		}
 	});
-
-	console.log(games);
-
-	return games;
 };
 
 export const createGame = async (
