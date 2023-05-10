@@ -1,4 +1,5 @@
-import { useApiGet } from '@/src/hooks/apiHooks';
+import { useGameOwners } from '@/src/hooks/api/useGameOwners';
+import { usePlatforms } from '@/src/hooks/api/usePlatforms';
 import { FC } from 'react';
 import DateInput from '../Forms/DateInput/DateInput';
 import NumberInput from '../Forms/NumberInput/NumberInput';
@@ -22,15 +23,6 @@ interface GameFilterProps {
 	owner: string | undefined;
 }
 
-interface Platform {
-	name: string;
-}
-
-interface Owner {
-	id: string;
-	name: string;
-}
-
 const GameFilter: FC<GameFilterProps> = ({
 	setPlatform,
 	setReleaseBefore,
@@ -47,10 +39,8 @@ const GameFilter: FC<GameFilterProps> = ({
 	releaseBefore,
 	owner
 }: GameFilterProps) => {
-	const { data: platforms, loading: platformsLoading } =
-		useApiGet<Platform[]>('/platforms');
-	const { data: owners, loading: ownersLoading } =
-		useApiGet<Owner[]>('/games/owners');
+	const { data: platforms, isLoading: platformsLoading } = usePlatforms();
+	const { data: owners, isLoading: ownersLoading } = useGameOwners();
 
 	const nums = '0123456789';
 	const dateReg =
