@@ -54,6 +54,7 @@ model User {
     organizationsMember OrganizationMember[]
     ratings             Rating[]
     playStatus          PlayStatus[]
+    borrowRequests      BorrowRequest[]
 
     @@map("users")
 }
@@ -111,7 +112,8 @@ model BorrowRequest {
     game        Game                @relation(fields: [gameId], references: [id])
     id          String   @id @default(cuid())
     gameId      String
-    user        String
+    user        User                @relation(fields: [userId], references: [id])
+    userId      String
     borrowStart DateTime
     borrowEnd   DateTime
     status      BorrowRequestStatus @default(PENDING)
