@@ -17,7 +17,7 @@ interface Game {
 	isBorrowed: boolean;
 	playerMin: string;
 	playerMax: string;
-	location: string; 
+	location: string;
 	owner: string;
 	ratingAvg: string;
 	ratingUser: string;
@@ -31,8 +31,9 @@ type SearchFilter = {
 	playtimeMax?: number;
 	playtimeMin?: number;
 	playerCount?: number;
-	location?: string; 
+	location?: string;
 	owner?: string;
+	isPlayed?: boolean;
 };
 
 const GamesList: FC<GamesListProps> = () => {
@@ -46,6 +47,7 @@ const GamesList: FC<GamesListProps> = () => {
 	const [playtimeMin, setPlaytimeMin] = useState<number>();
 	const [playerCount, setPlayerCount] = useState<number>();
 	const [owner, setOwner] = useState<string>();
+	const [isPlayed, setIsPlayed] = useState<boolean>();
 	const searchFilter: SearchFilter = {};
 
 	const search = debounce((e: ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +62,9 @@ const GamesList: FC<GamesListProps> = () => {
 		if (playtimeMin) searchFilter.playtimeMin = playtimeMin;
 		if (playerCount) searchFilter.playerCount = playerCount;
 		if (owner) searchFilter.owner = owner;
+		if (isPlayed != undefined) searchFilter.isPlayed = isPlayed;
 		postData(searchFilter);
+		console.log(searchFilter);
 	}, 300);
 
 	return (
@@ -73,6 +77,7 @@ const GamesList: FC<GamesListProps> = () => {
 				setPlaytimeMin={setPlaytimeMin}
 				setPlayerCount={setPlayerCount}
 				setOwner={setOwner}
+				setIsPlayed={setIsPlayed}
 				platform={platform}
 				releaseAfter={releaseAfter}
 				releaseBefore={releaseBefore}
@@ -80,6 +85,7 @@ const GamesList: FC<GamesListProps> = () => {
 				playtimeMin={playtimeMin}
 				playerCount={playerCount}
 				owner={owner}
+				isPlayed={isPlayed}
 				filterFunction={search}
 			/>
 			<div style={{ width: 'auto' }}>

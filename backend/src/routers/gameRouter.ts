@@ -285,7 +285,7 @@ gameRouter.post(
 		}
 		if (body.isPlayed != undefined) {
 			res.status(200).json(formattedGames.filter((game) => {
-				game.isPlayed == body.isPlayed;
+				return game.isPlayed == body.isPlayed;
 			}));
 			return;
 		}

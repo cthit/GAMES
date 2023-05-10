@@ -13,6 +13,7 @@ interface GameFilterProps {
 	setPlaytimeMin: (x: number) => void;
 	setPlayerCount: (x: number) => void;
 	setOwner: (s: string) => void;
+	setIsPlayed: (b: boolean | undefined) => void;
 	platform: string | undefined;
 	releaseAfter: Date | undefined;
 	releaseBefore: Date | undefined;
@@ -20,6 +21,7 @@ interface GameFilterProps {
 	playtimeMin: number | undefined;
 	playerCount: number | undefined;
 	owner: string | undefined;
+	isPlayed: boolean | undefined;
 	filterFunction: any;
 }
 
@@ -40,6 +42,7 @@ const GameFilter: FC<GameFilterProps> = ({
 	setPlaytimeMin,
 	setPlayerCount,
 	setOwner,
+	setIsPlayed,
 	platform,
 	playerCount,
 	playtimeMax,
@@ -47,6 +50,7 @@ const GameFilter: FC<GameFilterProps> = ({
 	releaseAfter,
 	releaseBefore,
 	owner,
+	isPlayed,
 	filterFunction
 }: GameFilterProps) => {
 	const { data: platforms, loading: platformsLoading } =
@@ -155,6 +159,32 @@ const GameFilter: FC<GameFilterProps> = ({
 				onChange={(select) => setOwner(select.target.value)}
 				value={owner ? owner : ''}
 			/>
+			<br />
+
+			{/* <Select
+				label="Play status"
+				options={['Played games','Not played games']}
+				values={['true','false']}
+				placeholder="All games"
+				onChange={(select) => {
+					const newBool = (select.target.value == 'undefined')?undefined:(select.target.value=='true')?true:false;
+					setIsPlayed(newBool)}}
+				value={isPlayed ? 'true' : 'false'}
+			/> */}
+			<fieldset>
+				<p>
+					<input type='radio' name="playStatus" onClick={() => setIsPlayed(undefined)} />
+					All games
+				</p>
+				<p>
+					<input type='radio' name="playStatus" onClick={() => setIsPlayed(true)} />
+					Played games
+				</p>
+				<p>
+					<input type='radio' name="playStatus" onClick={() => setIsPlayed(false)} />
+					Not played games
+				</p>
+			</fieldset>
 			<br />
 
 			<input
