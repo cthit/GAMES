@@ -20,7 +20,6 @@ interface GameFilterProps {
 	playtimeMin: number | undefined;
 	playerCount: number | undefined;
 	owner: string | undefined;
-	filterFunction: any;
 }
 
 interface Platform {
@@ -46,8 +45,7 @@ const GameFilter: FC<GameFilterProps> = ({
 	playtimeMin,
 	releaseAfter,
 	releaseBefore,
-	owner,
-	filterFunction
+	owner
 }: GameFilterProps) => {
 	const { data: platforms, loading: platformsLoading } =
 		useApiGet<Platform[]>('/platforms');
@@ -59,7 +57,6 @@ const GameFilter: FC<GameFilterProps> = ({
 		/^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$/;
 
 	if (platformsLoading || ownersLoading) {
-		filterFunction();
 		return <p>Loading...</p>;
 	}
 
@@ -156,14 +153,6 @@ const GameFilter: FC<GameFilterProps> = ({
 				value={owner ? owner : ''}
 			/>
 			<br />
-
-			<input
-				type="button"
-				value="Submit"
-				onClick={() => {
-					filterFunction();
-				}}
-			/>
 		</form>
 	);
 };

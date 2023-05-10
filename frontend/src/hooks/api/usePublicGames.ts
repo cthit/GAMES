@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
+import { useDebounce } from '../useDebounce';
 
 interface Game {
 	id: string;
@@ -19,7 +20,6 @@ interface Game {
 }
 
 interface Filter {
-	search?: string;
 	platform?: string;
 	releaseBefore?: Date;
 	releaseAfter?: Date;
@@ -31,19 +31,36 @@ interface Filter {
 }
 
 export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
-	const filterKeys = filter ? Object.keys(filter) : [];
-	const queryStuff = useQuery<Game[], AxiosError>({
-		queryKey: ['gamesList', searchTerm, ...filterKeys],
+	const search = useDebounce(searchTerm ? searchTerm : undefined, 300); // Ternary to avoid empty string
+	const changedFilter = useDebounce(filter, 500);
+
+	const filterKeys = changedFilter
+		? Object.keys(changedFilter).map((key) => key + changedFilter[key])
+		: [];
+
+	const query = useQuery<Game[], AxiosError>({
+		queryKey: ['gamesList', search, ...filterKeys],
 		queryFn: () =>
 			axios
 				.get('/api/v1/games', {
 					params: {
-						search: searchTerm,
-						...filter
+						search,
+						platform: filter?.platform ? filter.platform : undefined,
+						releaseBefore: filter?.releaseBefore
+							? filter.releaseBefore
+							: undefined,
+						releaseAfter: filter?.releaseAfter
+							? filter.releaseAfter
+							: undefined,
+						playtimeMax: filter?.playtimeMax ? filter.playtimeMax : undefined,
+						playtimeMin: filter?.playtimeMin ? filter.playtimeMin : undefined,
+						playerCount: filter?.playerCount ? filter.playerCount : undefined,
+						location: filter?.location ? filter.location : undefined,
+						owner: filter?.owner ? filter.owner : undefined
 					}
 				})
 				.then((res) => res.data)
 	});
 
-	return queryStuff;
+	return query;
 };
