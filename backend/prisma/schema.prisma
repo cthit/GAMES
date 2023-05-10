@@ -21,7 +21,6 @@ model Game {
     playtimeMinutes Int // Stored in minutes @map("playtime")
     location        String
     playStatus      PlayStatus[]
-    borrow          Borrow[]
     request         BorrowRequest[]
     GameOwner       GameOwner?      @relation(fields: [gameOwnerId], references: [id], onDelete: Cascade)
     gameOwnerId     String?
@@ -100,33 +99,24 @@ model GameOwner {
     @@map("game_owners")
 }
 
-model Borrow {
-    game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    id          String   @id @default(cuid())
-    gameId      String
-    user        String
-    borrowStart DateTime
-    borrowEnd   DateTime
-    returned    Boolean  @default(false)
-
-    @@map("borrows")
-}
-
 enum BorrowRequestStatus {
     PENDING
     ACCEPTED
     REJECTED
+    BORROWED
+    RETURNED
 }
 
 model BorrowRequest {
     game        Game                @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    id          String              @id @default(cuid())
     gameId      String
     user        String
     borrowStart DateTime
     borrowEnd   DateTime
     status      BorrowRequestStatus @default(PENDING)
 
-    @@id([gameId, borrowStart, borrowEnd])
+    @@unique([gameId, borrowStart, borrowEnd], name: "borrow_request_identifier")
     @@map("borrow_requests")
 }
 
