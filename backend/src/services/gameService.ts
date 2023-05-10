@@ -7,12 +7,14 @@ export type BetterFilter = {
 	playerMax?: number | undefined;
 	playerMin?: number | undefined;
 	platform?: string | undefined;
-	playtimeMinutes?: number | undefined;
+	playtimeMin?: number | undefined;
+	playtimeMax?: number | undefined;
 	location?: string | undefined;
 	gameOwnerId?: string | undefined;
 };
 export const searchAndFilterGames = async (filter?: BetterFilter) => {
-	return await prisma.game.findMany({
+	console.log('Filter: ' + JSON.stringify(filter));
+	const games = await prisma.game.findMany({
 		where: {
 			name: {
 				contains: filter?.search,
@@ -33,7 +35,8 @@ export const searchAndFilterGames = async (filter?: BetterFilter) => {
 				mode: 'insensitive'
 			},
 			playtimeMinutes: {
-				lte: filter?.playtimeMinutes
+				gte: filter?.playtimeMin,
+				lte: filter?.playtimeMax
 			},
 			location: {
 				contains: filter?.location,
@@ -47,6 +50,10 @@ export const searchAndFilterGames = async (filter?: BetterFilter) => {
 			borrow: {}
 		}
 	});
+
+	console.log(games);
+
+	return games;
 };
 
 export const createGame = async (

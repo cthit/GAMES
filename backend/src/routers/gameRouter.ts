@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import {
-	validateRequestBody,
-	validateRequestQuery
+	processRequestQuery,
+	validateRequestBody
 } from 'zod-express-middleware';
 import { GammaUser } from '../models/gammaModels.js';
 import { getAccountFromCid } from '../services/accountService.js';
@@ -26,17 +26,44 @@ import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const gameRouter = Router();
 
-const gamesQuerySchema = z.object({
-	search: z.string().min(1).max(500).optional(),
-	platform: z.string().min(1).optional(),
-	releaseBefore: z.string().datetime().optional(), // ISO date string
-	releaseAfter: z.string().datetime().optional(), // ISO date string
-	playtimeMin: z.number().int().min(1).optional(),
-	playtimeMax: z.number().int().min(1).optional(),
-	playerCount: z.number().int().min(1).max(2000).optional(),
-	owner: z.string().cuid2().optional(),
-	location: z.string().min(1).max(500).optional()
-});
+const isInt = /^\d+$/;
+const intMessage = { message: 'Not an integer.' };
+const gamesQuerySchema = z
+	.object({
+		search: z.string().min(1).max(500).optional(),
+		platform: z.string().min(1).optional(),
+		releaseBefore: z.string().datetime().optional(), // ISO date string
+		releaseAfter: z.string().datetime().optional(), // ISO date string
+		playtimeMin: z.string().min(1).regex(isInt, intMessage).optional(),
+		playtimeMax: z.string().min(1).regex(isInt, intMessage).optional(),
+		playerCount: z
+			.string()
+			.min(1)
+			.max(2000)
+			.regex(isInt, intMessage)
+			.optional(),
+		owner: z.string().cuid2().optional(),
+		location: z.string().min(1).max(500).optional()
+	})
+	// This is a work around for the fact that zod-express-middleware doesn't support
+	// non-string values in query parameters.
+	.transform((data) => {
+		const playerCount = data.playerCount
+			? parseInt(data.playerCount)
+			: undefined;
+		return {
+			...data,
+			playerCount: playerCount,
+			playerMin: playerCount,
+			playtimeMin: data.playtimeMin ? parseInt(data.playtimeMin) : undefined,
+			playtimeMax: data.playtimeMax ? parseInt(data.playtimeMax) : undefined,
+			releaseBefore: data.releaseBefore
+				? new Date(data.releaseBefore)
+				: undefined,
+			releaseAfter: data.releaseAfter ? new Date(data.releaseAfter) : undefined
+		};
+	});
+
 /**
  * @api {get} /api/v1/games Request Games
  * @apiName GetGames
@@ -72,34 +99,18 @@ const gamesQuerySchema = z.object({
  *   }
  * ]
  */
-gameRouter.get(
-	'/',
-	validateRequestQuery(gamesQuerySchema),
-	async (req, res) => {
-		// I actually hate this, but I couldn't use the zod schema transform function
-		// because validateRequestQuery doesn't support it apparently
-		const query = {
-			...req.query,
-			playerMax: req.query.playerCount,
-			playerMin: req.query.playerCount,
-			releaseBefore: req.query.releaseBefore
-				? new Date(req.query.releaseBefore)
-				: undefined,
-			releaseAfter: req.query.releaseAfter
-				? new Date(req.query.releaseAfter)
-				: undefined
-		};
+gameRouter.get('/', processRequestQuery(gamesQuerySchema), async (req, res) => {
+	console.log(JSON.stringify(req.query));
 
-		const games = await searchAndFilterGames(query);
+	const games = await searchAndFilterGames(req.query);
 
-		const formattedGames = await formatGames(
-			games,
-			req.isAuthenticated() ? (req.user as GammaUser) : null
-		);
+	const formattedGames = await formatGames(
+		games,
+		req.isAuthenticated() ? (req.user as GammaUser) : null
+	);
 
-		res.status(200).json(formattedGames);
-	}
-);
+	res.status(200).json(formattedGames);
+});
 
 const addGameSchema = z.object({
 	name: z.string().min(1).max(250),
