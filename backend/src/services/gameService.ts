@@ -152,6 +152,8 @@ export const removeGame = async (gameID: string, gameOwnerId: string) => {
 	});
 };
 
+
+
 export const markGameAsPlayed = async (gameID: string, cid: string) => {
 	const user = await prisma.user.findUnique({
 		where: {
