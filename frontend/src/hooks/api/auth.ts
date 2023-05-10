@@ -70,6 +70,8 @@ export const useLogout = () => {
 		mutationFn: () => axios.post('/api/v1/auth/logout'),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['user']);
+			if (window.location.pathname.startsWith('/admin'))
+				window.location.href = '/';
 		}
 	});
 };
