@@ -77,6 +77,8 @@ const RemoveGame: FC<GameCardProps> = ({ game }) => {
 
 	if (!data) return null;
 
+	if (data.nick !== game.owner) return null;
+
 	return (
 		<input
 			type="button"
