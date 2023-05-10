@@ -89,7 +89,7 @@ const RemoveGame: FC<GameCardProps> = ({ game }) => {
 };
 
 const BorrowGame: FC<GameCardProps> = ({ game }) => {
-	const data = useUser();
+	const { data } = useUser();
 
 	if (!data) return null;
 
