@@ -83,10 +83,11 @@ export const respondBorrowRequest = async (
 }
 **/
 
-export const getActiveBorrowRequests = async (userId : any) => {
+export const getActiveBorrowRequests = async (userIds : string) => {
   const organizationMemberships = await prisma.organizationMember.findMany({
     where: {
-      userId,
+      userId : userIds,
+      isAdmin: true,
     },
     select: {
       organizationId: true,
@@ -100,22 +101,27 @@ export const getActiveBorrowRequests = async (userId : any) => {
   const borrowRequests = await prisma.borrowRequest.findMany({
     where: {
       status: BorrowRequestStatus.PENDING,
-      game: {
-        GameOwner: {
-          ownerType: "ORGANIZATION",
-          ownerId: {
-            in: organizationIds,
-          },
+      OR: [
+        {
+            game: {
+                GameOwner: {
+                    ownerType: "ORGANIZATION",
+                    ownerId: {
+                        in: organizationIds,
+                    },
+                },
+            },
+        }, 
+        {
+            game: {
+                GameOwner: {
+                  ownerType: "USER",
+                  ownerId: userIds,
+                },
+              },
         },
-      },
-      user: {
-        OrganizationMember: {
-          organizationId: {
-            in: organizationIds,
-          }
-        },
-      },
-    },
+      ],
+    },          
     include: {
       game: {
         select: {
