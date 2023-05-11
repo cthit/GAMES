@@ -1,11 +1,10 @@
-import { Router } from 'express';
-import express from 'express';
+import express, { Router } from 'express';
 import passport from 'passport';
 
 import { GammaUser } from '../models/gammaModels.js';
 import {
-	createAccount,
-	addUserToGammaConnectedOrgs
+	addUserToGammaConnectedOrgs,
+	createAccount
 } from '../services/accountService.js';
 
 const authRouter = Router();
@@ -80,14 +79,12 @@ authRouter.post('/logout', (req: express.Request, res: express.Response) => {
 	req.logOut((err) => {
 		// TODO: Better error handling
 		if (err) {
-			console.log(err);
+			console.error(err);
 
 			res.status(500).json({ message: 'Error logging out' });
 			return;
 		}
-		res.status(200).json({ message: 'Logged out' });
-
-		res.status(200);
+		res.status(200).clearCookie('gamma').json({ message: 'Logged out' });
 	});
 });
 
