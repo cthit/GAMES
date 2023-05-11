@@ -84,7 +84,7 @@ export const respondBorrowRequest = async (
 **/
 
 export const getActiveBorrowRequests = async (userIds : string) => {
-  const organizationMemberships = await prisma.organizationMember.findMany({
+  const organizationMemberships = await prisma.organizationMember.findMany({ //Get all the orgz where login is admin
     where: {
       userId : userIds,
       isAdmin: true,
@@ -103,7 +103,7 @@ export const getActiveBorrowRequests = async (userIds : string) => {
       status: BorrowRequestStatus.PENDING,
       OR: [
         {
-            game: {
+            game: { //Get requests for games in orgz where login is admin
                 GameOwner: {
                     ownerType: "ORGANIZATION",
                     ownerId: {
@@ -113,7 +113,7 @@ export const getActiveBorrowRequests = async (userIds : string) => {
             },
         }, 
         {
-            game: {
+            game: { //Get requests for games login owns
                 GameOwner: {
                   ownerType: "USER",
                   ownerId: userIds,
