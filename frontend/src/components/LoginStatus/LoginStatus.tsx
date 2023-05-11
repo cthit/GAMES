@@ -1,38 +1,41 @@
-import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
-import { FC, useEffect } from 'react';
-
+import { useLogout, useUser } from '@/src/hooks/api/auth';
+import { FC } from 'react';
 
 const LoginStatus: FC = () => {
+	const { data, isLoading } = useUser();
+	const { mutate, isLoading: logoutLoading } = useLogout();
 
-    const { data, error, loading } = useApiGet<string>('/auth/user');
+	if (isLoading || logoutLoading) {
+		return <div>Loading...</div>;
+	}
 
-    const { postData, loading: postLoading, error: postError, success } = useApiPost('/auth/logout');
+	if (data) {
+		return (
+			<div>
+				{/* @ts-ignore */}
+				<span style={{ marginLeft: '5px' }}>Logged in as {data.nick}</span>
+				<a
+					style={{
+						marginLeft: '5px',
+						textDecoration: 'underline',
+						color: 'blue',
+						cursor: 'pointer'
+					}}
+					onClick={() => mutate()}
+				>
+					Logout
+				</a>
+			</div>
+		);
+	}
 
-    useEffect(() => {
-        if (success) {
-            window.location.reload();
-        }
-    }, [success])
-
-    if (loading || postLoading ) {
-        return <div>Loading...</div>;
-    }
-
-    if (data) {
-        return (
-            <div>
-                {/* @ts-ignore */}
-                <span style={{ marginLeft: '5px' }}>Logged in as {data.cid}</span>
-                <a style={{ marginLeft: '5px', textDecoration: 'underline', color: 'blue', cursor: 'pointer' }} onClick={() => postData(undefined)}>Logout</a>
-            </div>
-        )
-    }
-
-    return (
-        <div>
-            <a style={{ marginLeft: '5px' }} href='/api/v1/auth/login' >Login</a>
-        </div>
-    )
-}
+	return (
+		<div>
+			<a style={{ marginLeft: '5px' }} href="/api/v1/auth/login">
+				Login
+			</a>
+		</div>
+	);
+};
 
 export default LoginStatus;

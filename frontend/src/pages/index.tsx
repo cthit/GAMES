@@ -1,10 +1,7 @@
-import { Inter } from 'next/font/google';
 import Head from 'next/head';
 import GamesList from '../components/GamesList/GamesList';
 import Header from '../components/Header/Header';
 import styles from './index.module.css';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const Home = () => {
 	return (

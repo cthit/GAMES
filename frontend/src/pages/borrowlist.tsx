@@ -1,9 +1,9 @@
-import { Inter } from 'next/font/google';
 import Head from 'next/head';
 import BorrowRequestsList from '../components/BorrowRequestsList/BorrowRequestsList';
 import Header from '../components/Header/Header';
+import { redirectIfNotLoggedIn } from '../utils/loginRedirects';
 
-const inter = Inter({ subsets: ['latin'] });
+export const getServerSideProps = redirectIfNotLoggedIn;
 
 export const Home = () => {
 	return (

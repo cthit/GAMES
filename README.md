@@ -21,13 +21,14 @@ After this you need to start the database, you do this by running `docker compos
 ## Running frontend
 
 From the root of the project, run `cd frontend` to enter the frontend directory.
+Then copy the `.env.example` file and rename it to `.env`.
 Then simply run `pnpm install` followed by `pnpm run dev`
 You can now access the frontend at http://localhost:3000
 
 ## Running backend
 
 You need to have two active terminals for this
-But first you need to create a .env file in the backend directory. Do this by copying the .env.example file and renaming it to .env
+But first you need to create a `.env` file in the backend directory. Do this by copying the `.env.example` file and renaming it to `.env`.
 
 ### Terminal no. 1
 
