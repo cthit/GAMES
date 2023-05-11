@@ -67,7 +67,7 @@ export const respondBorrowRequest = async (
 }
 
 // TODO: Only get requests for game manager once implemented
-export const getActiveBorrowRequests = async () => {
+/**export const getActiveBorrowRequests = async () => {
     return await prisma.borrowRequest.findMany({
         where: {
             status: BorrowRequestStatus.PENDING
@@ -81,6 +81,63 @@ export const getActiveBorrowRequests = async () => {
         }
     });
 }
+**/
+
+export const getActiveBorrowRequests = async (userId : any) => {
+  const organizationMemberships = await prisma.organizationMember.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      organizationId: true,
+    },
+  });
+
+  const organizationIds = organizationMemberships.map(
+    (membership) => membership.organizationId
+  );
+
+  const borrowRequests = await prisma.borrowRequest.findMany({
+    where: {
+      status: BorrowRequestStatus.PENDING,
+      game: {
+        GameOwner: {
+          ownerType: "ORGANIZATION",
+          ownerId: {
+            in: organizationIds,
+          },
+        },
+      },
+      user: {
+        OrganizationMember: {
+          organizationId: {
+            in: organizationIds,
+          }
+        },
+      },
+    },
+    include: {
+      game: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  return borrowRequests;
+};
+
+
+
+
+
+
+
+
+
+
+
 
 const controlBorrowRequestStatus = async (gameId: string, borrowStart: Date, borrowEnd: Date) => {
     const gameData = await prisma.game.findFirst({

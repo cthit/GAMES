@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
 import { BorrowRequestState, createBorrowRequest, respondBorrowRequest, getActiveBorrowRequests } from '../services/borrowRequestService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { GammaUser } from '../models/gammaModels.js';
+import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
 
 const borrowRequestRouter = Router();
 
@@ -138,8 +140,8 @@ borrowRequestRouter.post(
  */
 borrowRequestRouter.get(
 	'/list',
-	async (_, res) => {
-		const requests = await getActiveBorrowRequests();
+	async (req, res) => {
+		const requests = await getActiveBorrowRequests(await getGameOwnerIdFromCid((req.user as GammaUser).cid));
 		res.status(200).json(formatBorrowRequests(requests));
 	}
 );
