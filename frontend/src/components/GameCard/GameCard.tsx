@@ -45,12 +45,12 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 				Game is currently: {game.isPlayed ? 'played' : `not played`}
 				<input
 					type="button"
-					value={`Mark as ${isPlayed ? 'not played' : 'played'}`}
+					value={`Mark as ${game.isPlayed ? 'not played' : 'played'}`}
 					onClick={() => {
-						if (isPlayed) {
-							setApiPath(`/games/markNotPlayed/${id}`);
+						if (game.isPlayed) {
+							setApiPath(`/games/markNotPlayed/${game.id}`);
 						} else {
-							setApiPath(`/games/markPlayed/${id}`);
+							setApiPath(`/games/markPlayed/${game.id}`);
 						}
 					}}
 				/>
