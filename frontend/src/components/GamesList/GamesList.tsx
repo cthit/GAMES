@@ -1,4 +1,4 @@
-import { usePublicGames } from '@/src/hooks/api/usePublicGames';
+import { usePublicGames } from '@/src/hooks/api/games';
 import { FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
 import GameFilter from '../GameFilter/GameFilter';
