@@ -51,6 +51,11 @@ const getLoginStatus = async (req: IncomingMessage) => {
 		throw new Error('BACKEND_ADDRESS is undefined');
 
 	return await fetch(`${process.env.BACKEND_ADDRESS}/api/v1/auth/user`, {
-		headers: req.headers as HeadersInit
+		headers: {
+			cookie: req.headers.cookie,
+			referer: req.headers.referer,
+			host: req.headers.host,
+			userAgent: req.headers['user-agent']
+		} as HeadersInit
 	});
 };
