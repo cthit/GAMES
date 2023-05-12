@@ -10,14 +10,13 @@ export enum BorrowStatus {
 
 export const borrowGame = async (
 	gameId: string,
-	user: string,
 	borrowStart: Date,
-	borrowEnd: Date
+	borrowEnd: Date,
+	userId: string
 ) => {
-	const borrowStatus = await controlBorrowStatus(gameId, user);
+	const borrowStatus = await controlBorrowStatus(gameId);
+
 	if (borrowStatus == BorrowStatus.NotBorrowed) {
-		const gammaUser = await getAccountFromCid(user);
-		const userId = gammaUser!.id;
 		await prisma.borrowRequest.create({
 			data: {
 				gameId,
@@ -27,11 +26,12 @@ export const borrowGame = async (
 			}
 		});
 	}
+
 	return borrowStatus;
 };
 
 export const returnGame = async (gameId: string, user: string) => {
-	const borrowStatus = await controlBorrowStatus(gameId, user);
+	const borrowStatus = await controlBorrowStatus(gameId);
 	if (borrowStatus == BorrowStatus.Borrowed) {
 		await prisma.game.update({
 			where: {
@@ -72,7 +72,7 @@ export const listBorrows = async () => {
 	return borrows;
 };
 
-const controlBorrowStatus = async (gameId: string, user: string) => {
+const controlBorrowStatus = async (gameId: string) => {
 	const data = await prisma.game.findUnique({
 		where: {
 			id: gameId
