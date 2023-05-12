@@ -3,10 +3,10 @@
  */
 
 import axios, { AxiosResponse } from 'axios';
-import qs from 'qs';
-import { Base64 } from 'js-base64';
 import express from 'express';
+import { Base64 } from 'js-base64';
 import * as passport from 'passport';
+import qs from 'qs';
 import { GammaUser } from '../models/gammaModels.js';
 
 interface StrategyOptions {
@@ -79,7 +79,7 @@ class Strategy extends passport.Strategy {
 		if (req.query && req.query.code) {
 			this._exchange(req.query.code)
 				.then((res) => this._loadProfile(res.data.access_token))
-				.catch((err) => this.error(err.message));
+				.catch((err) => this.error(err));
 			return;
 		}
 
