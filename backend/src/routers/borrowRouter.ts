@@ -170,11 +170,11 @@ borrowRouter.get('/list', async (_, res) => {
 const formatBookings = async (bookings: any[]) => {
 	return await Promise.all(
 		bookings.map(async (booking) => {
-			const user = (await getGammaUser(booking.user.cid)).nick;
+			const name = (await getGammaUser(booking.user.cid)).nick;
 			return {
 				id: booking.id,
 				gameName: booking.game.name,
-				user,
+				user: name,
 				borrowStart: booking.borrowStart,
 				borrowEnd: booking.borrowEnd,
 				returned: booking.returned
