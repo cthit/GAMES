@@ -134,17 +134,6 @@ export const getActiveBorrowRequests = async (userIds : string) => {
   return borrowRequests;
 };
 
-
-
-
-
-
-
-
-
-
-
-
 const controlBorrowRequestStatus = async (gameId: string, borrowStart: Date, borrowEnd: Date) => {
     const gameData = await prisma.game.findFirst({
         where: {
