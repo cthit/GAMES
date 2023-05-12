@@ -22,14 +22,19 @@ export const createBorrowRequest = async (
 ) => {
 	if (borrowStart < new Date(new Date().toDateString()))
 		return BorrowRequestState.InPast;
+
 	if (borrowEnd < borrowStart) return BorrowRequestState.Inverted;
+
 	const borrowRequestStatus = await controlBorrowRequestStatus(
 		gameId,
 		borrowStart,
 		borrowEnd
 	);
+
 	const gammaUser = await getAccountFromCid(user);
+
 	const userId = gammaUser!.id;
+
 	if (borrowRequestStatus == BorrowRequestState.Free) {
 		await prisma.borrowRequest.create({
 			data: {
@@ -40,6 +45,7 @@ export const createBorrowRequest = async (
 			}
 		});
 	}
+
 	return borrowRequestStatus;
 };
 

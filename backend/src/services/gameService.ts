@@ -48,7 +48,7 @@ export const searchAndFilterGames = async (filter?: Filter) => {
 			}
 		},
 		include: {
-			borrow: {}
+			request: {}
 		}
 	});
 };
@@ -130,7 +130,9 @@ export const removeGame = async (gameId: string) => {
 		throw new Error('User does not own this game');
 	}
 	const borrows = game.request.filter(
-		(request) => request.status === BorrowRequestStatus.BORROWED && request.borrowStart < new Date()
+		(request) =>
+			request.status === BorrowRequestStatus.BORROWED &&
+			request.borrowStart < new Date()
 	);
 
 	if (borrows.length > 0) throw new Error('Game is currently borrowed');

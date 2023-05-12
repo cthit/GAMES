@@ -21,6 +21,7 @@ import {
 import { platformExists } from '../services/platformService.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { BorrowRequestStatus } from '@prisma/client';
 
 const gameRouter = Router();
 
