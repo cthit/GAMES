@@ -1,5 +1,7 @@
 import passport from 'passport';
+import winston from 'winston';
 import { Authority, GammaGroup, GammaUser } from '../models/gammaModels.js';
+import { createAccount } from '../services/accountService.js';
 import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
 import Strategy from './strategy.js';
 
@@ -48,6 +50,13 @@ export const init = (pass: passport.PassportStatic) => {
 			const groups = profile.groups.filter(
 				(g) => g.superGroup?.type != 'ALUMNI'
 			);
+
+			// Moved from auth router to enable getGameOwnerIdFromCid to work properly
+			if (await createAccount(profile.cid)) {
+				winston.info('Created account for ' + profile.cid);
+			} else {
+				winston.info('Account already exists for ' + profile.cid);
+			}
 
 			cb(
 				null,

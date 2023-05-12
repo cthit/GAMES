@@ -9,6 +9,7 @@ import {
 	getAccountFromId,
 	getAllAccounts
 } from '../services/accountService.js';
+import { getFromCache, setCache } from '../services/cacheService.js';
 import { getGammaSuperGroups, getGammaUser } from '../services/gammaService.js';
 import {
 	addOrganization,
@@ -19,14 +20,12 @@ import {
 	getOrganizationsIdsAndNames,
 	removeOrganization,
 	removeOrganizationAdmin,
-	removeOrganizationMember
+	removeOrganizationMember,
+	updateOrganization
 } from '../services/organizationService.js';
 import sendApiValidationError, {
 	ErrorProperty
 } from '../utils/sendApiValidationError.js';
-import { updateOrganization } from '../services/organizationService.js';
-import { getFromCache, setCache } from '../services/cacheService.js';
-import { GammaUser } from '../models/gammaModels.js';
 
 const siteAdminRouter = Router();
 
@@ -146,7 +145,7 @@ siteAdminRouter.post(
 	'/orgs/add',
 	validateRequestBody(addOrEditOrganizationSchema),
 	async (req, res) => {
-		var validationErrors: ErrorProperty[] = await validateGammaGroups(
+		const validationErrors: ErrorProperty[] = await validateGammaGroups(
 			req.body.gammaSuperGroups
 		);
 
