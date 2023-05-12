@@ -401,7 +401,6 @@ gameRouter.get('/:gameId/owner', async (req, res) => {
 
 const formatGames = async (games: any[], user: GammaUser | null) => {
 	const uid = user ? (await getAccountFromCid(user.cid))?.id : null;
-	console.log(games[0].playStatus)
 	return await Promise.all(
 		games.map(async (game) => ({
 			id: game.id,
