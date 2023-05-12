@@ -76,8 +76,6 @@ export const respondBorrowRequest = async (
 		}
 	});
 
-	borrowRequestStatus = approved ? BorrowState.Approved : BorrowState.Rejected;
-
 	let borrowRequest = await prisma.borrow.findFirst({
 		where: {
 			gameId: gameId,
@@ -86,6 +84,8 @@ export const respondBorrowRequest = async (
 		}
 	});
 	if (borrowRequest === null) return BorrowState.NotValid;
+
+	return approved ? BorrowState.Approved : BorrowState.Rejected;
 };
 
 // TODO: Only get requests for game manager once implemented
