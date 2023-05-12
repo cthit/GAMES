@@ -276,11 +276,6 @@ gameRouter.delete('/:id', async (req, res) => {
  *    "message": "Unauthorized"
  *   }
  *
- * @apiErrorExample {json} Internal server Error:
- * HTTP/1.1 500 Internal server error
- *   {
- *    "message": "Error marking game as not played"
- *   }
  * @apiUse ZodError
  */
 gameRouter.post('/markPlayed/:gameId', async (req, res) => {
