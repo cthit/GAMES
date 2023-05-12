@@ -12,6 +12,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../Forms/FormInput/FormInput';
 import FormTextArea from '../Forms/FormTextArea/FormTextArea';
+import FormSelect from '../Forms/FromSelect/FormSelect';
 
 interface AddGameProps {}
 
@@ -112,6 +113,14 @@ const AddGame: FC<AddGameProps> = () => {
 				/>
 				<br />
 
+				<FormSelect
+					label="Platform"
+					options={data.map((platform) => platform.name)}
+					placeholder="Select a platform"
+					name="platform"
+					control={control}
+					error={errors.platform?.message}
+				/>
 				<Select
 					label="Platform"
 					options={data.map((platform) => platform.name)}

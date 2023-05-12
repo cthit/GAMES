@@ -1,7 +1,7 @@
-import React, { FC, InputHTMLAttributes } from 'react';
+import React, { FC, TextareaHTMLAttributes } from 'react';
 import { UseFormRegister, FieldValues } from 'react-hook-form';
 
-interface TextAreaProps extends InputHTMLAttributes<HTMLInputElement> {
+interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 	name: string;
 	label?: string;
 	error?: string;
