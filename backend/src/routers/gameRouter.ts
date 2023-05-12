@@ -283,11 +283,6 @@ gameRouter.post('/markPlayed/:gameId', async (req, res) => {
 		await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
-		if (e instanceof Error)
-			res.status(500).json({ message: e.message });
-		else
-			res.status(500).json({ message: 'Error marking game as played' });
-	}
 });
 
 /**
