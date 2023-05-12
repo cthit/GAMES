@@ -347,25 +347,28 @@ gameRouter.get('/:gameId/owner', async (req, res) => {
 
 const formatGames = async (games: any[], user: GammaUser | null) => {
 	return await Promise.all(
-		games.map(async (game) => ({
-			id: game.id,
-			name: game.name,
-			description: game.description,
-			platformName: game.platformName,
-			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-			playtimeMinutes: game.playtimeMinutes,
-			playerMin: game.playerMin,
-			playerMax: game.playerMax,
-			location: game.location,
-			owner: await getGameOwnerNameFromId(game.gameOwnerId),
-			isBorrowed:
+		games.map(async (game) => {
+			const isBorrowed =
 				game.borrow.filter((b: { status: BorrowStatus }) => {
 					return b.status === BorrowStatus.BORROWED;
-				}).length > 0,
-			ratingAvg: await getAverageRating(game.id),
-			ratingUser: user ? await getUserRating(game.id, user.cid) : null,
-			isPlayed: false
-		}))
+				}).length > 0;
+			return {
+				id: game.id,
+				name: game.name,
+				description: game.description,
+				platformName: game.platformName,
+				releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
+				playtimeMinutes: game.playtimeMinutes,
+				playerMin: game.playerMin,
+				playerMax: game.playerMax,
+				location: game.location,
+				owner: await getGameOwnerNameFromId(game.gameOwnerId),
+				isBorrowed,
+				ratingAvg: await getAverageRating(game.id),
+				ratingUser: user ? await getUserRating(game.id, user.cid) : null,
+				isPlayed: false
+			};
+		})
 	);
 };
 
