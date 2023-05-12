@@ -1,14 +1,9 @@
-import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
 import { FC, useState } from 'react';
-import DateInput from '../Forms/DateInput/DateInput';
-import Select from '../Forms/Select/Select';
-import TextArea from '../Forms/TextArea/TextArea';
-import TextInput from '../Forms/TextInput/TextInput';
 import { usePlatforms } from '@/src/hooks/api/usePlatforms';
 import { useAddGame } from '@/src/hooks/api/useAddGame';
 import { toast } from 'react-toastify';
 import * as z from 'zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../Forms/FormInput/FormInput';
 import FormTextArea from '../Forms/FormTextArea/FormTextArea';
@@ -42,7 +37,7 @@ const AddGame: FC<AddGameProps> = () => {
 		name: z.string().min(1).max(250),
 		description: z.string().min(1).max(2000),
 		platform: z.string().min(1),
-		releaseDate: z.string().datetime(), // ISO date string
+		releaseDate: z.date(), // ISO date string
 		playtime: z.number().int().min(1),
 		playerMin: z.number().int().min(1),
 		playerMax: z.number().int().min(1), //Maybe check that max > min?
@@ -61,10 +56,6 @@ const AddGame: FC<AddGameProps> = () => {
 		resolver: zodResolver(addGameSchema)
 	});
 
-	watch((data) => console.log(data));
-
-	console.log(errors);
-
 	if (isLoading || register === undefined) {
 		return <p>Loading...</p>;
 	}
@@ -76,25 +67,37 @@ const AddGame: FC<AddGameProps> = () => {
 	return (
 		<>
 			<form
-				onSubmit={handleSubmit(async (d) => {
-					try {
-						await toast.promise(postDataAsync(d), {
-							pending: 'Adding game...',
-							success: 'Game added!',
-							error: {
-								render: () => {
-									return (
-										<>
-											{postError?.response?.status === 401
-												? 'You need to be signed in to add games'
-												: 'Something went wrong!'}
-										</>
-									);
+				onSubmit={handleSubmit(
+					async (d) => {
+						try {
+							await toast.promise(
+								postDataAsync(d),
+								{
+									pending: 'Adding game...',
+									success: 'Game added!',
+									error: {
+										render: () => {
+											return (
+												<>
+													{postError?.response?.status === 401
+														? 'You need to be signed in to add games'
+														: 'Something went wrong!'}
+												</>
+											);
+										}
+									}
+								},
+								{
+									position: 'bottom-right'
 								}
-							}
-						});
-					} catch (e) {}
-				})}
+							);
+						} catch (e) {}
+					},
+					(e) =>
+						toast.error('Please fill out all fields correctly!', {
+							position: 'bottom-right'
+						})
+				)}
 			>
 				<FormInput
 					label="Name of the game"
@@ -115,62 +118,62 @@ const AddGame: FC<AddGameProps> = () => {
 
 				<FormSelect
 					label="Platform"
-					options={data.map((platform) => platform.name)}
+					options={data.map((platform) => {
+						return { value: platform.name, label: platform.name };
+					})}
 					placeholder="Select a platform"
 					name="platform"
 					control={control}
 					error={errors.platform?.message}
 				/>
-				<Select
-					label="Platform"
-					options={data.map((platform) => platform.name)}
-					placeholder="Select a platform"
-					onChange={(select) => setPlatform(select.target.value)}
-					value={platform}
-				/>
 				<br />
 
-				<DateInput
+				<FormInput
 					label="Release date"
-					onChange={(input) =>
-						setReleaseDate(new Date(input.currentTarget.value))
-					}
-					value={releaseDate?.toISOString().split('T')[0] || ''}
+					name="releaseDate"
+					type="date"
+					register={register}
+					registerOptions={{ valueAsDate: true }}
+					error={errors.releaseDate?.message}
 				/>
 				<br />
 
-				<TextInput
+				<FormInput
 					label="Expected playtime"
+					name="playtime"
 					type="number"
-					onChange={(input) =>
-						setPlaytime(Number.parseInt(input.currentTarget.value))
-					}
-					value={playtime?.toString() || ''}
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playtime?.message}
 				/>
 				<br />
-				<TextInput
+
+				<FormInput
 					label="Minimum number of players"
+					name="playerMin"
 					type="number"
-					onChange={(input) =>
-						setPlayerMin(Number.parseInt(input.currentTarget.value))
-					}
-					value={playerMin?.toString() || ''}
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMin?.message}
 				/>
 				<br />
-				<TextInput
+
+				<FormInput
 					label="Maximum number of players"
+					name="playerMax"
 					type="number"
-					onChange={(input) =>
-						setPlayerMax(Number.parseInt(input.currentTarget.value))
-					}
-					value={playerMax?.toString() || ''}
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMax?.message}
 				/>
 				<br />
-				<TextInput
+
+				<FormInput
 					label="Location of the game"
+					name="location"
 					type="text"
-					onChange={(input) => setLocation(input.currentTarget.value)}
-					value={location}
+					register={register}
+					error={errors.location?.message}
 				/>
 				<br />
 
