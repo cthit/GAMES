@@ -1,7 +1,7 @@
 import { useUser } from '@/src/hooks/api/auth';
 import { Game, useGameRemover } from '@/src/hooks/api/games';
 import { useAddRating } from '@/src/hooks/api/useAddRating';
-import { useMarkAsPlayed } from '@/src/hooks/api/useMarkAsPlayed';
+import { useMarkAsPlayed } from '@/src/hooks/api/useChangePlayStatus';
 import { FC, useState } from 'react';
 import Select from '../Forms/Select/Select';
 import styles from './GameCard.module.css';

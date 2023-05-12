@@ -24,6 +24,7 @@ import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { getAccountFromCid } from '../services/accountService.js';
 import { PlayStatus } from '@prisma/client';
+import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 
 
 const gameRouter = Router();
@@ -278,11 +279,9 @@ gameRouter.delete('/:id', async (req, res) => {
  *
  * @apiUse ZodError
  */
-gameRouter.post('/markPlayed/:gameId', async (req, res) => {
-		if (!req.isAuthenticated()) return res.status(401).json({ message: 'Unauthorized' });
+gameRouter.post('/markPlayed/:gameId', isAuthenticated, async (req, res) => {
 		await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
-		res.status(200).json({ message: 'Game marked as played' });
-	} catch (e) {
+	res.status(200).json({ message: 'Game marked as played' });
 });
 
 /**
@@ -308,11 +307,10 @@ gameRouter.post('/markPlayed/:gameId', async (req, res) => {
  *
  * @apiUse ZodError
  */
-gameRouter.post('/markNotPlayed/:gameId', async (req, res) => {
-		if (!req.isAuthenticated()) return res.status(401).json({ message: 'Unauthorized' });
+gameRouter.post('/markNotPlayed/:gameId', isAuthenticated, async (req, res) => {
 		await markGameAsNotPlayed(req.params.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as not played' });
-	
+
 });
 
 /**
