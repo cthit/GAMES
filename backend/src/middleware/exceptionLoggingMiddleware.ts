@@ -7,6 +7,12 @@ export const logExceptions = (
 	res: Response,
 	next: NextFunction
 ) => {
-	winston.error(err.message, { stacktrace: err.stack });
+	if (!(err instanceof Error)) {
+		winston.error(
+			`Caught exception that was not of type error. Was of type "${typeof err}" with value: ${err}`
+		);
+	} else {
+		winston.error(err.message, { stacktrace: err.stack });
+	}
 	return res.status(500).json({ message: 'Something went wrong' });
 };

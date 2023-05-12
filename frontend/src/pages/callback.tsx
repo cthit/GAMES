@@ -1,28 +1,39 @@
-import { useApiGet } from '@/src/hooks/apiHooks';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { GetServerSideProps } from 'next';
 
-export const Callback = () => {
-	const router = useRouter();
-	const { code } = router.query;
+export const getServerSideProps: GetServerSideProps = async ({
+	res,
+	query
+}) => {
+	try {
+		const data = await fetch(
+			`${process.env.BACKEND_ADDRESS}/api/v1/auth/callback?code=${query.code}`
+		);
 
-	const { data, error, loading } = useApiGet<string>(
-		'/auth/callback?code=' + code
-	);
+		if (!data.ok) throw new Error('Could not login');
 
-	useEffect(() => {
-		if (data) {
-			router.replace('/');
-		}
-	}, [data]);
+		const setCookie = data.headers.get('Set-Cookie');
+		if (!setCookie) throw new Error('No cookie found');
 
-	if (loading) {
-		return <p>Loading...</p>;
-	}
+		res.setHeader('Set-Cookie', setCookie);
 
-	if (error) {
-		return <p>Error: {error}</p>;
+		return {
+			redirect: {
+				destination: '/',
+				permanent: false
+			},
+			props: {}
+		};
+	} catch (_) {
+		return {
+			redirect: {
+				destination: '/',
+				permanent: false
+			},
+			props: {}
+		};
 	}
 };
+
+export const Callback = () => {};
 
 export default Callback;
