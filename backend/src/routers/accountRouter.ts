@@ -1,11 +1,9 @@
-import { Router } from 'express';
-import express from 'express';
-import passport from 'passport';
+import express, { Router } from 'express';
 
 import { GammaUser } from '../models/gammaModels.js';
 import { getAccountFromId } from '../services/accountService.js';
+import { getFromCache, setCache } from '../services/cacheService.js';
 import { getGammaUser } from '../services/gammaService.js';
-import { setCache, getFromCache } from '../services/cacheService.js';
 
 const accountRouter = Router();
 
@@ -42,7 +40,7 @@ accountRouter.get(
 		const account = await getAccountFromId(req.params.id);
 		if (!account) return res.status(404).send('Account not found');
 
-		var gammaUser: GammaUser;
+		let gammaUser: GammaUser;
 		try {
 			gammaUser = await getGammaUser(account.cid);
 		} catch (e) {
