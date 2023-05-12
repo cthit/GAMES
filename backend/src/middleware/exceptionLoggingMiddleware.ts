@@ -7,7 +7,6 @@ export const logExceptions = (
 	res: Response,
 	next: NextFunction
 ) => {
-	debugger;
 	if (!(err instanceof Error)) {
 		winston.error(
 			`Caught exception that was not of type error. Was of type "${typeof err}" with value: ${err}`
