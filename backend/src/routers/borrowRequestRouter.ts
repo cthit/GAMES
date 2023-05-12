@@ -181,9 +181,10 @@ borrowRequestRouter.get('/list', async (_, res) => {
 const formatBorrowRequests = async (requests: any[]) => {
 	return await Promise.all(
 		requests.map(async (request) => {
+			const user = (await getAccountFromId(request.userId))?.cid;
 			return {
 				gameId: request.gameId,
-				user: (await getAccountFromId(request.userId))?.cid,
+				user,
 				borrowStart: request.borrowStart,
 				borrowEnd: request.borrowEnd,
 				approved: request.approved,
