@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import {
-	processRequestQuery,
-	validateRequestBody
+	validateRequestBody,
+	validateRequestQuery
 } from 'zod-express-middleware';
 import { GammaUser } from '../models/gammaModels.js';
 import {
@@ -31,37 +31,17 @@ const gameRouter = Router();
 
 const isInt = /^\d+$/;
 const intMessage = { message: 'Not an integer.' };
-const gamesQuerySchema = z
-	.object({
-		search: z.string().min(1).max(500).optional(),
-		platform: z.string().min(1).optional(),
-		releaseBefore: z.string().datetime().optional(), // ISO date string
-		releaseAfter: z.string().datetime().optional(), // ISO date string
-		playtimeMin: z.string().min(1).max(6).regex(isInt, intMessage).optional(),
-		playtimeMax: z.string().min(1).max(6).regex(isInt, intMessage).optional(),
-		playerCount: z.string().min(1).max(4).regex(isInt, intMessage).optional(),
-		owner: z.string().cuid2().optional(),
-		location: z.string().min(1).max(500).optional()
-	})
-	// This is a work around for the fact that zod-express-middleware doesn't support
-	// non-string values in query parameters.
-	.transform((data) => {
-		const playerCount = data.playerCount
-			? parseInt(data.playerCount)
-			: undefined;
-		return {
-			...data,
-			playerMax: playerCount,
-			playerMin: playerCount,
-			playtimeMin: data.playtimeMin ? parseInt(data.playtimeMin) : undefined,
-			playtimeMax: data.playtimeMax ? parseInt(data.playtimeMax) : undefined,
-			releaseBefore: data.releaseBefore
-				? new Date(data.releaseBefore)
-				: undefined,
-			releaseAfter: data.releaseAfter ? new Date(data.releaseAfter) : undefined,
-			gameOwnerId: data.owner
-		};
-	});
+const gamesQuerySchema = z.object({
+	search: z.string().min(1).max(500).optional(),
+	platform: z.string().min(1).optional(),
+	releaseBefore: z.string().datetime().optional(), // ISO date string
+	releaseAfter: z.string().datetime().optional(), // ISO date string
+	playtimeMin: z.string().min(1).max(6).regex(isInt, intMessage).optional(),
+	playtimeMax: z.string().min(1).max(6).regex(isInt, intMessage).optional(),
+	playerCount: z.string().min(1).max(4).regex(isInt, intMessage).optional(),
+	owner: z.string().cuid2().optional(),
+	location: z.string().min(1).max(500).optional()
+});
 
 /**
  * @api {get} /api/v1/games Get Games
@@ -101,16 +81,39 @@ const gamesQuerySchema = z
  *   }
  * ]
  */
-gameRouter.get('/', processRequestQuery(gamesQuerySchema), async (req, res) => {
-	const games = await searchAndFilterGames(req.query);
+gameRouter.get(
+	'/',
+	validateRequestQuery(gamesQuerySchema),
+	async (req, res) => {
+		const query = transformGamesQuery(req.query);
 
-	const formattedGames = await formatGames(
-		games,
-		req.isAuthenticated() ? (req.user as GammaUser) : null
-	);
+		const games = await searchAndFilterGames(query);
 
-	res.status(200).json(formattedGames);
-});
+		const formattedGames = await formatGames(
+			games,
+			req.isAuthenticated() ? (req.user as GammaUser) : null
+		);
+
+		res.status(200).json(formattedGames);
+	}
+);
+
+// Exists since we can't use ProcessRequest with express v5
+const transformGamesQuery = (data: any) => {
+	const playerCount = data.playerCount ? parseInt(data.playerCount) : undefined;
+	return {
+		...data,
+		playerMax: playerCount,
+		playerMin: playerCount,
+		playtimeMin: data.playtimeMin ? parseInt(data.playtimeMin) : undefined,
+		playtimeMax: data.playtimeMax ? parseInt(data.playtimeMax) : undefined,
+		releaseBefore: data.releaseBefore
+			? new Date(data.releaseBefore)
+			: undefined,
+		releaseAfter: data.releaseAfter ? new Date(data.releaseAfter) : undefined,
+		gameOwnerId: data.owner
+	};
+};
 
 const addGameSchema = z.object({
 	name: z.string().min(1).max(250),

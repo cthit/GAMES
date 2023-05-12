@@ -3,10 +3,10 @@
  */
 
 import axios, { AxiosResponse } from 'axios';
-import qs from 'qs';
-import { Base64 } from 'js-base64';
 import express from 'express';
+import { Base64 } from 'js-base64';
 import * as passport from 'passport';
+import qs from 'qs';
 import { GammaUser } from '../models/gammaModels.js';
 
 interface StrategyOptions {
@@ -79,7 +79,7 @@ class Strategy extends passport.Strategy {
 		if (req.query && req.query.code) {
 			this._exchange(req.query.code)
 				.then((res) => this._loadProfile(res.data.access_token))
-				.catch((err) => this.error(err.message));
+				.catch((err) => this.error(err));
 			return;
 		}
 
@@ -88,7 +88,7 @@ class Strategy extends passport.Strategy {
 
 	_loadProfile(accessToken: string) {
 		const self = this;
-		var done = (err: Error | null, profile: any, info: any) => {
+		const done = (err: Error | null, profile: any, info: any) => {
 			if (err) {
 				self.error(err);
 				return;
@@ -100,7 +100,7 @@ class Strategy extends passport.Strategy {
 			self.success(profile, undefined);
 		};
 
-		var verify = (err: Error, user: any) => {
+		const verify = (err: Error, user: any) => {
 			if (err) {
 				self.error(err);
 				return;
@@ -112,7 +112,7 @@ class Strategy extends passport.Strategy {
 	}
 
 	_redirectToLogin() {
-		var uri = new URL(this.options.authorizationURL);
+		const uri = new URL(this.options.authorizationURL);
 		uri.searchParams.append('response_type', 'code');
 		uri.searchParams.append('client_id', this.options.clientID);
 		uri.searchParams.append('redirect_uri', this.options.callbackURL);
