@@ -1,7 +1,7 @@
 import { useUser } from '@/src/hooks/api/auth';
 import { Game, useGameRemover } from '@/src/hooks/api/games';
 import { useAddRating } from '@/src/hooks/api/useAddRating';
-import { useMarkAsPlayed } from '@/src/hooks/api/useMarkAsPlayed';
+import { useChangePlayStatus } from '@/src/hooks/api/useChangePlayStatus';
 import { FC, useState } from 'react';
 import Select from '../Forms/Select/Select';
 import styles from './GameCard.module.css';
@@ -102,7 +102,7 @@ const BorrowGame: FC<GameCardProps> = ({ game }) => {
 };
 
 const PlayStatus: FC<GameCardProps> = ({ game }) => {
-	const { mutate: markAsPlayed } = useMarkAsPlayed();
+	const { mutate: changePlayStatus } = useChangePlayStatus();
 	const { data } = useUser();
 
 	if (!data) return null;
@@ -112,9 +112,9 @@ const PlayStatus: FC<GameCardProps> = ({ game }) => {
 			Game is currently: {game.isPlayed ? 'played' : `not played`}
 			<input
 				type="button"
-				value="Mark as played"
+				value={`Mark as ${game.isPlayed ? 'not played' : 'played'}`}
 				onClick={() => {
-					markAsPlayed({ gameId: game.id });
+					changePlayStatus({ gameId: game.id, played: game.isPlayed });
 				}}
 			/>
 		</p>
