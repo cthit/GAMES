@@ -1,9 +1,9 @@
 import { prisma } from '../prisma.js';
-import { BorrowRequestStatus } from '@prisma/client';
-import { BorrowStatus } from './borrowService.js';
+import { BorrowStatus } from '@prisma/client';
+import { InternalBorrowStatus } from './borrowService.js';
 import { getAccountFromCid } from './accountService.js';
 
-export enum BorrowRequestState {
+export enum BorrowState {
 	Pending,
 	Approved,
 	Rejected,
@@ -21,9 +21,9 @@ export const createBorrowRequest = async (
 	borrowEnd: Date
 ) => {
 	if (borrowStart < new Date(new Date().toDateString()))
-		return BorrowRequestState.InPast;
+		return BorrowState.InPast;
 
-	if (borrowEnd < borrowStart) return BorrowRequestState.Inverted;
+	if (borrowEnd < borrowStart) return BorrowState.Inverted;
 
 	const borrowRequestStatus = await controlBorrowRequestStatus(
 		gameId,
@@ -35,8 +35,8 @@ export const createBorrowRequest = async (
 
 	const userId = gammaUser!.id;
 
-	if (borrowRequestStatus == BorrowRequestState.Free) {
-		await prisma.borrowRequest.create({
+	if (borrowRequestStatus == BorrowState.Free) {
+		await prisma.borrow.create({
 			data: {
 				gameId,
 				userId,
@@ -60,39 +60,37 @@ export const respondBorrowRequest = async (
 		borrowStart,
 		borrowEnd
 	);
-	if (borrowRequestStatus == BorrowRequestState.Pending) {
-		await prisma.borrowRequest.updateMany({
+	if (borrowRequestStatus == BorrowState.Pending) {
+		await prisma.borrow.updateMany({
 			where: {
 				gameId: gameId,
 				borrowStart: borrowStart,
 				borrowEnd: borrowEnd
 			},
 			data: {
-				status: approved
-					? BorrowRequestStatus.ACCEPTED
-					: BorrowRequestStatus.REJECTED
+				status: approved ? BorrowStatus.ACCEPTED : BorrowStatus.REJECTED
 			}
 		});
 		borrowRequestStatus = approved
-			? BorrowRequestState.Approved
-			: BorrowRequestState.Rejected;
-		let borrowRequest = await prisma.borrowRequest.findFirst({
+			? BorrowState.Approved
+			: BorrowState.Rejected;
+		let borrowRequest = await prisma.borrow.findFirst({
 			where: {
 				gameId: gameId,
 				borrowStart: borrowStart,
 				borrowEnd: borrowEnd
 			}
 		});
-		if (borrowRequest === null) return BorrowRequestState.NotValid;
+		if (borrowRequest === null) return BorrowState.NotValid;
 	}
 	return borrowRequestStatus;
 };
 
 // TODO: Only get requests for game manager once implemented
 export const getActiveBorrowRequests = async () => {
-	return await prisma.borrowRequest.findMany({
+	return await prisma.borrow.findMany({
 		where: {
-			status: BorrowRequestStatus.PENDING
+			status: BorrowStatus.PENDING
 		},
 		include: {
 			game: {
@@ -114,9 +112,9 @@ const controlBorrowRequestStatus = async (
 			id: gameId
 		}
 	});
-	if (gameData === null) return BorrowRequestState.NotValid;
+	if (gameData === null) return BorrowState.NotValid;
 
-	const data = await prisma.borrowRequest.findFirst({
+	const data = await prisma.borrow.findFirst({
 		where: {
 			gameId: gameId,
 			borrowStart: borrowStart,
@@ -124,7 +122,7 @@ const controlBorrowRequestStatus = async (
 		}
 	});
 	if (data === null) {
-		const rangeData = await prisma.borrowRequest.findMany({
+		const rangeData = await prisma.borrow.findMany({
 			where: {
 				gameId: gameId,
 				borrowStart: {
@@ -133,19 +131,19 @@ const controlBorrowRequestStatus = async (
 				borrowEnd: {
 					gte: borrowStart
 				},
-				status: BorrowRequestStatus.ACCEPTED
+				status: BorrowStatus.ACCEPTED
 			}
 		});
-		if (rangeData.length > 0) return BorrowRequestState.Overlapping;
-		else return BorrowRequestState.Free;
+		if (rangeData.length > 0) return BorrowState.Overlapping;
+		else return BorrowState.Free;
 	}
 
 	switch (data.status) {
-		case BorrowRequestStatus.PENDING:
-			return BorrowRequestState.Pending;
-		case BorrowRequestStatus.REJECTED:
-			return BorrowRequestState.Rejected;
-		case BorrowRequestStatus.ACCEPTED:
-			return BorrowRequestState.Approved;
+		case BorrowStatus.PENDING:
+			return BorrowState.Pending;
+		case BorrowStatus.REJECTED:
+			return BorrowState.Rejected;
+		case BorrowStatus.ACCEPTED:
+			return BorrowState.Approved;
 	}
 };

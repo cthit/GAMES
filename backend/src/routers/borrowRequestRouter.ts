@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
 import {
-	BorrowRequestState,
+	BorrowState,
 	createBorrowRequest,
 	respondBorrowRequest,
 	getActiveBorrowRequests
@@ -56,7 +56,7 @@ borrowRequestRouter.post(
 			new Date(body.borrowStart),
 			new Date(body.borrowEnd)
 		);
-		if (status == BorrowRequestState.InPast)
+		if (status == BorrowState.InPast)
 			return sendApiValidationError(
 				res,
 				{
@@ -65,7 +65,7 @@ borrowRequestRouter.post(
 				},
 				'Body'
 			);
-		if (status == BorrowRequestState.Inverted)
+		if (status == BorrowState.Inverted)
 			return sendApiValidationError(
 				res,
 				{
@@ -74,7 +74,7 @@ borrowRequestRouter.post(
 				},
 				'Body'
 			);
-		if (status == BorrowRequestState.Overlapping)
+		if (status == BorrowState.Overlapping)
 			return sendApiValidationError(
 				res,
 				{
@@ -83,7 +83,7 @@ borrowRequestRouter.post(
 				},
 				'Body'
 			);
-		if (status == BorrowRequestState.NotValid)
+		if (status == BorrowState.NotValid)
 			return sendApiValidationError(
 				res,
 				{
@@ -135,7 +135,7 @@ borrowRequestRouter.post(
 			new Date(body.endDate),
 			body.approved
 		);
-		if (status == BorrowRequestState.NotValid)
+		if (status == BorrowState.NotValid)
 			return sendApiValidationError(
 				res,
 				{

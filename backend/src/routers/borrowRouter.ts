@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
 import {
-	BorrowStatus,
+	InternalBorrowStatus,
 	borrowGame,
 	returnGame,
 	listBorrows
@@ -56,7 +56,7 @@ borrowRouter.post('/', validateRequestBody(borrowSchema), async (req, res) => {
 		user.id
 	);
 
-	if (status == BorrowStatus.Borrowed)
+	if (status == InternalBorrowStatus.Borrowed)
 		return sendApiValidationError(
 			res,
 			{
@@ -66,7 +66,7 @@ borrowRouter.post('/', validateRequestBody(borrowSchema), async (req, res) => {
 			'Body'
 		);
 
-	if (status == BorrowStatus.NotValid)
+	if (status == InternalBorrowStatus.NotValid)
 		return sendApiValidationError(
 			res,
 			{
@@ -109,7 +109,7 @@ borrowRouter.post(
 	async (req, res) => {
 		const body = req.body;
 		const status = await returnGame(body.gameId, body.user);
-		if (status == BorrowStatus.NotBorrowed)
+		if (status == InternalBorrowStatus.NotBorrowed)
 			return sendApiValidationError(
 				res,
 				{
@@ -118,7 +118,7 @@ borrowRouter.post(
 				},
 				'Body'
 			);
-		if (status == BorrowStatus.NotValid)
+		if (status == InternalBorrowStatus.NotValid)
 			return sendApiValidationError(
 				res,
 				{

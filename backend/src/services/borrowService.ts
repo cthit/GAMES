@@ -1,8 +1,8 @@
 import { prisma } from '../prisma.js';
-import { BorrowRequestStatus } from '@prisma/client';
+import { BorrowStatus } from '@prisma/client';
 import { getAccountFromCid } from './accountService.js';
 
-export enum BorrowStatus {
+export enum InternalBorrowStatus {
 	Borrowed,
 	NotBorrowed,
 	NotValid
@@ -16,13 +16,14 @@ export const borrowGame = async (
 ) => {
 	const borrowStatus = await controlBorrowStatus(gameId);
 
-	if (borrowStatus == BorrowStatus.NotBorrowed) {
-		await prisma.borrowRequest.create({
+	if (borrowStatus == InternalBorrowStatus.NotBorrowed) {
+		await prisma.borrow.create({
 			data: {
 				gameId,
 				userId,
 				borrowStart,
-				borrowEnd
+				borrowEnd,
+				status: BorrowStatus.BORROWED
 			}
 		});
 	}
@@ -32,20 +33,20 @@ export const borrowGame = async (
 
 export const returnGame = async (gameId: string, user: string) => {
 	const borrowStatus = await controlBorrowStatus(gameId);
-	if (borrowStatus == BorrowStatus.Borrowed) {
+	if (borrowStatus == InternalBorrowStatus.Borrowed) {
 		await prisma.game.update({
 			where: {
 				id: gameId
 			},
 			data: {
-				request: {
+				borrow: {
 					updateMany: {
 						where: {
 							gameId: gameId,
-							status: BorrowRequestStatus.BORROWED
+							status: BorrowStatus.BORROWED
 						},
 						data: {
-							status: BorrowRequestStatus.RETURNED
+							status: BorrowStatus.RETURNED
 						}
 					}
 				}
@@ -56,7 +57,7 @@ export const returnGame = async (gameId: string, user: string) => {
 };
 
 export const listBorrows = async () => {
-	const borrows = await prisma.borrowRequest.findMany({
+	const borrows = await prisma.borrow.findMany({
 		select: {
 			game: {
 				select: {
@@ -78,14 +79,14 @@ const controlBorrowStatus = async (gameId: string) => {
 			id: gameId
 		},
 		select: {
-			request: true
+			borrow: true
 		}
 	});
-	if (data === null) return BorrowStatus.NotValid;
+	if (data === null) return InternalBorrowStatus.NotValid;
 	const isBorrowed =
-		data.request.filter((b: { status: BorrowRequestStatus }) => {
-			return (b.status = BorrowRequestStatus.BORROWED);
+		data.borrow.filter((b: { status: BorrowStatus }) => {
+			return (b.status = BorrowStatus.BORROWED);
 		}).length > 0;
-	if (isBorrowed) return BorrowStatus.Borrowed;
-	return BorrowStatus.NotBorrowed;
+	if (isBorrowed) return InternalBorrowStatus.Borrowed;
+	return InternalBorrowStatus.NotBorrowed;
 };

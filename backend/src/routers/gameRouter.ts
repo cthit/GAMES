@@ -21,7 +21,7 @@ import {
 import { platformExists } from '../services/platformService.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
-import { BorrowRequestStatus } from '@prisma/client';
+import { BorrowStatus } from '@prisma/client';
 
 const gameRouter = Router();
 
@@ -359,8 +359,8 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 			location: game.location,
 			owner: await getGameOwnerNameFromId(game.gameOwnerId),
 			isBorrowed:
-				game.request.filter((b: { status: BorrowRequestStatus }) => {
-					return b.status === BorrowRequestStatus.BORROWED;
+				game.borrow.filter((b: { status: BorrowStatus }) => {
+					return b.status === BorrowStatus.BORROWED;
 				}).length > 0,
 			ratingAvg: await getAverageRating(game.id),
 			ratingUser: user ? await getUserRating(game.id, user.cid) : null,

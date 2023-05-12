@@ -8,10 +8,10 @@ generator client {
 }
 
 model Game {
-    id              String          @id @default(cuid())
+    id              String       @id @default(cuid())
     name            String
     description     String
-    platform        Platform        @relation(fields: [platformName], references: [name])
+    platform        Platform     @relation(fields: [platformName], references: [name])
     platformName    String
     dateReleased    DateTime
     //dateAdded DateTime
@@ -21,8 +21,8 @@ model Game {
     playtimeMinutes Int // Stored in minutes @map("playtime")
     location        String
     playStatus      PlayStatus[]
-    request         BorrowRequest[]
-    GameOwner       GameOwner?      @relation(fields: [gameOwnerId], references: [id], onDelete: Cascade)
+    borrow          Borrow[]
+    GameOwner       GameOwner?   @relation(fields: [gameOwnerId], references: [id], onDelete: Cascade)
     gameOwnerId     String?
     rating          Rating[]
 
@@ -54,7 +54,7 @@ model User {
     organizationsMember OrganizationMember[]
     ratings             Rating[]
     playStatus          PlayStatus[]
-    borrowRequests      BorrowRequest[]
+    borrows             Borrow[]
 
     @@map("users")
 }
@@ -100,7 +100,7 @@ model GameOwner {
     @@map("game_owners")
 }
 
-enum BorrowRequestStatus {
+enum BorrowStatus {
     PENDING
     ACCEPTED
     REJECTED
@@ -108,18 +108,18 @@ enum BorrowRequestStatus {
     RETURNED
 }
 
-model BorrowRequest {
-    game        Game                @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    id          String              @id @default(cuid())
+model Borrow {
+    game        Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
+    id          String       @id @default(cuid())
     gameId      String
-    user        User                @relation(fields: [userId], references: [id])
+    user        User         @relation(fields: [userId], references: [id])
     userId      String
     borrowStart DateTime
     borrowEnd   DateTime
-    status      BorrowRequestStatus @default(PENDING)
+    status      BorrowStatus @default(PENDING)
 
     @@unique([gameId, borrowStart, borrowEnd], name: "borrow_request_identifier")
-    @@map("borrow_requests")
+    @@map("borrow")
 }
 
 model Suggest {

@@ -1,4 +1,4 @@
-import { BorrowRequestStatus } from '@prisma/client';
+import { BorrowStatus } from '@prisma/client';
 import { prisma } from '../prisma.js';
 
 export interface Filter {
@@ -48,7 +48,7 @@ export const searchAndFilterGames = async (filter?: Filter) => {
 			}
 		},
 		include: {
-			request: {}
+			borrow: {}
 		}
 	});
 };
@@ -96,7 +96,7 @@ export const getAllGames = async () => {
 			platformName: true,
 			dateReleased: true,
 			playtimeMinutes: true,
-			request: true, // TODO: See what is given
+			borrow: true, // TODO: See what is given
 			playerMin: true,
 			playerMax: true,
 			rating: true,
@@ -120,15 +120,14 @@ export const removeGame = async (gameId: string) => {
 			id: gameId
 		},
 		select: {
-			request: true
+			borrow: true
 		}
 	});
 
 	if (!game) throw new Error('Game not found');
-	const borrows = game.request.filter(
-		(request) =>
-			request.status === BorrowRequestStatus.BORROWED &&
-			request.borrowStart < new Date()
+	const borrows = game.borrow.filter(
+		(borrow) =>
+			borrow.status === BorrowStatus.BORROWED && borrow.borrowStart < new Date()
 	);
 
 	if (borrows.length > 0) throw new Error('Game is currently borrowed');
