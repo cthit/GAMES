@@ -1,3 +1,4 @@
+import { BorrowStatus } from '@prisma/client';
 import { prisma } from '../prisma.js';
 
 export interface Filter {
@@ -119,15 +120,15 @@ export const removeGame = async (gameId: string) => {
 		where: {
 			id: gameId
 		},
-		include: {
+		select: {
 			borrow: true
 		}
 	});
 
 	if (!game) throw new Error('Game not found');
-
 	const borrows = game.borrow.filter(
-		(borrow) => !borrow.returned && borrow.borrowStart < new Date()
+		(borrow) =>
+			borrow.status === BorrowStatus.BORROWED && borrow.borrowStart < new Date()
 	);
 
 	if (borrows.length > 0) throw new Error('Game is currently borrowed');

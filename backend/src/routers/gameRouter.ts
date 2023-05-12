@@ -22,10 +22,10 @@ import {
 import { platformExists } from '../services/platformService.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { BorrowStatus } from '@prisma/client';
 import { getAccountFromCid } from '../services/accountService.js';
 import { PlayStatus } from '@prisma/client';
 import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
-
 
 const gameRouter = Router();
 
@@ -380,25 +380,33 @@ gameRouter.get('/:gameId/owner', async (req, res) => {
 const formatGames = async (games: any[], user: GammaUser | null) => {
 	const uid = user ? (await getAccountFromCid(user.cid))?.id : null;
 	return await Promise.all(
-		games.map(async (game) => ({
-			id: game.id,
-			name: game.name,
-			description: game.description,
-			platformName: game.platformName,
-			releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
-			playtimeMinutes: game.playtimeMinutes,
-			playerMin: game.playerMin,
-			playerMax: game.playerMax,
-			location: game.location,
-			owner: await getGameOwnerNameFromId(game.gameOwnerId),
-			isBorrowed:
-				game.borrow.filter((b: { returned: boolean }) => {
-					return !b.returned;
-				}).length > 0,
-			ratingAvg: await getAverageRating(game.id),
-			ratingUser: user ? await getUserRating(game.id, user.cid) : null,
-			isPlayed: user ? (game.playStatus.filter((status: PlayStatus) => { return status.userId == uid })).length > 0 : false
-		}))
+		games.map(async (game) => {
+			const isBorrowed =
+				game.borrow.filter((b: { status: BorrowStatus }) => {
+					return b.status === BorrowStatus.BORROWED;
+				}).length > 0;
+      const isPlayed = user
+				? game.playStatus.filter((status: PlayStatus) => {
+						return status.userId == uid;
+				  }).length > 0
+				: false;
+			return {
+				id: game.id,
+				name: game.name,
+				description: game.description,
+				platformName: game.platformName,
+				releaseDate: game.dateReleased.toISOString().split('T')[0], // `toISOString()` returns a string in the format `YYYY-MM-DDTHH:mm:ss.sssZ`, we only want the date
+				playtimeMinutes: game.playtimeMinutes,
+				playerMin: game.playerMin,
+				playerMax: game.playerMax,
+				location: game.location,
+				owner: await getGameOwnerNameFromId(game.gameOwnerId),
+				isBorrowed,
+				ratingAvg: await getAverageRating(game.id),
+				ratingUser: user ? await getUserRating(game.id, user.cid) : null,
+				isPlayed
+			};
+		})
 	);
 };
 
