@@ -9,8 +9,12 @@ import {
 } from '../services/borrowService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { GammaUser } from '../models/gammaModels.js';
-import { getAccountFromCid } from '../services/accountService.js';
+import {
+	getAccountFromCid,
+	getAccountFromId
+} from '../services/accountService.js';
 import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
+import { getGammaUser } from '../services/gammaService.js';
 
 const borrowRouter = Router();
 
@@ -160,18 +164,23 @@ borrowRouter.post(
  */
 borrowRouter.get('/list', async (_, res) => {
 	const borrows = await listBorrows();
-	res.status(200).json(formatBookings(borrows));
+	res.status(200).json(await formatBookings(borrows));
 });
 
-const formatBookings = (bookings: any[]) => {
-	return bookings.map((booking) => ({
-		id: booking.id,
-		gameName: booking.game.name,
-		user: booking.user.nick,
-		borrowStart: booking.borrowStart,
-		borrowEnd: booking.borrowEnd,
-		returned: booking.returned
-	}));
+const formatBookings = async (bookings: any[]) => {
+	return await Promise.all(
+		bookings.map(async (booking) => {
+			const user = (await getGammaUser(booking.user.cid)).nick;
+			return {
+				id: booking.id,
+				gameName: booking.game.name,
+				user,
+				borrowStart: booking.borrowStart,
+				borrowEnd: booking.borrowEnd,
+				returned: booking.returned
+			};
+		})
+	);
 };
 
 export default borrowRouter;
