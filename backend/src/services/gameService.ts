@@ -120,15 +120,11 @@ export const removeGame = async (gameId: string) => {
 			id: gameId
 		},
 		select: {
-			request: true,
-			GameOwner: true
+			request: true
 		}
 	});
 
 	if (!game) throw new Error('Game not found');
-	if (game.GameOwner?.id != gameOwnerId) {
-		throw new Error('User does not own this game');
-	}
 	const borrows = game.request.filter(
 		(request) =>
 			request.status === BorrowRequestStatus.BORROWED &&
