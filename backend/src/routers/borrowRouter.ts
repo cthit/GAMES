@@ -167,7 +167,7 @@ const formatBookings = (bookings: any[]) => {
 	return bookings.map((booking) => ({
 		id: booking.id,
 		gameName: booking.game.name,
-		user: booking.user.cid,
+		user: booking.user.nick,
 		borrowStart: booking.borrowStart,
 		borrowEnd: booking.borrowEnd,
 		returned: booking.returned
