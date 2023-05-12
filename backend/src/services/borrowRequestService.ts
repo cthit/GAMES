@@ -60,30 +60,32 @@ export const respondBorrowRequest = async (
 		borrowStart,
 		borrowEnd
 	);
-	if (borrowRequestStatus == BorrowState.Pending) {
-		await prisma.borrow.updateMany({
-			where: {
-				gameId: gameId,
-				borrowStart: borrowStart,
-				borrowEnd: borrowEnd
-			},
-			data: {
-				status: approved ? BorrowStatus.ACCEPTED : BorrowStatus.REJECTED
-			}
-		});
-		borrowRequestStatus = approved
-			? BorrowState.Approved
-			: BorrowState.Rejected;
-		let borrowRequest = await prisma.borrow.findFirst({
-			where: {
-				gameId: gameId,
-				borrowStart: borrowStart,
-				borrowEnd: borrowEnd
-			}
-		});
-		if (borrowRequest === null) return BorrowState.NotValid;
+
+	if (borrowRequestStatus != BorrowState.Pending) {
+		return borrowRequestStatus;
 	}
-	return borrowRequestStatus;
+
+	await prisma.borrow.updateMany({
+		where: {
+			gameId: gameId,
+			borrowStart: borrowStart,
+			borrowEnd: borrowEnd
+		},
+		data: {
+			status: approved ? BorrowStatus.ACCEPTED : BorrowStatus.REJECTED
+		}
+	});
+
+	borrowRequestStatus = approved ? BorrowState.Approved : BorrowState.Rejected;
+
+	let borrowRequest = await prisma.borrow.findFirst({
+		where: {
+			gameId: gameId,
+			borrowStart: borrowStart,
+			borrowEnd: borrowEnd
+		}
+	});
+	if (borrowRequest === null) return BorrowState.NotValid;
 };
 
 // TODO: Only get requests for game manager once implemented
