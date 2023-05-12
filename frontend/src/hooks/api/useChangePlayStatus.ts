@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
-export const useMarkAsPlayed = () => {
+export const useChangePlayStatus = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
