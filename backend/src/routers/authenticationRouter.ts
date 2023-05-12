@@ -2,10 +2,7 @@ import express, { Router } from 'express';
 import passport from 'passport';
 
 import { GammaUser } from '../models/gammaModels.js';
-import {
-	addUserToGammaConnectedOrgs,
-	createAccount
-} from '../services/accountService.js';
+import { addUserToGammaConnectedOrgs } from '../services/accountService.js';
 
 const authRouter = Router();
 
@@ -48,12 +45,6 @@ authRouter.get(
 	async (req: express.Request, res: express.Response) => {
 		const user = req.user as GammaUser;
 		delete user.accessToken;
-
-		if (await createAccount(user.cid)) {
-			console.log('Created account for ' + user.cid);
-		} else {
-			console.log('Account already exists for ' + user.cid);
-		}
 
 		await addUserToGammaConnectedOrgs(user);
 
