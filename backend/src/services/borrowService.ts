@@ -1,6 +1,8 @@
 import { prisma } from '../prisma.js';
+import { BorrowStatus } from '@prisma/client';
+import { getAccountFromCid } from './accountService.js';
 
-export enum BorrowStatus {
+export enum InternalBorrowStatus {
 	Borrowed,
 	NotBorrowed,
 	NotValid
@@ -8,28 +10,30 @@ export enum BorrowStatus {
 
 export const borrowGame = async (
 	gameId: string,
-	user: string,
 	borrowStart: Date,
-	borrowEnd: Date
+	borrowEnd: Date,
+	userId: string
 ) => {
-	const borrowStatus = await controlBorrowStatus(gameId, user);
-	if (borrowStatus == BorrowStatus.NotBorrowed) {
+	const borrowStatus = await controlBorrowStatus(gameId);
+
+	if (borrowStatus == InternalBorrowStatus.NotBorrowed) {
 		await prisma.borrow.create({
 			data: {
 				gameId,
-				user,
+				userId,
 				borrowStart,
-				borrowEnd
+				borrowEnd,
+				status: BorrowStatus.BORROWED
 			}
 		});
 	}
+
 	return borrowStatus;
 };
 
 export const returnGame = async (gameId: string, user: string) => {
-	const borrowStatus = await controlBorrowStatus(gameId, user);
-	if (borrowStatus == BorrowStatus.Borrowed) {
-
+	const borrowStatus = await controlBorrowStatus(gameId);
+	if (borrowStatus == InternalBorrowStatus.Borrowed) {
 		await prisma.game.update({
 			where: {
 				id: gameId
@@ -38,10 +42,11 @@ export const returnGame = async (gameId: string, user: string) => {
 				borrow: {
 					updateMany: {
 						where: {
-							gameId: gameId
+							gameId: gameId,
+							status: BorrowStatus.BORROWED
 						},
 						data: {
-							returned: true
+							status: BorrowStatus.RETURNED
 						}
 					}
 				}
@@ -56,20 +61,19 @@ export const listBorrows = async () => {
 		select: {
 			game: {
 				select: {
-					name: true,
+					name: true
 				}
 			},
 			user: true,
 			borrowStart: true,
 			borrowEnd: true,
-			returned: true
+			status: true
 		}
 	});
 	return borrows;
-}
+};
 
-
-const controlBorrowStatus = async (gameId: string, user: string) => {
+const controlBorrowStatus = async (gameId: string) => {
 	const data = await prisma.game.findUnique({
 		where: {
 			id: gameId
@@ -78,12 +82,11 @@ const controlBorrowStatus = async (gameId: string, user: string) => {
 			borrow: true
 		}
 	});
-	if (data === null)
-		return BorrowStatus.NotValid;
-	const isBorrowed = data.borrow.filter((b: { returned: boolean }) => {
-		return !b.returned;
-	}).length > 0;
-	if (isBorrowed)
-		return BorrowStatus.Borrowed;
-	return BorrowStatus.NotBorrowed;
-}
+	if (data === null) return InternalBorrowStatus.NotValid;
+	const isBorrowed =
+		data.borrow.filter((b: { status: BorrowStatus }) => {
+			return b.status === BorrowStatus.BORROWED;
+		}).length > 0;
+	if (isBorrowed) return InternalBorrowStatus.Borrowed;
+	return InternalBorrowStatus.NotBorrowed;
+};
