@@ -22,6 +22,8 @@ import {
 import { platformExists } from '../services/platformService.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
+import { getAccountFromCid } from '../services/accountService.js';
+import { PlayStatus } from '@prisma/client';
 
 const gameRouter = Router();
 
@@ -252,7 +254,7 @@ gameRouter.delete('/:id', async (req, res) => {
 });
 
 /**
- * @api {get} /api/v1/games/markPlayed Saves that a user has played a game
+ * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
  * @apiName markPlayed
  * @apiGroup Games
  * @apiDescription Marks the game as played for the user
@@ -280,9 +282,9 @@ gameRouter.delete('/:id', async (req, res) => {
  *   }
  * @apiUse ZodError
  */
-gameRouter.get('/markPlayed/:gameId', async (req, res) => {
+gameRouter.post('/markPlayed/:gameId', async (req, res) => {
 	try {
-		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+		if (!req.isAuthenticated()) return res.status(401).json({ message: 'Unauthorized' });
 		await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as played' });
 	} catch (e) {
@@ -294,7 +296,7 @@ gameRouter.get('/markPlayed/:gameId', async (req, res) => {
 });
 
 /**
- * @api {get} /api/v1/games/markNotPlayed Saves that a user has played a game
+ * @api {post} /api/v1/games/markNotPlayed Saves that a user has played a game
  * @apiName markPlayed
  * @apiGroup Games
  * @apiDescription Marks the game as played for the user
@@ -322,9 +324,9 @@ gameRouter.get('/markPlayed/:gameId', async (req, res) => {
  *
  * @apiUse ZodError
  */
-gameRouter.get('/markNotPlayed/:gameId', async (req, res) => {
+gameRouter.post('/markNotPlayed/:gameId', async (req, res) => {
 	try {
-		if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+		if (!req.isAuthenticated()) return res.status(401).json({ message: 'Unauthorized' });
 		await markGameAsNotPlayed(req.params.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as not played' });
 	} catch (e) {
@@ -397,6 +399,8 @@ gameRouter.get('/:gameId/owner', async (req, res) => {
 });
 
 const formatGames = async (games: any[], user: GammaUser | null) => {
+	const uid = user ? (await getAccountFromCid(user.cid))?.id : null;
+	console.log(games[0].playStatus)
 	return await Promise.all(
 		games.map(async (game) => ({
 			id: game.id,
@@ -415,7 +419,7 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 				}).length > 0,
 			ratingAvg: await getAverageRating(game.id),
 			ratingUser: user ? await getUserRating(game.id, user.cid) : null,
-			isPlayed: false
+			isPlayed: user ? (game.playStatus.filter((status: PlayStatus) => { return status.userId == uid })).length > 0 : false
 		}))
 	);
 };

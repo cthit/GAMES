@@ -47,7 +47,8 @@ export const searchAndFilterGames = async (filter?: Filter) => {
 			}
 		},
 		include: {
-			borrow: {}
+			borrow: {},
+			playStatus: {}
 		}
 	});
 };

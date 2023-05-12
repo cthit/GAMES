@@ -112,9 +112,9 @@ const PlayStatus: FC<GameCardProps> = ({ game }) => {
 			Game is currently: {game.isPlayed ? 'played' : `not played`}
 			<input
 				type="button"
-				value="Mark as played"
+				value={`Mark as ${game.isPlayed ? 'not played' : 'played'}`}
 				onClick={() => {
-					markAsPlayed({ gameId: game.id });
+					markAsPlayed({ gameId: game.id, played: game.isPlayed });
 				}}
 			/>
 		</p>
