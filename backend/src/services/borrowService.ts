@@ -85,7 +85,7 @@ const controlBorrowStatus = async (gameId: string) => {
 	if (data === null) return InternalBorrowStatus.NotValid;
 	const isBorrowed =
 		data.borrow.filter((b: { status: BorrowStatus }) => {
-			return (b.status = BorrowStatus.BORROWED);
+			return b.status === BorrowStatus.BORROWED;
 		}).length > 0;
 	if (isBorrowed) return InternalBorrowStatus.Borrowed;
 	return InternalBorrowStatus.NotBorrowed;
