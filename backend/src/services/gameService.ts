@@ -152,7 +152,7 @@ export const markGameAsPlayed = async (gameID: string, cid: string) => {
 			userId: user.id
 		}
 	});
-}
+};
 export const markGameAsNotPlayed = async (gameID: string, cid: string) => {
 	const user = await prisma.user.findUnique({
 		where: {
@@ -168,4 +168,4 @@ export const markGameAsNotPlayed = async (gameID: string, cid: string) => {
 			}
 		}
 	});
-}
+};

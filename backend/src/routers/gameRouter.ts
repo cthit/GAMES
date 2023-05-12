@@ -25,6 +25,7 @@ import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { getAccountFromCid } from '../services/accountService.js';
 import { PlayStatus } from '@prisma/client';
 
+
 const gameRouter = Router();
 
 const isInt = /^\d+$/;
@@ -254,7 +255,7 @@ gameRouter.delete('/:id', async (req, res) => {
 });
 
 /**
- * @api {post} /api/v1/games/markPlayed Saves that a user has played a game
+ * @api {post} /api/v1/games/markPlayed/:id Saves that a user has played a game
  * @apiName markPlayed
  * @apiGroup Games
  * @apiDescription Marks the game as played for the user
