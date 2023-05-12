@@ -279,7 +279,6 @@ gameRouter.delete('/:id', async (req, res) => {
  * @apiUse ZodError
  */
 gameRouter.post('/markPlayed/:gameId', async (req, res) => {
-	try {
 		if (!req.isAuthenticated()) return res.status(401).json({ message: 'Unauthorized' });
 		await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
 		res.status(200).json({ message: 'Game marked as played' });
