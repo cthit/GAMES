@@ -10,6 +10,7 @@ import {
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { GammaUser } from '../models/gammaModels.js';
 import { getAccountFromCid } from '../services/accountService.js';
+import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 
 const borrowRouter = Router();
 
@@ -41,43 +42,47 @@ const borrowSchema = z.object({
  *
  * @apiUse ZodError
  */
-borrowRouter.post('/', validateRequestBody(borrowSchema), async (req, res) => {
-	if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-	const gammaUser = req.user as GammaUser;
+borrowRouter.post(
+	'/',
+	isAuthenticated,
+	validateRequestBody(borrowSchema),
+	async (req, res) => {
+		const gammaUser = req.user as GammaUser;
 
-	const user = await getAccountFromCid(gammaUser.cid);
-	if (!user) return res.status(401).json({ message: 'Unauthorized' });
+		const user = await getAccountFromCid(gammaUser.cid);
+		if (!user) return res.status(404).json({ message: 'Account not found' });
 
-	const body = req.body;
-	const status = await borrowGame(
-		body.gameId,
-		new Date(body.borrowStart),
-		new Date(body.borrowEnd),
-		user.id
-	);
-
-	if (status == InternalBorrowStatus.Borrowed)
-		return sendApiValidationError(
-			res,
-			{
-				path: 'gameId',
-				message: 'The game is already borrowed'
-			},
-			'Body'
+		const body = req.body;
+		const status = await borrowGame(
+			body.gameId,
+			new Date(body.borrowStart),
+			new Date(body.borrowEnd),
+			user.id
 		);
 
-	if (status == InternalBorrowStatus.NotValid)
-		return sendApiValidationError(
-			res,
-			{
-				path: 'gameId',
-				message: 'The gameId given is not valid'
-			},
-			'Body'
-		);
+		if (status == InternalBorrowStatus.Borrowed)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'gameId',
+					message: 'The game is already borrowed'
+				},
+				'Body'
+			);
 
-	res.status(200).json({ message: 'Game successfully borrowed' });
-});
+		if (status == InternalBorrowStatus.NotValid)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'gameId',
+					message: 'The gameId given is not valid'
+				},
+				'Body'
+			);
+
+		res.status(200).json({ message: 'Game successfully borrowed' });
+	}
+);
 
 const returnSchema = z.object({
 	gameId: z.string().min(1),

@@ -10,6 +10,7 @@ import {
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { GammaUser } from '../models/gammaModels.js';
 import { getAccountFromId } from '../services/accountService.js';
+import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 
 const borrowRequestRouter = Router();
 
@@ -42,12 +43,9 @@ const borrowRequestSchema = z.object({
  */
 borrowRequestRouter.post(
 	'/',
+	isAuthenticated,
 	validateRequestBody(borrowRequestSchema),
 	async (req, res) => {
-		if (!req.isAuthenticated()) {
-			res.status(401).json({ message: 'Must be logged in to get own rating' });
-			return;
-		}
 		const user = req.user as GammaUser;
 		const body = req.body;
 		const status = await createBorrowRequest(
