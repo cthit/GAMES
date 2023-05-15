@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
-export const useAddGame = () => {
+export const useAddGameSuggestion = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation<
@@ -16,11 +16,12 @@ export const useAddGame = () => {
 			playerMin: number;
 			playerMax: number;
 			location: string;
+			motivation: string;
 		}
 	>({
 		mutationFn: (data) => axios.post('/api/v1/games/add', data),
 		onSuccess: () => {
-			queryClient.invalidateQueries(['gamesList']);
+			queryClient.invalidateQueries(['gameSuggestions']);
 		}
 	});
 };

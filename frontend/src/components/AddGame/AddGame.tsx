@@ -18,15 +18,6 @@ interface Platform {
 const AddGame: FC<AddGameProps> = () => {
 	const { data, error, isLoading } = usePlatforms();
 
-	const [name, setName] = useState('');
-	const [description, setDescription] = useState('');
-	const [platform, setPlatform] = useState('');
-	const [releaseDate, setReleaseDate] = useState<Date>();
-	const [playtime, setPlaytime] = useState<number>();
-	const [playerMin, setPlayerMin] = useState<number>();
-	const [playerMax, setPlayerMax] = useState<number>();
-	const [location, setLocation] = useState('');
-
 	const {
 		error: postError,
 		isLoading: postLoading,
@@ -34,14 +25,37 @@ const AddGame: FC<AddGameProps> = () => {
 	} = useAddGame();
 
 	const addGameSchema = z.object({
-		name: z.string().min(1).max(250),
-		description: z.string().min(1).max(2000),
-		platform: z.string().min(1),
-		releaseDate: z.date(), // ISO date string
-		playtime: z.number().int().min(1),
-		playerMin: z.number().int().min(1),
-		playerMax: z.number().int().min(1), //Maybe check that max > min?
-		location: z.string().min(1).max(250)
+		name: z
+			.string({ required_error: 'Name is required' })
+			.min(1, 'Name is required')
+			.max(250, "Name can't be longer than 250 characters"),
+		description: z
+			.string({ required_error: 'A description is required' })
+			.min(1, 'A description is required')
+			.max(2000, "Description can't be longer than 2000 characters"),
+		platform: z
+			.string({ required_error: 'Please select a platform' })
+			.min(1, 'Please select a platform'),
+		releaseDate: z.date({
+			required_error: 'Please enter a release date',
+			invalid_type_error: 'Please enter a release date'
+		}),
+		playtime: z
+			.number({ invalid_type_error: 'Playtime is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Playtime can't be less than 1 minute"),
+		playerMin: z
+			.number({ invalid_type_error: 'Minimum players is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Minimum players can't be less than 1"),
+		playerMax: z
+			.number({ invalid_type_error: 'Maximum players is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Maximum players can't be less than 1"), //Maybe check that max > min?
+		location: z
+			.string({ required_error: 'A location is required' })
+			.min(1, 'A location is required')
+			.max(250, "Location can't be longer than 250 characters")
 	});
 
 	type AddGameForm = z.infer<typeof addGameSchema>;
@@ -51,7 +65,7 @@ const AddGame: FC<AddGameProps> = () => {
 		handleSubmit,
 		control,
 		formState: { errors },
-		watch
+		reset: resetForm
 	} = useForm<AddGameForm>({
 		resolver: zodResolver(addGameSchema)
 	});
@@ -91,6 +105,7 @@ const AddGame: FC<AddGameProps> = () => {
 									position: 'bottom-right'
 								}
 							);
+							resetForm();
 						} catch (e) {}
 					},
 					(e) =>
