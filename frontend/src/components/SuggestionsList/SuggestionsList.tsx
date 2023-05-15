@@ -1,7 +1,7 @@
 import { useApiGet } from '@/src/hooks/apiHooks';
 import { FC } from 'react';
 import SuggestionCard from '../SuggestionCard/SuggestionCard';
-import styles from './SuggestionsList.module.css';
+import styles from './SuggestionsList.module.scss';
 
 interface SuggestionsListProps {}
 

@@ -5,7 +5,7 @@ import DateInput from '../Forms/DateInput/DateInput';
 import NumberInput from '../Forms/NumberInput/NumberInput';
 import Select from '../Forms/Select/Select';
 import { useFilterState } from '../GamesList/GamesList';
-import styles from './GameFilter.module.css';
+import styles from './GameFilter.module.scss';
 
 interface GameFilterProps {
 	filterState: ReturnType<typeof useFilterState>;

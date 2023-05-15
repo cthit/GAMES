@@ -1,6 +1,6 @@
 import Header from '@/src/components/Header/Header';
 import AddOrganization from '@/src/components/SiteAdminComponents/AddOrganization/AddOrganization';
-import styles from '@/src/pages/admin/organizations/index.module.css';
+import styles from '@/src/pages/admin/organizations/index.module.scss';
 import { redirectIfNotAdmin } from '@/src/utils/loginRedirects';
 import Head from 'next/head';
 

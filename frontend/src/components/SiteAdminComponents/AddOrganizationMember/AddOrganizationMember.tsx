@@ -5,7 +5,7 @@ import axios from 'axios';
 import { AxiosError } from 'axios';
 import Select from 'react-select';
 import Checkbox from '../../Forms/Checkbox/Checkbox';
-import styles from './AddOrganizationMember.module.css';
+import styles from './AddOrganizationMember.module.scss';
 
 interface AddOrganizationMemberProps {
 	organizationId: string;

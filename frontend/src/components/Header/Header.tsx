@@ -1,7 +1,7 @@
 import LoginStatus from '@/src/components/LoginStatus/LoginStatus';
 import { useUser } from '@/src/hooks/api/auth';
 import { FC } from 'react';
-import styles from './Header.module.css';
+import styles from './Header.module.scss';
 
 interface HeaderProps {}
 

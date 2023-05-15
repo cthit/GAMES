@@ -1,0 +1,19 @@
+// Colors
+$color-dark: #000000;
+$color-bright: #ffffff;
+$color-background: #1d3461;
+$color-accent: #2589bd;
+$color-highlight: #44a5da;
+
+// Text
+$text-dark: #000000;
+$text-bright: #ffffff;
+
+$text-small: 0.833rem;
+$text-normal: 1rem;
+$text-big: 1.5rem;
+$text-biggest: 2rem;
+
+// Div enhancements
+$border: 1px solid $color-dark;
+$shadow: 0px 4px 6px rgba($color-dark, 0.25); // x=0, y=4, spread=6
