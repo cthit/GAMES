@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styles from './BookingCard.module.css';
+import styles from './BookingCard.module.scss';
 
 interface BookingCardProps {
     game: string,

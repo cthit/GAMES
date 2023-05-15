@@ -2,7 +2,7 @@ import { usePublicGames } from '@/src/hooks/api/games';
 import { FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
 import GameFilter from '../GameFilter/GameFilter';
-import styles from './GamesList.module.css';
+import styles from './GamesList.module.scss';
 
 interface GamesListProps {}
 

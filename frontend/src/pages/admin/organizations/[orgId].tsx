@@ -1,7 +1,7 @@
 import Header from '@/src/components/Header/Header';
 import ManageOrganization from '@/src/components/SiteAdminComponents/ManageOrganization/ManageOrganization';
 import RemoveOrganizationButton from '@/src/components/SiteAdminComponents/RemoveOrganizationButton/RemoveOrganizationButton';
-import styles from '@/src/pages/admin/organizations/index.module.css';
+import styles from '@/src/pages/admin/organizations/index.module.scss';
 import { redirectIfNotAdmin } from '@/src/utils/loginRedirects';
 import Head from 'next/head';
 import { useRouter } from 'next/router';

@@ -1,6 +1,6 @@
 import { useApiGet } from '@/src/hooks/apiHooks';
 import { ChangeEvent, FC, useState } from 'react';
-import styles from './BookingsList.module.css';
+import styles from './BookingsList.module.scss';
 import BookingCard from '../BookingCard/BookingCard';
 
 interface BookingsListProps {}

@@ -1,7 +1,6 @@
 import { useApiGet } from '@/src/hooks/apiHooks';
 import { ChangeEvent, FC, useState } from 'react';
 import RequestCard from '../RequestCard/RequestCard';
-import debounce from 'lodash.debounce';
 
 interface BorrowRequestsListProps {}
 

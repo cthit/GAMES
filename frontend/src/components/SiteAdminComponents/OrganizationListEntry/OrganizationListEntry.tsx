@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styles from './OrganizationListEntry.module.css';
+import styles from './OrganizationListEntry.module.scss';
 
 interface OrganizationListEntryProps {
 	id: string;

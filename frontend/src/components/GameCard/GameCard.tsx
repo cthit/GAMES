@@ -4,7 +4,7 @@ import { useAddRating } from '@/src/hooks/api/useAddRating';
 import { useChangePlayStatus } from '@/src/hooks/api/useChangePlayStatus';
 import { FC, useState } from 'react';
 import Select from '../Forms/Select/Select';
-import styles from './GameCard.module.css';
+import styles from './GameCard.module.scss';
 
 interface GameCardProps {
 	game: Game;
