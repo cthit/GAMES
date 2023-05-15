@@ -15,7 +15,7 @@ export interface Game {
 	playerMax: string;
 	location: string;
 	owner: string;
-	ratingAvg: string;
+	ratingAvg: number;
 	ratingUser: string;
 	isPlayed: boolean;
 }

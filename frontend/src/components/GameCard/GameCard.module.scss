@@ -1,7 +1,68 @@
 @import 'src/styles/variables';
 
 .card {
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	box-shadow: $shadow;
 	padding: 1rem;
+	border: $border;
 	border-radius: 5px;
 }
+
+.icon {
+	width: 1rem;
+	display: inline;
+	margin-right: .25rem;
+}
+
+.propText {
+	display: inline;
+	font-weight: bold;
+}
+
+.gameProp {
+	margin-right: 0.5rem;
+	display: inline;
+}
+
+.gameProps {
+	display: flex;
+	align-items: center;
+}
+
+.leftProps {
+	flex-grow: 1;
+	margin-right: 2rem;
+}
+
+
+.starRatings {
+	unicode-bidi: bidi-override;
+	color: #ccc;
+	font-size: 128px;
+	position: relative;
+	margin: 0;
+	padding: 0;
+	-webkit-text-stroke-width: 1px;
+	-webkit-text-stroke-color: black;
+
+	.fillRatings {
+		color: $color-highlight;
+		padding: 0;
+		position: absolute;
+		z-index: 1;
+		display: block;
+		top: 0;
+		left: 0;
+		overflow: hidden;
+
+		// Allows us to grab the width of the span elements
+		span {
+			display: inline-block;
+		}
+	}
+
+	.emptyRatings {
+	  padding: 0;
+	  display: block;
+	  z-index: 0;
+	}
+  }

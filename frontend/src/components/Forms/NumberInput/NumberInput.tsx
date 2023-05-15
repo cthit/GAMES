@@ -8,10 +8,12 @@ interface TextInputProps {
 }
 
 const NumberInput: FC<TextInputProps> = ({ label, onChange, value }) => {
+	const nums = '0123456789';
 	return (
 		<>
 			<label htmlFor="label">{label}</label>
-			<input type="number" name="label" onChange={onChange} value={value} />
+			<input type="number" name="label" onChange={onChange}
+				value={value} />
 		</>
 	);
 };

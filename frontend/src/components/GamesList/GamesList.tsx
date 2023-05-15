@@ -18,7 +18,7 @@ const GamesList: FC<GamesListProps> = () => {
 				<input
 					className={styles.gamesListSearchBar}
 					type="text"
-					placeholder="Search for a game"
+					placeholder="Type to search..."
 					onChange={(e) => setSearch(e.target.value)}
 					value={search}
 				/>

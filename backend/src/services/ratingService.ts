@@ -46,7 +46,7 @@ export const getUserRating = async (game: string, user: string) => {
 };
 
 export const getAverageRating = async (game: string) => {
-	const rating = await getFromCache(`rating:${game}`);
+	const rating = await getFromCache<number>(`rating:${game}`);
 	if (rating) return rating;
 
 	return await _getAverageRatingNoCache(game);

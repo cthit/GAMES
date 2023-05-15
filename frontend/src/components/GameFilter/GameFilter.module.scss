@@ -1,3 +1,5 @@
-.formClass {
-	border: 2px solid black;
+@import 'src/styles/variables';
+.filterDiv {
+	padding: $margin-small;
+	gap: $margin-small;
 }

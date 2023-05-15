@@ -30,8 +30,8 @@ const GameFilter: FC<GameFilterProps> = ({
 	}
 
 	return (
-		<form className={styles.formClass}>
-			<h2>Filtering</h2>
+		<form className={styles.filterDiv}>
+			<h2>(icon)Filter</h2>
 			<Select
 				label="Platform"
 				options={platforms.map((platform) => platform.name)}
@@ -121,5 +121,7 @@ const GameFilter: FC<GameFilterProps> = ({
 		</form>
 	);
 };
+
+
 
 export default GameFilter;
