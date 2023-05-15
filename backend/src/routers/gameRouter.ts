@@ -115,16 +115,21 @@ const transformGamesQuery = (data: any) => {
 	};
 };
 
-const addGameSchema = z.object({
-	name: z.string().min(1).max(250),
-	description: z.string().min(1).max(2000),
-	platform: z.string().min(1),
-	releaseDate: z.string().datetime(), // ISO date string
-	playtime: z.number().int().min(1),
-	playerMin: z.number().int().min(1),
-	playerMax: z.number().int().min(1), //Maybe check that max > min?
-	location: z.string().min(1).max(250)
-});
+const addGameSchema = z
+	.object({
+		name: z.string().min(1).max(250),
+		description: z.string().min(1).max(2000),
+		platform: z.string().min(1),
+		releaseDate: z.string().datetime(), // ISO date string
+		playtime: z.number().int().min(1),
+		playerMin: z.number().int().min(1),
+		playerMax: z.number().int().min(1),
+		location: z.string().min(1).max(250)
+	})
+	.refine((data) => data.playerMax >= data.playerMin, {
+		message: 'PlayerMax must be greater than or equal to PlayerMin',
+		path: ['playerMax', 'playerMin']
+	});
 
 /**
  * @api {post} /api/v1/games/add Add a game
@@ -283,7 +288,7 @@ gameRouter.delete('/:id', async (req, res) => {
  * @apiUse ZodError
  */
 gameRouter.post('/markPlayed/:gameId', isAuthenticated, async (req, res) => {
-		await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
+	await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
 	res.status(200).json({ message: 'Game marked as played' });
 });
 
@@ -311,9 +316,8 @@ gameRouter.post('/markPlayed/:gameId', isAuthenticated, async (req, res) => {
  * @apiUse ZodError
  */
 gameRouter.post('/markNotPlayed/:gameId', isAuthenticated, async (req, res) => {
-		await markGameAsNotPlayed(req.params.gameId, (req.user as GammaUser).cid);
-		res.status(200).json({ message: 'Game marked as not played' });
-
+	await markGameAsNotPlayed(req.params.gameId, (req.user as GammaUser).cid);
+	res.status(200).json({ message: 'Game marked as not played' });
 });
 
 /**
@@ -385,7 +389,7 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 				game.borrow.filter((b: { status: BorrowStatus }) => {
 					return b.status === BorrowStatus.BORROWED;
 				}).length > 0;
-      const isPlayed = user
+			const isPlayed = user
 				? game.playStatus.filter((status: PlayStatus) => {
 						return status.userId == uid;
 				  }).length > 0
