@@ -1,17 +1,19 @@
 import React, { FC, TextareaHTMLAttributes } from 'react';
-import { UseFormRegister, FieldValues } from 'react-hook-form';
+import { UseFormRegister, FieldValues, RegisterOptions } from 'react-hook-form';
 
 interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 	name: string;
 	label?: string;
 	error?: string;
-	register?: any;
+	register?: UseFormRegister<any>;
+	registerOptions?: RegisterOptions;
 	wrapperClass?: string;
 	className?: string;
 }
 
 const FormTextArea: FC<TextAreaProps> = ({
 	register,
+	registerOptions,
 	name,
 	error,
 	label,
@@ -23,7 +25,7 @@ const FormTextArea: FC<TextAreaProps> = ({
 			{label && <label htmlFor={name}>{label}</label>}
 			<textarea
 				aria-invalid={error ? 'true' : 'false'}
-				{...register(name)}
+				{...(register ? register(name, registerOptions) : {})}
 				{...rest}
 			/>
 			{error && <span role="alert">{error}</span>}

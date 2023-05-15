@@ -1,11 +1,5 @@
 import React, { FC } from 'react';
-import Select, {
-	GroupBase,
-	OptionContext,
-	OptionProps,
-	OptionsOrGroups,
-	Props
-} from 'react-select';
+import Select, { Props } from 'react-select';
 import {
 	UseFormRegister,
 	FieldValues,
