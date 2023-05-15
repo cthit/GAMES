@@ -1,10 +1,19 @@
+
 @import 'variables';
+
+@font-face {
+    font-family: 'Quicksand';
+    src: url('/fonts/Quicksand.ttf') format('truetype');
+}
 
 * {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	font-family: sans-serif;
-	color: $text-dark;
 	font-size: $text-normal;
+	font-family: 'Quicksand', sans-serif;
+}
+
+html, body {
+	color: $text-dark;
 }

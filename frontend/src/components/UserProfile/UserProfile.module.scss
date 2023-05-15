@@ -1,0 +1,29 @@
+@import 'src/styles/variables';
+
+.profileDiv {
+	background-color: $color-accent;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	padding: 0 1rem;
+}
+
+.username {
+	font-size: $text-big;
+	cursor: pointer;
+
+	&:hover {
+		opacity: 0.8;
+	}
+}
+
+.login {
+    color: $text-bright;
+    text-decoration: none;
+}
+
+.profilePic {
+	width: 3.5rem;
+	border: $border;
+	border-radius: 100%;
+}
