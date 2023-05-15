@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styles from './OrganizationMemberListEntry.module.css';
+import styles from './OrganizationMemberListEntry.module.scss';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { AxiosError } from 'axios';
