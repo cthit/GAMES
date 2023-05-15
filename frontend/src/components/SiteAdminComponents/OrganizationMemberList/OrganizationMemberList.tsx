@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styles from './OrganizationMemberList.module.css';
+import styles from './OrganizationMemberList.module.scss';
 import OrganizationMemberListEntry from '../OrganizationMemberListEntry/OrganizationMemberListEntry';
 
 interface OrganizationMemberListProps {

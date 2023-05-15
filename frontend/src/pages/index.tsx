@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import GamesList from '../components/GamesList/GamesList';
 import Header from '../components/Header/Header';
-import styles from './index.module.css';
+import styles from './index.module.scss';
 
 export const Home = () => {
 	return (

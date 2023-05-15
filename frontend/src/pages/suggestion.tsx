@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Header from '../components/Header/Header';
 import SuggestionsList from '../components/SuggestionsList/SuggestionsList';
-import styles from './suggestion.module.css';
+import styles from './suggestion.module.scss';
 
 export const Home = () => {
 	return (

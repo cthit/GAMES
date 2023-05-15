@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styles from './RequestCard.module.css';
+import styles from './RequestCard.module.scss';
 import { useApiPost } from '@/src/hooks/apiHooks';
 
 interface RequestCardProps {

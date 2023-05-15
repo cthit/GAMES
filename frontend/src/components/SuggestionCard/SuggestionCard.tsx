@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styles from './SuggestionCard.module.css';
+import styles from './SuggestionCard.module.scss';
 
 interface SuggestionCardProps {
 	name: string;
