@@ -5,6 +5,7 @@ import { BorrowRequestState, createBorrowRequest, respondBorrowRequest, getActiv
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { GammaUser } from '../models/gammaModels.js';
 import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
+import { getAccountFromCid } from '../services/accountService.js';
 
 const borrowRequestRouter = Router();
 
@@ -141,7 +142,7 @@ borrowRequestRouter.post(
 borrowRequestRouter.get(
 	'/list',
 	async (req, res) => {
-		const requests = await getActiveBorrowRequests(await getGameOwnerIdFromCid((req.user as GammaUser).cid));
+		const requests = await getActiveBorrowRequests(await getAccountFromCid((req.user as GammaUser).cid));
 		res.status(200).json(formatBorrowRequests(requests));
 	}
 );

@@ -66,43 +66,28 @@ export const respondBorrowRequest = async (
     return borrowRequestStatus;
 }
 
-// TODO: Only get requests for game manager once implemented
-/**export const getActiveBorrowRequests = async () => {
-    return await prisma.borrowRequest.findMany({
+ 
+export const getActiveBorrowRequests = async (account : any) => {
+    const organizationMemberships = await prisma.organizationMember.findMany({ //Get all the orgz where login is admin
         where: {
-            status: BorrowRequestStatus.PENDING
+            userId : account.id,
+            isAdmin: true,
         },
-        include: {
-            game: {
-                select: {
-                    name: true
-                }
-            }
-        }
+        select: {
+            organizationId: true,
+        },
     });
-}
-**/
 
-export const getActiveBorrowRequests = async (userIds : string) => {
-  const organizationMemberships = await prisma.organizationMember.findMany({ //Get all the orgz where login is admin
-    where: {
-      userId : userIds,
-      isAdmin: true,
-    },
-    select: {
-      organizationId: true,
-    },
-  });
+    const organizationIds = organizationMemberships.map(
+        (membership) => membership.organizationId
+    );
 
-  const organizationIds = organizationMemberships.map(
-    (membership) => membership.organizationId
-  );
-
-  const borrowRequests = await prisma.borrowRequest.findMany({
-    where: {
-      status: BorrowRequestStatus.PENDING,
-      OR: [
-        {
+    const borrowRequests = await prisma.borrowRequest.findMany({
+        where: {
+            status: BorrowRequestStatus.PENDING,
+     
+        OR: [
+            {
             game: { //Get requests for games in orgz where login is admin
                 GameOwner: {
                     ownerType: "ORGANIZATION",
@@ -111,28 +96,29 @@ export const getActiveBorrowRequests = async (userIds : string) => {
                     },
                 },
             },
-        }, 
-        {
+            }, 
+            {
             game: { //Get requests for games login owns
                 GameOwner: {
-                  ownerType: "USER",
-                  ownerId: userIds,
+                    ownerType: "USER",
+                    ownerId: account.id,
                 },
-              },
+            },
         },
-      ],
-    },          
-    include: {
-      game: {
-        select: {
-          name: true,
+    ],      
+    },           
+        include: {
+            game: {
+                select: {
+                name: true,
+                },
+            },
         },
-      },
-    },
-  });
+    });
 
-  return borrowRequests;
+    return borrowRequests;
 };
+
 
 const controlBorrowRequestStatus = async (gameId: string, borrowStart: Date, borrowEnd: Date) => {
     const gameData = await prisma.game.findFirst({
