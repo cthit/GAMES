@@ -84,8 +84,6 @@ const AddGame: FC<AddGameProps> = () => {
 		return <p>Uh oh</p>;
 	}
 
-	console.log(errors);
-
 	return (
 		<>
 			<form
