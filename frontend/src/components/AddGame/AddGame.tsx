@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { usePlatforms } from '@/src/hooks/api/usePlatforms';
 import { useAddGame } from '@/src/hooks/api/useAddGame';
 import { toast } from 'react-toastify';
