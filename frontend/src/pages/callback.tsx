@@ -4,6 +4,8 @@ export const getServerSideProps: GetServerSideProps = async ({
 	res,
 	query
 }) => {
+	const backendAddress = process.env.BACKEND_ADDRESS;
+	if (!backendAddress) throw new Error('No backend address ENV found');
 	try {
 		const data = await fetch(
 			`${process.env.BACKEND_ADDRESS}/api/v1/auth/callback?code=${query.code}`
