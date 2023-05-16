@@ -11,9 +11,46 @@ import FormSelect from '../Forms/FromSelect/FormSelect';
 
 interface AddGameProps {}
 
-interface Platform {
-	name: string;
-}
+const addGameSchema = z
+	.object({
+		name: z
+			.string({ required_error: 'Name is required' })
+			.min(1, 'Name is required')
+			.max(250, "Name can't be longer than 250 characters"),
+		description: z
+			.string({ required_error: 'A description is required' })
+			.min(1, 'A description is required')
+			.max(2000, "Description can't be longer than 2000 characters"),
+		platform: z
+			.string({ required_error: 'Please select a platform' })
+			.min(1, 'Please select a platform'),
+		releaseDate: z.date({
+			required_error: 'Please enter a release date',
+			invalid_type_error: 'Please enter a release date'
+		}),
+		playtime: z
+			.number({ invalid_type_error: 'Playtime is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Playtime can't be less than 1 minute"),
+		playerMin: z
+			.number({ invalid_type_error: 'Minimum players is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Minimum players can't be less than 1"),
+		playerMax: z
+			.number({ invalid_type_error: 'Maximum players is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Maximum players can't be less than 1"),
+		location: z
+			.string({ required_error: 'A location is required' })
+			.min(1, 'A location is required')
+			.max(250, "Location can't be longer than 250 characters")
+	})
+	.refine((data) => data.playerMax >= data.playerMin, {
+		message: 'Maximum players must be greater than or equal to Minimum players',
+		path: ['playerMax']
+	});
+
+type AddGameForm = z.infer<typeof addGameSchema>;
 
 const AddGame: FC<AddGameProps> = () => {
 	const { data, error, isLoading } = usePlatforms();
@@ -23,48 +60,6 @@ const AddGame: FC<AddGameProps> = () => {
 		isLoading: postLoading,
 		mutateAsync: postDataAsync
 	} = useAddGame();
-
-	const addGameSchema = z
-		.object({
-			name: z
-				.string({ required_error: 'Name is required' })
-				.min(1, 'Name is required')
-				.max(250, "Name can't be longer than 250 characters"),
-			description: z
-				.string({ required_error: 'A description is required' })
-				.min(1, 'A description is required')
-				.max(2000, "Description can't be longer than 2000 characters"),
-			platform: z
-				.string({ required_error: 'Please select a platform' })
-				.min(1, 'Please select a platform'),
-			releaseDate: z.date({
-				required_error: 'Please enter a release date',
-				invalid_type_error: 'Please enter a release date'
-			}),
-			playtime: z
-				.number({ invalid_type_error: 'Playtime is required' })
-				.int({ message: 'Please enter a whole number' })
-				.min(1, "Playtime can't be less than 1 minute"),
-			playerMin: z
-				.number({ invalid_type_error: 'Minimum players is required' })
-				.int({ message: 'Please enter a whole number' })
-				.min(1, "Minimum players can't be less than 1"),
-			playerMax: z
-				.number({ invalid_type_error: 'Maximum players is required' })
-				.int({ message: 'Please enter a whole number' })
-				.min(1, "Maximum players can't be less than 1"), //Maybe check that max > min?
-			location: z
-				.string({ required_error: 'A location is required' })
-				.min(1, 'A location is required')
-				.max(250, "Location can't be longer than 250 characters")
-		})
-		.refine((data) => data.playerMax >= data.playerMin, {
-			message:
-				'Maximum players must be greater than or equal to Minimum players',
-			path: ['playerMax']
-		});
-
-	type AddGameForm = z.infer<typeof addGameSchema>;
 
 	const {
 		register,

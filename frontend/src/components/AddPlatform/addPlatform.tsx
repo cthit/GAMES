@@ -9,21 +9,21 @@ import { toast } from 'react-toastify';
 
 interface AddPlatformProps {}
 
+const addPlatformSchema = z.object({
+	name: z
+		.string({ required_error: 'Please enter a platform name' })
+		.min(1, 'Please enter a platform name')
+		.max(100, "Platform name can't be longer than 100 characters")
+});
+
+type AddPlatformForm = z.infer<typeof addPlatformSchema>;
+
 const AddPlatform: FC<AddPlatformProps> = () => {
 	const {
 		error: postError,
 		isLoading: postLoading,
 		mutateAsync: postDataAsync
 	} = useAddPlatform();
-
-	const addPlatformSchema = z.object({
-		name: z
-			.string({ required_error: 'Please enter a platform name' })
-			.min(1, 'Please enter a platform name')
-			.max(100, "Platform name can't be longer than 100 characters")
-	});
-
-	type AddPlatformForm = z.infer<typeof addPlatformSchema>;
 
 	const {
 		register,
