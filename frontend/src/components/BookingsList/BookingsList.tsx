@@ -2,26 +2,18 @@ import { useApiGet } from '@/src/hooks/apiHooks';
 import { ChangeEvent, FC, useState } from 'react';
 import styles from './BookingsList.module.scss';
 import BookingCard from '../BookingCard/BookingCard';
+import { useBorrowsList } from '@/src/hooks/api/borrow';
 
 interface BookingsListProps {}
 
-interface Booking {
-    gameName: string,
-    user: string,
-    borrowStart: string,
-    borrowEnd: string
-}
-
 const BookingsList: FC<BookingsListProps> = () => {
-	const [apiPath, setApiPath] = useState("/borrow/list")
-	const { data, error, loading } = useApiGet<Booking[]>(apiPath);
+	const { data, error, isLoading } = useBorrowsList();
 
 	return (
-		<div style={{width: 'auto'}}>
+		<div style={{ width: 'auto' }}>
+			{isLoading ? <p>Loading...</p> : null}
 
-			{loading ? <p>Loading...</p> : null}
-
-			{error ? <p>Error: {error}</p> : null}
+			{error ? <p>Error: {error.message}</p> : null}
 
 			{data ? (
 				<ul className={styles.bookingsList}>
@@ -29,9 +21,9 @@ const BookingsList: FC<BookingsListProps> = () => {
 						<BookingCard
 							key={`${booking.gameName}.${booking.borrowStart}.${booking.borrowEnd}`}
 							game={booking.gameName}
-                            user={booking.user}
-                            start={booking.borrowStart}
-                            end={booking.borrowEnd}
+							user={booking.user}
+							start={booking.borrowStart}
+							end={booking.borrowEnd}
 						/>
 					))}
 				</ul>

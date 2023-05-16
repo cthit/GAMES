@@ -1,15 +1,18 @@
 import Head from 'next/head';
-import AddPlatform from '@/src/components/AddPlatform/AddPlatform';
-import Header from '../components/Header/Header';
-import { redirectIfNotLoggedIn } from '../utils/loginRedirects';
+import { useRouter } from 'next/router';
+import BorrowGame from '@/src/components/BorrowGame/BorrowGame';
+import Header from '@/src/components/Header/Header';
+import { redirectIfNotLoggedIn } from '@/src/utils/loginRedirects';
 
 export const getServerSideProps = redirectIfNotLoggedIn;
 
 export const Home = () => {
+	const router = useRouter();
+	const { gameId } = router.query;
 	return (
 		<>
 			<Head>
-				<title>GAMES | Add a game</title>
+				<title>GAMES | Borrow a game</title>
 				<meta
 					name="description"
 					content="A service for finding and browsing games in different mediums and formats."
@@ -19,7 +22,7 @@ export const Home = () => {
 			</Head>
 			<Header />
 			<main>
-				<AddPlatform />
+				<BorrowGame game={Array.isArray(gameId) ? '' : gameId} />
 			</main>
 		</>
 	);

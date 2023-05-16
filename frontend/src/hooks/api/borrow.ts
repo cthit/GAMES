@@ -1,24 +1,90 @@
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
+
+export const useBorrowRequestList = () => {
+	return useQuery<
+		{
+			gameId: string;
+			name: string;
+			user: string;
+			borrowStart: string;
+			borrowEnd: string;
+		}[],
+		AxiosError
+	>(['borrowRequestList'], () =>
+		axios.get('/api/v1/borrow/request/list').then((res) => res.data)
+	);
+};
 
 export const useBorrowRequest = () => {
-	return useMutation({
-		mutationFn: async (data: {
+	const queryClient = useQueryClient();
+
+	return useMutation<
+		unknown,
+		AxiosError,
+		{
 			gameId: string;
 			borrowStart: Date;
 			borrowEnd: Date;
-			user: 'User';
-		}) => axios.post('/api/v1/borrow/request', data).then((res) => res.data)
+		}
+	>({
+		mutationFn: async (data) =>
+			axios.post('/api/v1/borrow/request', data).then((res) => res.data),
+		onSuccess: () => {
+			queryClient.invalidateQueries(['borrowRequestList']);
+		}
 	});
 };
 
+export const useBorrowRequestRespond = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation<
+		unknown,
+		AxiosError,
+		{
+			gameId: string;
+			startDate: string;
+			endDate: string;
+			approved: boolean;
+		}
+	>({
+		mutationFn: async (data) =>
+			axios
+				.post('/api/v1/borrow/request/respond', data)
+				.then((res) => res.data),
+		onSuccess: () => {
+			queryClient.invalidateQueries(['borrowRequestList']);
+			queryClient.invalidateQueries(['borrowsList']);
+		}
+	});
+};
+
+export const useBorrowsList = () => {
+	return useQuery<
+		{
+			gameName: string;
+			user: string;
+			borrowStart: string;
+			borrowEnd: string;
+		}[],
+		AxiosError
+	>(['borrowsList'], () =>
+		axios.get('/api/v1/borrow/list').then((res) => res.data)
+	);
+};
+
 export const useBorrow = () => {
-	return useMutation({
-		mutationFn: async (data: {
+	return useMutation<
+		unknown,
+		AxiosError,
+		{
 			gameId: string;
 			borrowStart: Date;
 			borrowEnd: Date;
-			user: 'User';
-		}) => axios.post('/api/v1/borrow', data).then((res) => res.data)
+		}
+	>({
+		mutationFn: async (data) =>
+			axios.post('/api/v1/borrow', data).then((res) => res.data)
 	});
 };

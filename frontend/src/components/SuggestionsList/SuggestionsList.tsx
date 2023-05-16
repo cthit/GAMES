@@ -1,31 +1,20 @@
-import { useApiGet } from '@/src/hooks/apiHooks';
 import { FC } from 'react';
 import SuggestionCard from '../SuggestionCard/SuggestionCard';
+import { useGameSuggestions } from '@/src/hooks/api/useGameSuggestions';
 import styles from './SuggestionsList.module.scss';
 
 interface SuggestionsListProps {}
 
-interface Suggestion {
-	name: string;
-	description: string;
-	platformName: string;
-	playtimeMinutes: string;
-	releaseDate: string;
-	playerMin: string;
-	playerMax: string;
-	motivation: string;
-}
-
 const SuggestionsList: FC<SuggestionsListProps> = () => {
-	const { data, error, loading } = useApiGet<Suggestion[]>('/suggest');
+	const { data, error, isLoading } = useGameSuggestions();
 
 	return (
 		<div>
 			<h1 className={styles.suggestionsListHeader}>Suggestions List</h1>
 
-			{loading ? <p>Loading...</p> : null}
+			{isLoading ? <p>Loading...</p> : null}
 
-			{error ? <p>Error: {error}</p> : null}
+			{error ? <p>Error: {error.message}</p> : null}
 
 			{data ? (
 				<ul className={styles.suggestionsList}>
