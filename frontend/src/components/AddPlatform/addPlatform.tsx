@@ -2,7 +2,7 @@ import { useApiPost } from '@/src/hooks/apiHooks';
 import { FC, useState } from 'react';
 import FormInput from '../Forms/FormInput/FormInput';
 import * as z from 'zod';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAddPlatform } from '@/src/hooks/api/useAddPlatform';
 import { toast } from 'react-toastify';
@@ -35,41 +35,41 @@ const AddPlatform: FC<AddPlatformProps> = () => {
 		resolver: zodResolver(addPlatformSchema)
 	});
 
-	return (
-		<form
-			onSubmit={handleSubmit(
-				async (d) => {
-					try {
-						await toast.promise(
-							postDataAsync(d),
-							{
-								pending: 'Adding platform...',
-								success: 'Platform added!',
-								error: {
-									render: () => {
-										return (
-											<>
-												{postError?.response?.status === 401
-													? 'You need to be signed in to add platforms'
-													: 'Something went wrong!'}
-											</>
-										);
-									}
-								}
-							},
-							{
-								position: 'bottom-right'
-							}
-						);
-						resetForm();
-					} catch (e) {}
+	const submitHandler = async (d: AddPlatformForm) => {
+		try {
+			await toast.promise(
+				postDataAsync(d),
+				{
+					pending: 'Adding platform...',
+					success: 'Platform added!',
+					error: {
+						render: () => {
+							return (
+								<>
+									{postError?.response?.status === 401
+										? 'You need to be signed in to add platforms'
+										: 'Something went wrong!'}
+								</>
+							);
+						}
+					}
 				},
-				(e) =>
-					toast.error('Please fill out all fields correctly!', {
-						position: 'bottom-right'
-					})
-			)}
-		>
+				{
+					position: 'bottom-right'
+				}
+			);
+			resetForm();
+		} catch (e) {}
+	};
+
+	const invalidFormHandler = (e: FieldErrors<AddPlatformForm>) => {
+		toast.error('Please fill out all fields correctly!', {
+			position: 'bottom-right'
+		});
+	};
+
+	return (
+		<form onSubmit={handleSubmit(submitHandler, invalidFormHandler)}>
 			<FormInput
 				label="Platform name"
 				name="name"

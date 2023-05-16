@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'react-toastify';
@@ -81,41 +81,41 @@ const AddSuggestion: FC<AddSuggestionProps> = () => {
 		return <p>Uh oh</p>;
 	}
 
-	return (
-		<form
-			onSubmit={handleSubmit(
-				async (d) => {
-					try {
-						await toast.promise(
-							postDataAsync(d),
-							{
-								pending: 'Adding game suggestion...',
-								success: 'Game suggestion added!',
-								error: {
-									render: () => {
-										return (
-											<>
-												{postError?.response?.status === 401
-													? 'You need to be signed in to add games suggestions'
-													: 'Something went wrong!'}
-											</>
-										);
-									}
-								}
-							},
-							{
-								position: 'bottom-right'
-							}
-						);
-						resetForm();
-					} catch (e) {}
+	const submitHandler = async (d: AddGameSuggestionForm) => {
+		try {
+			await toast.promise(
+				postDataAsync(d),
+				{
+					pending: 'Adding game suggestion...',
+					success: 'Game suggestion added!',
+					error: {
+						render: () => {
+							return (
+								<>
+									{postError?.response?.status === 401
+										? 'You need to be signed in to add games suggestions'
+										: 'Something went wrong!'}
+								</>
+							);
+						}
+					}
 				},
-				(e) =>
-					toast.error('Please fill out all fields correctly!', {
-						position: 'bottom-right'
-					})
-			)}
-		>
+				{
+					position: 'bottom-right'
+				}
+			);
+			resetForm();
+		} catch (e) {}
+	};
+
+	const invalidFormHandler = (e: FieldErrors<AddGameSuggestionForm>) => {
+		toast.error('Please fill out all fields correctly!', {
+			position: 'bottom-right'
+		});
+	};
+
+	return (
+		<form onSubmit={handleSubmit(submitHandler, invalidFormHandler)}>
 			<FormInput
 				label="Name of the game"
 				name="name"

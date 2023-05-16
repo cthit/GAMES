@@ -3,7 +3,7 @@ import { usePlatforms } from '@/src/hooks/api/usePlatforms';
 import { useAddGame } from '@/src/hooks/api/useAddGame';
 import { toast } from 'react-toastify';
 import * as z from 'zod';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../Forms/FormInput/FormInput';
 import FormTextArea from '../Forms/FormTextArea/FormTextArea';
@@ -84,42 +84,42 @@ const AddGame: FC<AddGameProps> = () => {
 		return <p>Uh oh</p>;
 	}
 
+	const submitHandler = async (d: AddGameForm) => {
+		try {
+			await toast.promise(
+				postDataAsync(d),
+				{
+					pending: 'Adding game...',
+					success: 'Game added!',
+					error: {
+						render: () => {
+							return (
+								<>
+									{postError?.response?.status === 401
+										? 'You need to be signed in to add games'
+										: 'Something went wrong!'}
+								</>
+							);
+						}
+					}
+				},
+				{
+					position: 'bottom-right'
+				}
+			);
+			resetForm();
+		} catch (e) {}
+	};
+
+	const invalidFormHandler = (e: FieldErrors<AddGameForm>) => {
+		toast.error('Please fill out all fields correctly!', {
+			position: 'bottom-right'
+		});
+	};
+
 	return (
 		<>
-			<form
-				onSubmit={handleSubmit(
-					async (d) => {
-						try {
-							await toast.promise(
-								postDataAsync(d),
-								{
-									pending: 'Adding game...',
-									success: 'Game added!',
-									error: {
-										render: () => {
-											return (
-												<>
-													{postError?.response?.status === 401
-														? 'You need to be signed in to add games'
-														: 'Something went wrong!'}
-												</>
-											);
-										}
-									}
-								},
-								{
-									position: 'bottom-right'
-								}
-							);
-							resetForm();
-						} catch (e) {}
-					},
-					(e) =>
-						toast.error('Please fill out all fields correctly!', {
-							position: 'bottom-right'
-						})
-				)}
-			>
+			<form onSubmit={handleSubmit(submitHandler, invalidFormHandler)}>
 				<FormInput
 					label="Name of the game"
 					name="name"
