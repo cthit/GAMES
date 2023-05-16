@@ -22,7 +22,7 @@ export const Home = () => {
 			</Head>
 			<Header />
 			<main>
-				<BorrowGame game={gameId} />
+				<BorrowGame game={Array.isArray(gameId) ? '' : gameId} />
 			</main>
 		</>
 	);
