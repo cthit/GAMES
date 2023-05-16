@@ -2,6 +2,7 @@ import { prisma } from '../prisma.js';
 import { BorrowStatus } from '@prisma/client';
 import { InternalBorrowStatus } from './borrowService.js';
 import { getAccountFromCid } from './accountService.js';
+import { User } from '@prisma/client';
 
 export enum BorrowState {
 	Pending,
@@ -89,7 +90,7 @@ export const respondBorrowRequest = async (
 };
 
 
-export const getActiveBorrowRequests = async (account: any) => {
+export const getActiveBorrowRequests = async (account: User) => {
 	const organizationMemberships = await prisma.organizationMember.findMany({ //Get all the orgz where login is admin
 		where: {
 			userId: account.id,
