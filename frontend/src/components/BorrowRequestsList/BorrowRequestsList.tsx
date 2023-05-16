@@ -15,6 +15,7 @@ interface BorrowRequest {
 const BorrowRequestsList: FC<BorrowRequestsListProps> = () => {
 	const [apiPath, setApiPath] = useState("/borrow/request/list")
 	const { data, error, loading } = useApiGet<BorrowRequest[]>(apiPath);
+	
 	return (
 		<div style={{width: 'auto'}}>
 
