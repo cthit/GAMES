@@ -1,24 +1,32 @@
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 export const useBorrowRequest = () => {
-	return useMutation({
-		mutationFn: async (data: {
+	return useMutation<
+		unknown,
+		AxiosError,
+		{
 			gameId: string;
 			borrowStart: Date;
 			borrowEnd: Date;
-			user: 'User';
-		}) => axios.post('/api/v1/borrow/request', data).then((res) => res.data)
+		}
+	>({
+		mutationFn: async (data) =>
+			axios.post('/api/v1/borrow/request', data).then((res) => res.data)
 	});
 };
 
 export const useBorrow = () => {
-	return useMutation({
-		mutationFn: async (data: {
+	return useMutation<
+		unknown,
+		AxiosError,
+		{
 			gameId: string;
 			borrowStart: Date;
 			borrowEnd: Date;
-			user: 'User';
-		}) => axios.post('/api/v1/borrow', data).then((res) => res.data)
+		}
+	>({
+		mutationFn: async (data) =>
+			axios.post('/api/v1/borrow', data).then((res) => res.data)
 	});
 };

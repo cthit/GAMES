@@ -5,6 +5,7 @@ import { useChangePlayStatus } from '@/src/hooks/api/useChangePlayStatus';
 import { FC, useState } from 'react';
 import Select from '../Forms/Select/Select';
 import styles from './GameCard.module.scss';
+import Link from 'next/link';
 
 interface GameCardProps {
 	game: Game;
@@ -94,10 +95,9 @@ const BorrowGame: FC<GameCardProps> = ({ game }) => {
 	if (!data) return null;
 
 	return (
-		<form action="/borrow">
-			<input type="hidden" id="game" name="game" value={game.id} />
-			<input type="submit" value="Borrow Game" />
-		</form>
+		<Link href={`/borrow/${game.id}`}>
+			<p>Borrow Game</p>
+		</Link>
 	);
 };
 
