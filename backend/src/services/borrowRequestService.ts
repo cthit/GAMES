@@ -137,7 +137,6 @@ export const getActiveBorrowRequests = async (account: any) => {
 			},
 		},
 	});
-
 	return borrowRequests;
 };
 
