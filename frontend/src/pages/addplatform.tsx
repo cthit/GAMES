@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import AddPlatform from '../components/AddPlatform/addPlatform';
+import AddPlatform from '../components/AddPlatform/AddPlatform';
 import Header from '../components/Header/Header';
 import { redirectIfNotLoggedIn } from '../utils/loginRedirects';
 
