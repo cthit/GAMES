@@ -1,35 +1,77 @@
-import { useApiGet, useApiPost } from '@/src/hooks/apiHooks';
-import { FC, useState } from 'react';
-import DateInput from '../Forms/DateInput/DateInput';
-import Select from '../Forms/Select/Select';
-import TextArea from '../Forms/TextArea/TextArea';
-import TextInput from '../Forms/TextInput/TextInput';
+import { FC } from 'react';
+import { usePlatforms } from '@/src/hooks/api/usePlatforms';
+import { useAddGame } from '@/src/hooks/api/useAddGame';
+import { toast } from 'react-toastify';
+import * as z from 'zod';
+import { FieldErrors, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import FormInput from '../Forms/FormInput/FormInput';
+import FormTextArea from '../Forms/FormTextArea/FormTextArea';
+import FormSelect from '../Forms/FromSelect/FormSelect';
 
 interface AddGameProps {}
 
-interface Platform {
-	name: string;
-}
+const addGameSchema = z
+	.object({
+		name: z
+			.string({ required_error: 'Name is required' })
+			.min(1, 'Name is required')
+			.max(250, "Name can't be longer than 250 characters"),
+		description: z
+			.string({ required_error: 'A description is required' })
+			.min(1, 'A description is required')
+			.max(2000, "Description can't be longer than 2000 characters"),
+		platform: z
+			.string({ required_error: 'Please select a platform' })
+			.min(1, 'Please select a platform'),
+		releaseDate: z.date({
+			required_error: 'Please enter a release date',
+			invalid_type_error: 'Please enter a release date'
+		}),
+		playtime: z
+			.number({ invalid_type_error: 'Playtime is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Playtime can't be less than 1 minute"),
+		playerMin: z
+			.number({ invalid_type_error: 'Minimum players is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Minimum players can't be less than 1"),
+		playerMax: z
+			.number({ invalid_type_error: 'Maximum players is required' })
+			.int({ message: 'Please enter a whole number' })
+			.min(1, "Maximum players can't be less than 1"),
+		location: z
+			.string({ required_error: 'A location is required' })
+			.min(1, 'A location is required')
+			.max(250, "Location can't be longer than 250 characters")
+	})
+	.refine((data) => data.playerMax >= data.playerMin, {
+		message: 'Maximum players must be greater than or equal to Minimum players',
+		path: ['playerMax']
+	});
+
+type AddGameForm = z.infer<typeof addGameSchema>;
 
 const AddGame: FC<AddGameProps> = () => {
-	const { data, error, loading } = useApiGet<Platform[]>('/platforms');
-
-	const [name, setName] = useState('');
-	const [description, setDescription] = useState('');
-	const [platform, setPlatform] = useState('');
-	const [releaseDate, setReleaseDate] = useState<Date>();
-	const [playtime, setPlaytime] = useState<number>();
-	const [playerMin, setPlayerMin] = useState<number>();
-	const [playerMax, setPlayerMax] = useState<number>();
-	const [location, setLocation] = useState('');
+	const { data, error, isLoading } = usePlatforms();
 
 	const {
 		error: postError,
-		loading: postLoading,
-		postData
-	} = useApiPost('/games/add');
+		isLoading: postLoading,
+		mutateAsync: postDataAsync
+	} = useAddGame();
 
-	if (loading) {
+	const {
+		register,
+		handleSubmit,
+		control,
+		formState: { errors },
+		reset: resetForm
+	} = useForm<AddGameForm>({
+		resolver: zodResolver(addGameSchema)
+	});
+
+	if (isLoading || register === undefined) {
 		return <p>Loading...</p>;
 	}
 
@@ -37,94 +79,125 @@ const AddGame: FC<AddGameProps> = () => {
 		return <p>Uh oh</p>;
 	}
 
+	const submitHandler = async (d: AddGameForm) => {
+		try {
+			await toast.promise(
+				postDataAsync(d),
+				{
+					pending: 'Adding game...',
+					success: 'Game added!',
+					error: {
+						render: () => {
+							return (
+								<>
+									{postError?.response?.status === 401
+										? 'You need to be signed in to add games'
+										: 'Something went wrong!'}
+								</>
+							);
+						}
+					}
+				},
+				{
+					position: 'bottom-right'
+				}
+			);
+			resetForm();
+		} catch (e) {}
+	};
+
+	const invalidFormHandler = (e: FieldErrors<AddGameForm>) => {
+		toast.error('Please fill out all fields correctly!', {
+			position: 'bottom-right'
+		});
+	};
+
 	return (
-		<form
-			onSubmit={(e) => {
-				e.preventDefault();
-				postData({
-					name,
-					description,
-					platform,
-					releaseDate: releaseDate?.toISOString(),
-					playtime,
-					playerMin,
-					playerMax,
-					location
-				});
-			}}
-		>
-			<TextInput
-				label="Name of the game"
-				type="text"
-				onChange={(input) => setName(input.currentTarget.value)}
-				value={name}
-			/>
-			<br />
+		<>
+			<form onSubmit={handleSubmit(submitHandler, invalidFormHandler)}>
+				<FormInput
+					label="Name of the game"
+					name="name"
+					type="text"
+					register={register}
+					error={errors.name?.message}
+				/>
+				<br />
 
-			<TextArea
-				label="Description fo the game"
-				onChange={(textarea) => setDescription(textarea.currentTarget.value)}
-				value={description}
-			/>
-			<br />
+				<FormTextArea
+					label="Description fo the game"
+					register={register}
+					name="description"
+					error={errors.description?.message}
+				/>
+				<br />
 
-			<Select
-				label="Platform"
-				options={data.map((platform) => platform.name)}
-				placeholder="Select a platform"
-				onChange={(select) => setPlatform(select.target.value)}
-				value={platform}
-			/>
-			<br />
+				<FormSelect
+					label="Platform"
+					options={data.map((platform) => {
+						return { value: platform.name, label: platform.name };
+					})}
+					placeholder="Select a platform"
+					name="platform"
+					control={control}
+					error={errors.platform?.message}
+				/>
+				<br />
 
-			<DateInput
-				label="Release date"
-				onChange={(input) =>
-					setReleaseDate(new Date(input.currentTarget.value))
-				}
-				value={releaseDate?.toISOString().split('T')[0] || ''}
-			/>
-			<br />
+				<FormInput
+					label="Release date"
+					name="releaseDate"
+					type="date"
+					register={register}
+					registerOptions={{ valueAsDate: true }}
+					error={errors.releaseDate?.message}
+				/>
+				<br />
 
-			<TextInput
-				label="Expected playtime"
-				type="number"
-				onChange={(input) =>
-					setPlaytime(Number.parseInt(input.currentTarget.value))
-				}
-				value={playtime?.toString() || ''}
-			/>
-			<br />
-			<TextInput
-				label="Minimum number of players"
-				type="number"
-				onChange={(input) =>
-					setPlayerMin(Number.parseInt(input.currentTarget.value))
-				}
-				value={playerMin?.toString() || ''}
-			/>
-			<br />
-			<TextInput
-				label="Maximum number of players"
-				type="number"
-				onChange={(input) =>
-					setPlayerMax(Number.parseInt(input.currentTarget.value))
-				}
-				value={playerMax?.toString() || ''}
-			/>
-			<br />
-			<TextInput
-				label="Location of the game"
-				type="text"
-				onChange={(input) =>
-					setLocation(input.currentTarget.value)
-				}
-				value={location}
-			/>
-			<br />
+				<FormInput
+					label="Expected playtime"
+					name="playtime"
+					type="number"
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playtime?.message}
+				/>
+				<br />
 
-			<input type="submit" value="Submit" />
-		</form>
+				<FormInput
+					label="Minimum number of players"
+					name="playerMin"
+					type="number"
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMin?.message}
+				/>
+				<br />
+
+				<FormInput
+					label="Maximum number of players"
+					name="playerMax"
+					type="number"
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMax?.message}
+				/>
+				<br />
+
+				<FormInput
+					label="Location of the game"
+					name="location"
+					type="text"
+					register={register}
+					error={errors.location?.message}
+				/>
+				<br />
+
+				{errors.root ? <p>Error: {errors.root.message}</p> : null}
+
+				<input type="submit" disabled={postLoading} value="Submit" />
+			</form>
+		</>
 	);
 };
 

@@ -1,55 +1,80 @@
 import { FC } from 'react';
 import styles from './RequestCard.module.scss';
 import { useApiPost } from '@/src/hooks/apiHooks';
+import { useBorrowRequestRespond } from '@/src/hooks/api/borrow';
+import { toast } from 'react-toastify';
 
-interface RequestCardProps {
-    gameId: string,
-    name: string,
-    user: string,
-    borrowStart: string,
-    borrowEnd: string
+interface BorrowRequest {
+	gameId: string;
+	name: string;
+	user: string;
+	borrowStart: string;
+	borrowEnd: string;
 }
 
-const RequestCard: FC<RequestCardProps> = ({
-	gameId,
-    name,
-    user,
-    borrowStart,
-    borrowEnd
-}) => {
+interface RequestCardProps {
+	borrowRequest: BorrowRequest;
+}
 
-    const {
+const RequestCard: FC<RequestCardProps> = ({ borrowRequest }) => {
+	const {
 		error: postError,
-		loading: postLoading,
-		postData
-	} = useApiPost('/borrow/request/respond');
+		isLoading: postLoading,
+		mutateAsync: postDataAsync
+	} = useBorrowRequestRespond();
+
+	const { gameId, name, user, borrowStart, borrowEnd } = borrowRequest;
+
+	const respondToRequest = async (approved: boolean) => {
+		try {
+			await toast.promise(
+				postDataAsync({
+					gameId,
+					startDate: borrowStart,
+					endDate: borrowEnd,
+					approved
+				}),
+				{
+					pending: approved ? 'Approving request...' : 'Denying request...',
+					success: approved
+						? 'Request approved!'
+						: 'Request successfully denied!',
+					error: {
+						render: () => {
+							return (
+								<>
+									{postError?.response?.status === 401
+										? 'You need to be signed in to respond to requests'
+										: 'Something went wrong!'}
+								</>
+							);
+						}
+					}
+				}
+			);
+		} catch (e) {}
+	};
 
 	return (
 		<li className={styles.card}>
-			<h2>{name}</h2>
-			<p>Requested by: {user}</p>
-			<p>From: {borrowStart?.split('T')[0] || ''}</p>
-			<p>To: {borrowEnd?.split('T')[0] || ''}</p>
-			<form onSubmit={(e) => {
-				e.preventDefault();
-				postData({
-					gameId: gameId,
-                    startDate: borrowStart,
-                    endDate: borrowEnd,
-                    approved: true
-				});
-			}}>
+			<h2>{borrowRequest.name}</h2>
+			<p>Requested by: {borrowRequest.user}</p>
+			<p>From: {borrowRequest.borrowStart?.split('T')[0] || ''}</p>
+			<p>To: {borrowRequest.borrowEnd?.split('T')[0] || ''}</p>
+			<form
+				onSubmit={async (e) => {
+					e.preventDefault();
+					await respondToRequest(true);
+				}}
+			>
 				<input type="submit" value="Approve" />
 			</form>
-            <form onSubmit={(e) => {
-				e.preventDefault();
-				postData({
-					gameId: gameId,
-                    startDate: borrowStart,
-                    endDate: borrowEnd,
-                    approved: false
-				});
-			}}>
+			<form
+				onSubmit={async (e) => {
+					e.preventDefault();
+					await respondToRequest(false);
+				}}
+			>
 				<input type="submit" value="Deny" />
 			</form>
 		</li>
