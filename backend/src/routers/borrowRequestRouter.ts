@@ -176,7 +176,7 @@ borrowRequestRouter.get(
 	'/list',
 	async (req, res) => {
 		const requests = await getActiveBorrowRequests(await getAccountFromCid((req.user as GammaUser).cid));
-		res.status(200).json(formatBorrowRequests(requests));
+		res.status(200).json(await formatBorrowRequests(requests));
 	}
 );
 

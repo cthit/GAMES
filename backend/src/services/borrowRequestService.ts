@@ -104,9 +104,9 @@ export const getActiveBorrowRequests = async (account: any) => {
 		(membership) => membership.organizationId
 	);
 
-	const borrowRequests = await prisma.borrowRequest.findMany({
+	const borrowRequests = await prisma.borrow.findMany({
 		where: {
-			status: BorrowRequestStatus.PENDING,
+			status: BorrowStatus.PENDING,
 
 			OR: [
 				{
