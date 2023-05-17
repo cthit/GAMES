@@ -68,7 +68,7 @@ const GamePageContents = ({ gameId }: { gameId: string }) => {
 					releaseDate={data.releaseDate}
 				/>
 			</div>
-			<GameRatings gameId={data.id} />
+			<GameRatings gameId={data.id} userRating={data.ratingUser} />
 		</>
 	);
 };

@@ -7,8 +7,9 @@ export const useAddRating = () => {
 	return useMutation({
 		mutationFn: (data: { game: string; rating: number }) =>
 			axios.post('/api/v1/rating/rate', data),
-		onSuccess: () => {
+		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries(['gamesList']);
+			queryClient.invalidateQueries(['game', variables.game]);
 		}
 	});
 };

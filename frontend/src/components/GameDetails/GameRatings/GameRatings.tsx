@@ -1,17 +1,40 @@
 import { useUser } from '@/src/hooks/api/auth';
+import { useAddRating } from '@/src/hooks/api/useAddRating';
 import StarIcon from '@/src/icons/Star';
 import { FC, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
 import Button from '../../Forms/Button/Button';
 import styles from './GameRatings.module.scss';
 
 interface GameRatingsProps {
 	gameId: string;
+	userRating: number | null;
 }
 
-const GameRatings: FC<GameRatingsProps> = ({ gameId }) => {
+const GameRatings: FC<GameRatingsProps> = ({ gameId, userRating }) => {
 	const { data } = useUser();
 
-	const [starCount, setStarCount] = useState(0);
+	const [starCount, setStarCount] = useState<number | null>(userRating);
+	const { mutateAsync, isLoading } = useAddRating();
+
+	const handleRateGame = () => {
+		if (!starCount)
+			return toast.error("You haven't selected a rating!", {
+				position: 'bottom-right'
+			});
+
+		toast.promise(
+			mutateAsync({ game: gameId, rating: starCount }),
+			{
+				pending: 'Rating game...',
+				success: 'Rated game!',
+				error: 'Could not rate game!'
+			},
+			{
+				position: 'bottom-right'
+			}
+		);
+	};
 
 	if (!data) return null;
 
@@ -22,13 +45,13 @@ const GameRatings: FC<GameRatingsProps> = ({ gameId }) => {
 				setStarCount={setStarCount}
 				maxStars={5}
 			/>
-			<Button label="Rate game" />
+			<Button label="Rate game" onClick={handleRateGame} disabled={isLoading} />
 		</div>
 	);
 };
 
 interface StarPickerProps {
-	starCount: number;
+	starCount: number | null;
 	setStarCount: (nr: number) => void;
 	maxStars: number;
 }
@@ -38,9 +61,12 @@ const StarPicker: FC<StarPickerProps> = ({
 	setStarCount,
 	maxStars
 }) => {
-	const stars = useMemo(() => {
-		return Array.from({ length: 5 }, (_, i) => i + 1);
-	}, [maxStars]);
+	const stars = useMemo(
+		() => Array.from({ length: maxStars }, (_, i) => i + 1),
+		[maxStars]
+	);
+
+	const nrStars = starCount ? starCount : maxStars + 1;
 
 	return (
 		<div className={styles.starContainer}>
@@ -51,7 +77,7 @@ const StarPicker: FC<StarPickerProps> = ({
 			{stars.map((nr) => (
 				<StarIcon
 					key={nr}
-					className={`${styles.star} ${nr >= starCount ? styles.selected : ''}`}
+					className={`${styles.star} ${nr >= nrStars ? styles.selected : ''}`}
 					onClick={() => setStarCount(nr)}
 				/>
 			))}
