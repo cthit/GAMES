@@ -29,7 +29,6 @@ const borrowRequestSchema = z.object({
  * @apiDescription Requests to borrow a game from the service
  *
  * @apiBody {String} gameId Id of the game
- * @apiBody {String} user User that borrows the game
  * @apiBody {String} borrowStart Date that the game starts being borrowed
  * @apiBody {String} borrowEnd Date that the game is expected to be returned
  *

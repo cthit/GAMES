@@ -38,16 +38,21 @@ suggestRouter.get('/', async (req, res) => {
 	res.status(200).json(formattedSuggestion);
 });
 
-const addSuggestionSchema = z.object({
-	name: z.string().min(1).max(250),
-	description: z.string().min(1).max(2000),
-	platform: z.string().min(1),
-	releaseDate: z.string().datetime(), // ISO date string
-	playtime: z.number().int().min(1),
-	playerMin: z.number().int().min(1),
-	playerMax: z.number().int().min(1), //Maybe check that max > min?
-	motivation: z.string().min(1).max(2000)
-});
+const addSuggestionSchema = z
+	.object({
+		name: z.string().min(1).max(250),
+		description: z.string().min(1).max(2000),
+		platform: z.string().min(1),
+		releaseDate: z.string().datetime(), // ISO date string
+		playtime: z.number().int().min(1),
+		playerMin: z.number().int().min(1),
+		playerMax: z.number().int().min(1),
+		motivation: z.string().min(1).max(2000)
+	})
+	.refine((data) => data.playerMax >= data.playerMin, {
+		message: 'PlayerMax must be greater than or equal to PlayerMin',
+		path: ['playerMax', 'playerMin']
+	});
 
 /**
  * @api {post} /api/v1/suggestions/add Add a suggestion

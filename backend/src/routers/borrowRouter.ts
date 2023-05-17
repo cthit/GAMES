@@ -20,7 +20,6 @@ const borrowRouter = Router();
 
 const borrowSchema = z.object({
 	gameId: z.string().min(1),
-	user: z.string().min(1),
 	borrowStart: z.string().datetime(),
 	borrowEnd: z.string().datetime()
 });
@@ -32,7 +31,6 @@ const borrowSchema = z.object({
  * @apiDescription Borrows a game from the service
  *
  * @apiBody {String} gameId Id of the game
- * @apiBody {String} user User that borrows the game
  * @apiBody {String} borrowStart Date that the game starts being borrowed
  * @apiBody {String} borrowEnd Date that the game should be returned
  *
@@ -51,10 +49,11 @@ borrowRouter.post(
 	isAuthenticated,
 	validateRequestBody(borrowSchema),
 	async (req, res) => {
+		//TODO check if user is allowed to immediately borrow the game
 		const gammaUser = req.user as GammaUser;
 
 		const user = await getAccountFromCid(gammaUser.cid);
-		if (!user) return res.status(404).json({ message: 'Account not found' });
+		if (!user) throw new Error(`Failed to find user with cid ${gammaUser.cid}`);
 
 		const body = req.body;
 		const status = await borrowGame(
