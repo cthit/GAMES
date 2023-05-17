@@ -94,7 +94,7 @@ gameRouter.get(
 			req.isAuthenticated() ? (req.user as GammaUser) : null
 		);
 
-		res.status(200).json(formattedGames);
+		res.status(StatusCode.Ok).json(formattedGames);
 	}
 );
 
@@ -174,51 +174,38 @@ gameRouter.post(
 	'/add',
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
-		try {
-			if (!req.user) {
-				return res
-					.status(401)
-					.json({ message: 'Must be logged in to add game' });
-			}
+		if (!req.user)
+			return res
+				.status(StatusCode.Unauthorized)
+				.json({ message: 'Must be logged in to add game' });
 
-			const body = req.body;
+		const body = req.body;
 
-			if (!(await platformExists(body.platform))) {
-				return sendApiValidationError(
-					res,
-					{
-						path: 'platform',
-						message: 'Platform does not exist'
-					},
-					'Body'
-				);
-			}
-
-			await createGame(
-				body.name,
-				body.description,
-				body.platform,
-				new Date(body.releaseDate),
-				body.playtime,
-				body.playerMin,
-				body.playerMax,
-				body.location,
-				// @ts-expect-error GammaUser not added to Request.user type
-				await getGameOwnerIdFromCid(req.user.cid)
+		if (!(await platformExists(body.platform))) {
+			return sendApiValidationError(
+				res,
+				{
+					path: 'platform',
+					message: 'Platform does not exist'
+				},
+				'Body'
 			);
-
-			res.status(200).json({ message: 'Game added' });
-		} catch (e) {
-			if (e instanceof Error) {
-				res
-					.status(400)
-					.json({ message: 'Something went wrong adding the game' });
-			} else {
-				res.status(500).json({
-					message: 'Uwu oopsie woopsie, the devs made a fucky wucky! Sowwy'
-				});
-			}
 		}
+
+		await createGame(
+			body.name,
+			body.description,
+			body.platform,
+			new Date(body.releaseDate),
+			body.playtime,
+			body.playerMin,
+			body.playerMax,
+			body.location,
+			// @ts-expect-error GammaUser not added to Request.user type
+			await getGameOwnerIdFromCid(req.user.cid)
+		);
+
+		res.status(StatusCode.Ok).json({ message: 'Game added' });
 	}
 );
 
@@ -244,23 +231,20 @@ gameRouter.post(
  * }
  */
 gameRouter.delete('/:id', async (req, res) => {
-	try {
-		if (!req.user) {
-			res.status(401).json({ message: 'Must be logged in to remove game' });
-			return;
-		}
+	if (!req.user)
+		return res
+			.status(StatusCode.Unauthorized)
+			.json({ message: 'Must be logged in to remove game' });
 
-		// @ts-ignore It is in fact a GammaUser
-		if (!isGameOwner(req.user, req.params.id))
-			return res.status(403).json({ message: 'You do not own that game!' });
+	// @ts-ignore It is in fact a GammaUser
+	if (!isGameOwner(req.user, req.params.id))
+		return res
+			.status(StatusCode.Forbidden)
+			.json({ message: 'You do not own that game!' });
 
-		await removeGame(req.params.id);
+	await removeGame(req.params.id);
 
-		res.status(200).json({ message: 'Game removed' });
-	} catch (e) {
-		if (e instanceof Error) res.status(400).json({ message: e.message });
-		else res.status(500).json({ message: 'Error removing game' });
-	}
+	res.status(StatusCode.Ok).json({ message: 'Game removed' });
 });
 
 /**
@@ -289,7 +273,7 @@ gameRouter.delete('/:id', async (req, res) => {
  */
 gameRouter.post('/markPlayed/:gameId', isAuthenticated, async (req, res) => {
 	await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
-	res.status(200).json({ message: 'Game marked as played' });
+	res.status(StatusCode.Ok).json({ message: 'Game marked as played' });
 });
 
 /**
@@ -317,7 +301,7 @@ gameRouter.post('/markPlayed/:gameId', isAuthenticated, async (req, res) => {
  */
 gameRouter.post('/markNotPlayed/:gameId', isAuthenticated, async (req, res) => {
 	await markGameAsNotPlayed(req.params.gameId, (req.user as GammaUser).cid);
-	res.status(200).json({ message: 'Game marked as not played' });
+	res.status(StatusCode.Ok).json({ message: 'Game marked as not played' });
 });
 
 /**
@@ -351,7 +335,7 @@ gameRouter.get('/owners', async (req, res) => {
 		}))
 	);
 
-	res.status(200).json(formattedOwners);
+	res.status(StatusCode.Ok).json(formattedOwners);
 });
 
 /**
@@ -403,6 +387,8 @@ gameRouter.get('/:gameId', async (req, res) => {
 	if (!game)
 		return res.status(StatusCode.NotFound).json({ message: 'Game not found' });
 
+	// This should probably be changed in the future as we change the normal search
+	// to return less data for each game
 	const formattedGame = (
 		await formatGames(
 			[game],
@@ -433,9 +419,10 @@ gameRouter.get('/:gameId', async (req, res) => {
 gameRouter.get('/:gameId/owner', async (req, res) => {
 	const game = await getExtendedGameById(req.params.gameId);
 
-	if (!game) return res.status(404).json({ message: 'Game not found' });
+	if (!game)
+		return res.status(StatusCode.NotFound).json({ message: 'Game not found' });
 
-	return res.status(200).json({
+	return res.status(StatusCode.Ok).json({
 		gameOwner: game?.gameOwnerId
 	});
 });
