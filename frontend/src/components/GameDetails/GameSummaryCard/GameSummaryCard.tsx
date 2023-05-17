@@ -63,6 +63,7 @@ const MarkAsPlayed = ({
 			label={played ? 'Mark as unplayed' : 'Mark as played'}
 			onClick={handleMarkAsPlayed}
 			disabled={isLoading}
+			className={styles.markAsPlayed}
 		/>
 	);
 };

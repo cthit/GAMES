@@ -8,6 +8,7 @@
 	display: flex;
 	padding: 1rem;
 	gap: 1rem;
+	position: relative;
 }
 
 .picture {
@@ -26,4 +27,10 @@
 
 .description {
 	margin-top: 1rem;
+}
+
+.markAsPlayed {
+	position: absolute;
+	bottom: 1rem;
+	right: 1rem;
 }

@@ -1,0 +1,26 @@
+@import 'src/styles/variables';
+
+.button {
+	border: none;
+	border-radius: 999999rem; // Pill shaped
+	background-color: $color-accent;
+	color: $text-bright;
+	padding: 0.5rem 1rem;
+	box-shadow: $shadow;
+	cursor: pointer;
+	transition: all 200ms ease-in;
+
+	&:hover {
+		filter: brightness(1.2);
+	}
+
+	&:active {
+		box-shadow: none;
+	}
+
+	&:disabled {
+		filter: brightness(0.8);
+		box-shadow: none;
+		cursor: default;
+	}
+}
