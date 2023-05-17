@@ -1,6 +1,46 @@
+@import 'src/styles/variables';
+
 .header {
-	background: #09babe;
-	padding: 0.4rem;
-	color: white;
+	color: $text-bright;
+	display: flex;
+	min-height: 3rem;
+}
+
+.title {
+	font-size: $text-biggest;
+	margin: 0 $margin-medium 0 $margin-medium;
+	font-weight: 800;
+	text-decoration: none;
+	color:$text-bright;
+}
+
+.nav {
+	display: flex;
+	align-items: center;
+	gap:2rem;
+}
+
+.link {
+	display: inline-block;
+	color: rgba($text-bright, 0.80);
+	text-decoration: none;
+	padding: 0 0.4rem;
+	font-size: $text-big;
 	text-align: center;
+
+	&:hover {
+		color: $text-bright;
+	}
+}
+
+.active {
+	text-decoration: underline;
+}
+
+.navigation {
+	flex-grow: 1;
+	background-color: $color-background;
+	padding: 0.4rem;
+	display: flex;
+	align-items: center;
 }

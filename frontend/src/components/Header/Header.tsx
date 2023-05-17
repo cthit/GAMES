@@ -1,33 +1,41 @@
-import LoginStatus from '@/src/components/LoginStatus/LoginStatus';
+import UserProfile from '@/src/components/UserProfile/UserProfile';
 import { useUser } from '@/src/hooks/api/auth';
 import { FC } from 'react';
 import styles from './Header.module.scss';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 interface HeaderProps {}
 
 const Header: FC<HeaderProps> = () => {
 	return (
 		<header className={styles.header}>
-			<h1>Extremely Ugly GAMES Header</h1>
-			<nav>
-				<a href="/">Home</a>
+			<div className={styles.navigation} >
+				<a className={styles.title} href="/">G.A.M.E.S</a>
+				<nav className={styles.nav}>
+					<PublicLinks />
 
-				<ProtectedLinks />
+					<ProtectedLinks />
 
-				<a style={{ marginLeft: '5px' }} href="/suggestion">
-					Suggestions
-				</a>
-				<a style={{ marginLeft: '5px' }} href="/bookings">
-					Scheduled bookings
-				</a>
-
-				<AdminLinks />
-
-				<LoginStatus />
-			</nav>
+					<AdminLinks />
+				</nav>
+			</div>
+			<UserProfile />
 		</header>
 	);
 };
+
+const PublicLinks = () => {
+	return (
+		<>
+			<StyledLink name="Browse" href="/" />
+
+			<StyledLink name="Suggestions" href="/suggestion" />
+
+			<StyledLink name="Scheduled Bookings" href="/bookings" />
+		</>
+	)
+}
 
 const ProtectedLinks = () => {
 	const { data, isLoading } = useUser();
@@ -38,18 +46,13 @@ const ProtectedLinks = () => {
 
 	return (
 		<>
-			<a style={{ marginLeft: '5px' }} href="/add">
-				Add
-			</a>
-			<a style={{ marginLeft: '5px' }} href="/addplatform">
-				Add platform
-			</a>
-			<a style={{ marginLeft: '5px' }} href="/borrowlist">
-				Borrow requests
-			</a>
-			<a style={{ marginLeft: '5px' }} href="/addsuggestion">
-				Add Suggestion
-			</a>
+			<StyledLink name="Add" href="/add" />
+
+			<StyledLink name="Add platform" href="/addplatform" />
+
+			<StyledLink name="Borrow requests" href="/borrowlist" />
+
+			<StyledLink name="Add Suggestion" href="/addsuggestion" />
 		</>
 	);
 };
@@ -62,10 +65,19 @@ const AdminLinks = () => {
 	if (!data || !data.isSiteAdmin) return null;
 
 	return (
-		<a style={{ marginLeft: '5px' }} href="/admin">
-			Admin
-		</a>
+		<StyledLink name="Admin" href="/admin" />
 	);
 };
+
+const StyledLink = ({ href, name }: { href: string, name: string }) => {
+	const router = useRouter();
+
+	return (
+		<Link className={router.pathname === href ? `${styles.link} ${styles.active}` : styles.link} href={href}>
+			{name}
+		</Link>
+	)
+}
+
 
 export default Header;
