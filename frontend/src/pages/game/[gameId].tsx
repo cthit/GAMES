@@ -1,4 +1,5 @@
 import GamePropertiesCard from '@/src/components/GameDetails/GamePropertiesCard/GamePropertiesCard';
+import GameRatings from '@/src/components/GameDetails/GameRatings/GameRatings';
 import GameSummaryCard from '@/src/components/GameDetails/GameSummaryCard/GameSummaryCard';
 import Header from '@/src/components/Header/Header';
 import { useGame } from '@/src/hooks/api/games';
@@ -46,26 +47,29 @@ const GamePageContents = ({ gameId }: { gameId: string }) => {
 	if (!data) return <p>No game found</p>;
 
 	return (
-		<div className={styles.layout}>
-			<GameSummaryCard
-				name={data.name}
-				description={data.description}
-				gameId={data.id}
-				played={data.isPlayed}
-				imgUrl="/images/game-default.png"
-			/>
-			<GamePropertiesCard
-				gameId={data.id}
-				borrowed={data.isBorrowed}
-				location={data.location}
-				owner={data.owner}
-				platform={data.platformName}
-				playerMax={data.playerMax}
-				playerMin={data.playerMin}
-				playtime={data.playtimeMinutes}
-				releaseDate={data.releaseDate}
-			/>
-		</div>
+		<>
+			<div className={styles.layout}>
+				<GameSummaryCard
+					name={data.name}
+					description={data.description}
+					gameId={data.id}
+					played={data.isPlayed}
+					imgUrl="/images/game-default.png"
+				/>
+				<GamePropertiesCard
+					gameId={data.id}
+					borrowed={data.isBorrowed}
+					location={data.location}
+					owner={data.owner}
+					platform={data.platformName}
+					playerMax={data.playerMax}
+					playerMin={data.playerMin}
+					playtime={data.playtimeMinutes}
+					releaseDate={data.releaseDate}
+				/>
+			</div>
+			<GameRatings gameId={data.id} />
+		</>
 	);
 };
 
