@@ -8,11 +8,11 @@ export interface Game {
 	name: string;
 	description: string;
 	platformName: string;
-	playtimeMinutes: string;
+	playtimeMinutes: number;
 	releaseDate: string;
 	isBorrowed: boolean;
-	playerMin: string;
-	playerMax: string;
+	playerMin: number;
+	playerMax: number;
 	location: string;
 	owner: string;
 	ratingAvg: string;

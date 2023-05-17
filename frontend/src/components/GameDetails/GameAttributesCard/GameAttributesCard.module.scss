@@ -1,0 +1,16 @@
+@import 'src/styles/variables';
+
+.card {
+	border: $border;
+	border-radius: 5px;
+	padding: 1rem;
+	flex: 1;
+}
+
+.propertyTitle {
+	font-weight: bold;
+}
+
+.property {
+	margin-bottom: 0.5rem;
+}

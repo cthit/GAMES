@@ -1,3 +1,4 @@
+import GameAttributesCard from '@/src/components/GameDetails/GameAttributesCard/GameAttributesCard';
 import GameSummaryCard from '@/src/components/GameDetails/GameSummaryCard/GameSummaryCard';
 import Header from '@/src/components/Header/Header';
 import { useGame } from '@/src/hooks/api/games';
@@ -50,6 +51,16 @@ const GamePageContents = ({ gameId }: { gameId: string }) => {
 				name={data.name}
 				description={data.description}
 				imgUrl="/images/game-default.png"
+			/>
+			<GameAttributesCard
+				borrowed={data.isBorrowed}
+				location={data.location}
+				owner={data.owner}
+				platform={data.platformName}
+				playerMax={data.playerMax}
+				playerMin={data.playerMin}
+				playtime={data.playtimeMinutes}
+				releaseDate={data.releaseDate}
 			/>
 		</div>
 	);
