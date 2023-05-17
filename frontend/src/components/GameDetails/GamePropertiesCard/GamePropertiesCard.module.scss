@@ -6,6 +6,9 @@
 	border-radius: 5px;
 	padding: 1rem;
 	flex: 1;
+	display: flex;
+	justify-content: space-between;
+	flex-direction: column;
 }
 
 .propertyTitle {
@@ -14,4 +17,9 @@
 
 .property {
 	margin-bottom: 0.5rem;
+}
+
+.borrowButton {
+	display: block;
+	margin: 0 auto;
 }

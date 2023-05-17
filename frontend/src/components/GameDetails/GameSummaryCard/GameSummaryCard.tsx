@@ -60,7 +60,7 @@ const MarkAsPlayed = ({
 
 	return (
 		<Button
-			label={played ? 'Mark as unplayed' : 'Mark as played'}
+			label={played ? 'Mark game as unplayed' : 'Mark game as played'}
 			onClick={handleMarkAsPlayed}
 			disabled={isLoading}
 			className={styles.markAsPlayed}

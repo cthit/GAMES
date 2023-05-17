@@ -1,4 +1,4 @@
-import GameAttributesCard from '@/src/components/GameDetails/GameAttributesCard/GameAttributesCard';
+import GamePropertiesCard from '@/src/components/GameDetails/GamePropertiesCard/GamePropertiesCard';
 import GameSummaryCard from '@/src/components/GameDetails/GameSummaryCard/GameSummaryCard';
 import Header from '@/src/components/Header/Header';
 import { useGame } from '@/src/hooks/api/games';
@@ -54,7 +54,8 @@ const GamePageContents = ({ gameId }: { gameId: string }) => {
 				played={data.isPlayed}
 				imgUrl="/images/game-default.png"
 			/>
-			<GameAttributesCard
+			<GamePropertiesCard
+				gameId={data.id}
 				borrowed={data.isBorrowed}
 				location={data.location}
 				owner={data.owner}
