@@ -50,6 +50,8 @@ const GamePageContents = ({ gameId }: { gameId: string }) => {
 			<GameSummaryCard
 				name={data.name}
 				description={data.description}
+				gameId={data.id}
+				played={data.isPlayed}
 				imgUrl="/images/game-default.png"
 			/>
 			<GameAttributesCard

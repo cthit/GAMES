@@ -4,7 +4,7 @@
 	border-radius: 5px;
 	border: $border;
 	box-shadow: $shadow;
-	flex: 6;
+	flex: 5;
 	display: flex;
 	padding: 1rem;
 	gap: 1rem;
@@ -15,6 +15,7 @@
 	height: 15rem;
 	object-fit: fill;
 	border-radius: 5px;
+	margin: 1rem;
 }
 
 .name {

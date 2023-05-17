@@ -40,7 +40,7 @@ export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
 		  Object.keys(changedFilter).map((key) => key + '-' + changedFilter[key])
 		: [];
 
-	const query = useQuery<Game[], AxiosError>({
+	return useQuery<Game[], AxiosError>({
 		queryKey: ['gamesList', search, ...filterKeys],
 		queryFn: () =>
 			axios
@@ -63,8 +63,6 @@ export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
 				})
 				.then((res) => res.data)
 	});
-
-	return query;
 };
 
 export const useGame = (gameId: string) => {

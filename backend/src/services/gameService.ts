@@ -48,8 +48,8 @@ export const searchAndFilterGames = async (filter?: Filter) => {
 			}
 		},
 		include: {
-			borrow: {},
-			playStatus: {}
+			borrow: true,
+			playStatus: true
 		}
 	});
 };
@@ -89,12 +89,7 @@ export const createGame = async (
 };
 
 export const getAllGames = async () => {
-	return await prisma.game.findMany({
-		include: {
-			borrow: true,
-			rating: true
-		}
-	});
+	return await prisma.game.findMany();
 };
 
 export const getGameById = async (gameId: string) => {
@@ -113,7 +108,8 @@ export const getExtendedGameById = async (id: string) => {
 		},
 		include: {
 			borrow: true,
-			rating: true
+			rating: true,
+			playStatus: true
 		}
 	});
 };

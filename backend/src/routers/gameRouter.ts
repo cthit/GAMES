@@ -403,7 +403,12 @@ gameRouter.get('/:gameId', async (req, res) => {
 	if (!game)
 		return res.status(StatusCode.NotFound).json({ message: 'Game not found' });
 
-	const formattedGame = (await formatGames([game], null)).pop();
+	const formattedGame = (
+		await formatGames(
+			[game],
+			req.isAuthenticated() ? (req.user as GammaUser) : null
+		)
+	).pop();
 
 	res.status(StatusCode.Ok).json(formattedGame);
 });
