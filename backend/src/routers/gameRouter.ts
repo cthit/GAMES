@@ -1,10 +1,14 @@
+import { BorrowStatus, PlayStatus } from '@prisma/client';
 import { Router } from 'express';
 import { z } from 'zod';
 import {
 	validateRequestBody,
 	validateRequestQuery
 } from 'zod-express-middleware';
+import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 import { GammaUser } from '../models/gammaModels.js';
+import { StatusCode } from '../models/statusCodes.js';
+import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
 	getGameOwnerNameFromId,
@@ -13,19 +17,15 @@ import {
 } from '../services/gameOwnerService.js';
 import {
 	createGame,
-	getGameById,
+	getExtendedGameById,
+	markGameAsNotPlayed,
 	markGameAsPlayed,
 	removeGame,
-	markGameAsNotPlayed,
 	searchAndFilterGames
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
-import { BorrowStatus } from '@prisma/client';
-import { getAccountFromCid } from '../services/accountService.js';
-import { PlayStatus } from '@prisma/client';
-import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 
 const gameRouter = Router();
 
@@ -355,6 +355,60 @@ gameRouter.get('/owners', async (req, res) => {
 });
 
 /**
+ * @api {get} /api/v1/games/:gameId Get a game
+ * @apiName GetGame
+ * @apiGroup Games
+ * @apiDescription Gets a game by id
+ *
+ * @apiParam {String} gameId Id of the game
+ *
+ * @apiSuccess {String} id Id of the game
+ * @apiSuccess {String} name Name of the game
+ * @apiSuccess {String} description Description of the game
+ * @apiSuccess {String} platformName Name of the platform the game is played on
+ * @apiSuccess {String} releaseDate Date the game was released
+ * @apiSuccess {Number} playtimeMinutes Playtime of the game
+ * @apiSuccess {Number} playerMin Minimum amount of players
+ * @apiSuccess {Number} playerMax Maximum amount of players
+ * @apiSuccess {String} location Location of the game
+ * @apiSuccess {String} owner Name of the owner of the game
+ * @apiSuccess {Boolean} isBorrowed Whether the game is currently borrowed
+ * @apiSuccess {Number} ratingAvg Average rating of the game
+ * @apiSuccess {Number} ratingUser Rating of the game by the user
+ * @apiSuccess {Boolean} isPlayed Whether the game is played by the user
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * 	"id": "clgkri8kk0000przwvkvbyj95",
+ * 	"name": "Game 1",
+ * 	"description": "Game 1 description",
+ * 	"platformName": "Steam",
+ * 	"releaseDate": "2023-04-13T00:00:00.000Z",
+ * 	"playtimeMinutes": 60,
+ * 	"playerMin": 1,
+ * 	"playerMax": 5,
+ * 	"location": "Hubben",
+ * 	"owner": "Game Owner 1",
+ * 	"isBorrowed": false,
+ * 	"ratingAvg": 4.5,
+ * 	"ratingUser": 4,
+ * 	"isPlayed": false
+ * }
+ */
+// This needs to be below /owners or that route will not work
+gameRouter.get('/:gameId', async (req, res) => {
+	const game = await getExtendedGameById(req.params.gameId);
+
+	if (!game)
+		return res.status(StatusCode.NotFound).json({ message: 'Game not found' });
+
+	const formattedGame = (await formatGames([game], null)).pop();
+
+	res.status(StatusCode.Ok).json(formattedGame);
+});
+
+/**
  * @api {get} /api/v1/game/:gameId/owner Get the owner of a game
  * @apiParam {String} gameId Game id
  * @apiName GetGameOwner
@@ -372,7 +426,7 @@ gameRouter.get('/owners', async (req, res) => {
  * @apiUse ZodError
  */
 gameRouter.get('/:gameId/owner', async (req, res) => {
-	const game = await getGameById(req.params.gameId);
+	const game = await getExtendedGameById(req.params.gameId);
 
 	if (!game) return res.status(404).json({ message: 'Game not found' });
 

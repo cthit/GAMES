@@ -67,6 +67,18 @@ export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
 	return query;
 };
 
+export const useGame = (gameId: string) => {
+	return useQuery<Game, AxiosError>({
+		queryKey: ['game', gameId],
+		queryFn: () => {
+			// This is done here as we cannot conditionally call useQuery
+			if (!gameId) throw new AxiosError("Game ID can't be empty", '400');
+
+			return axios.get(`/api/v1/games/${gameId}`).then((res) => res.data);
+		}
+	});
+};
+
 export const useGameRemover = () => {
 	const queryClient = useQueryClient();
 

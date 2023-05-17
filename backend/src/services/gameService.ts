@@ -90,19 +90,9 @@ export const createGame = async (
 
 export const getAllGames = async () => {
 	return await prisma.game.findMany({
-		select: {
-			id: true,
-			name: true,
-			description: true,
-			platformName: true,
-			dateReleased: true,
-			playtimeMinutes: true,
-			borrow: true, // TODO: See what is given
-			playerMin: true,
-			playerMax: true,
-			rating: true,
-			location: true,
-			gameOwnerId: true
+		include: {
+			borrow: true,
+			rating: true
 		}
 	});
 };
@@ -111,6 +101,19 @@ export const getGameById = async (gameId: string) => {
 	return await prisma.game.findUnique({
 		where: {
 			id: gameId
+		}
+	});
+};
+
+export const getExtendedGameById = async (id: string) => {
+	// I don't really like the game of this function, but it works
+	return await prisma.game.findUnique({
+		where: {
+			id
+		},
+		include: {
+			borrow: true,
+			rating: true
 		}
 	});
 };
