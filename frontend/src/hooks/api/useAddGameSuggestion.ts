@@ -19,7 +19,7 @@ export const useAddGameSuggestion = () => {
 			motivation: string;
 		}
 	>({
-		mutationFn: (data) => axios.post('/api/v1/games/add', data),
+		mutationFn: (data) => axios.post('/api/v1/suggest/add', data),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['gameSuggestions']);
 		}

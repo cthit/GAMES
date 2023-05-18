@@ -1,5 +1,6 @@
+@import 'src/styles/variables';
+
 .card {
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-	padding: 1rem;
+	border: $border;
 	border-radius: 5px;
 }
