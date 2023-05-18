@@ -20,3 +20,31 @@
 	width: 100%;
 	margin-right: 2rem;
 }
+
+.searchRow {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: $margin-medium;
+}
+
+.addGame {
+	border: $border;
+	border-radius: 9999999rem; // Pill shaped
+	box-shadow: $shadow;
+	padding: 0.5rem 1rem;
+	font-weight: bold;
+	text-decoration: none;
+	color: $text-dark;
+	transition: all 200ms ease-out;
+
+	&:hover {
+		color: $text-bright;
+		background-color: $color-accent;
+		filter: brightness(1.2);
+	}
+
+	&:active {
+		filter: brightness(0.8);
+		box-shadow: none;
+	}
+}

@@ -1,4 +1,6 @@
+import { useUser } from '@/src/hooks/api/auth';
 import { usePublicGames } from '@/src/hooks/api/games';
+import Link from 'next/link';
 import { FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
 import GameFilter from '../GameFilter/GameFilter';
@@ -16,7 +18,10 @@ const GamesList: FC<GamesListProps> = () => {
 		<>
 			<GameFilter filterState={filter} />
 			<div className={styles.contentLayout}>
-				<GamesSearchBar searchValue={search} setSearch={setSearch} />
+				<div className={styles.searchRow}>
+					<GamesSearchBar searchValue={search} setSearch={setSearch} />
+					<AddGameButton />
+				</div>
 
 				{isLoading ? <p>Loading...</p> : null}
 
@@ -31,6 +36,18 @@ const GamesList: FC<GamesListProps> = () => {
 				) : null}
 			</div>
 		</>
+	);
+};
+
+const AddGameButton: FC = () => {
+	const { data } = useUser();
+
+	if (!data) return null;
+
+	return (
+		<Link className={styles.addGame} href="/add">
+			Add Game
+		</Link>
 	);
 };
 

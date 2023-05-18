@@ -1,17 +1,19 @@
 import UserProfile from '@/src/components/UserProfile/UserProfile';
 import { useUser } from '@/src/hooks/api/auth';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { FC } from 'react';
 import styles from './Header.module.scss';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
 
 interface HeaderProps {}
 
 const Header: FC<HeaderProps> = () => {
 	return (
 		<header className={styles.header}>
-			<div className={styles.navigation} >
-				<a className={styles.title} href="/">G.A.M.E.S</a>
+			<div className={styles.navigation}>
+				<a className={styles.title} href="/">
+					G.A.M.E.S
+				</a>
 				<nav className={styles.nav}>
 					<PublicLinks />
 
@@ -34,8 +36,8 @@ const PublicLinks = () => {
 
 			<StyledLink name="Scheduled Bookings" href="/bookings" />
 		</>
-	)
-}
+	);
+};
 
 const ProtectedLinks = () => {
 	const { data, isLoading } = useUser();
@@ -46,8 +48,6 @@ const ProtectedLinks = () => {
 
 	return (
 		<>
-			<StyledLink name="Add" href="/add" />
-
 			<StyledLink name="Add platform" href="/addplatform" />
 
 			<StyledLink name="Borrow requests" href="/borrowlist" />
@@ -64,20 +64,24 @@ const AdminLinks = () => {
 
 	if (!data || !data.isSiteAdmin) return null;
 
-	return (
-		<StyledLink name="Admin" href="/admin" />
-	);
+	return <StyledLink name="Admin" href="/admin" />;
 };
 
-const StyledLink = ({ href, name }: { href: string, name: string }) => {
+const StyledLink = ({ href, name }: { href: string; name: string }) => {
 	const router = useRouter();
 
 	return (
-		<Link className={router.pathname === href ? `${styles.link} ${styles.active}` : styles.link} href={href}>
+		<Link
+			className={
+				router.pathname === href
+					? `${styles.link} ${styles.active}`
+					: styles.link
+			}
+			href={href}
+		>
 			{name}
 		</Link>
-	)
-}
-
+	);
+};
 
 export default Header;
