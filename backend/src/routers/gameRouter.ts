@@ -172,13 +172,9 @@ const addGameSchema = z
  */
 gameRouter.post(
 	'/add',
+	isAuthenticated,
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
-		if (!req.user)
-			return res
-				.status(StatusCode.Unauthorized)
-				.json({ message: 'Must be logged in to add game' });
-
 		const body = req.body;
 
 		if (!(await platformExists(body.platform))) {
@@ -230,12 +226,7 @@ gameRouter.post(
  * 	"message": "Must be logged in to remove game"
  * }
  */
-gameRouter.delete('/:id', async (req, res) => {
-	if (!req.user)
-		return res
-			.status(StatusCode.Unauthorized)
-			.json({ message: 'Must be logged in to remove game' });
-
+gameRouter.delete('/:id', isAuthenticated, async (req, res) => {
 	// @ts-ignore It is in fact a GammaUser
 	if (!isGameOwner(req.user, req.params.id))
 		return res
