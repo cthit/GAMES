@@ -1,4 +1,5 @@
 @import 'src/styles/variables';
+
 .gamesListHeader {
 	text-align: center;
 	margin-top: 1rem;
@@ -12,16 +13,10 @@
 	gap: 1rem;
 	list-style-type: none;
 	width: 100%;
+	flex: 1;
 }
 
-.gamesListSearchBar {
-	font-size: 1.5rem;
-	text-align: center;
-	margin-bottom: 2rem;
-	height:2.25rem;
-	width:100%;
-	border: $border;
-	border-radius: 2rem; // Pill shaped //plz no =(
-	box-sizing: border-box;
-	box-shadow:$shadow;
+.contentLayout {
+	width: 100%;
+	margin-right: 2rem;
 }

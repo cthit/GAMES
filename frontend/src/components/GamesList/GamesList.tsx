@@ -2,6 +2,7 @@ import { usePublicGames } from '@/src/hooks/api/games';
 import { FC, useState } from 'react';
 import GameCard from '../GameCard/GameCard';
 import GameFilter from '../GameFilter/GameFilter';
+import GamesSearchBar from '../Games/GamesSearchBar/GamesSearchBar';
 import styles from './GamesList.module.scss';
 
 interface GamesListProps {}
@@ -14,14 +15,8 @@ const GamesList: FC<GamesListProps> = () => {
 	return (
 		<>
 			<GameFilter filterState={filter} />
-			<div style={{ width: 'auto' }}>
-				<input
-					className={styles.gamesListSearchBar}
-					type="text"
-					placeholder="Type to search..."
-					onChange={(e) => setSearch(e.target.value)}
-					value={search}
-				/>
+			<div className={styles.contentLayout}>
+				<GamesSearchBar searchValue={search} setSearch={setSearch} />
 
 				{isLoading ? <p>Loading...</p> : null}
 
