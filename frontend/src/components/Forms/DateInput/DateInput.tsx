@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import styles from './DateInput.module.scss';
 
 interface DateInputProps {
 	label: string;
@@ -8,11 +9,17 @@ interface DateInputProps {
 
 const DateInput: FC<DateInputProps> = ({ label, onChange }) => {
 	return (
-		<>
-			<label htmlFor="label">{label}</label>
-			<br />
-			<input type="date" name="label" onChange={onChange} />
-		</>
+		<div className={styles.dateDiv}>
+			<label htmlFor={label} className={styles.label}>
+				{label}
+			</label>
+			<input
+				className={styles.input}
+				type="date"
+				name={label}
+				onChange={onChange}
+			/>
+		</div>
 	);
 };
 

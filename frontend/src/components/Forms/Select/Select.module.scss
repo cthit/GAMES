@@ -1,22 +1,21 @@
 @import 'src/styles/variables';
 
 .selector {
-	background-color:$color-bright;
-	width:fit-content;
+	background-color: $color-bright;
+	width: fit-content;
 	box-sizing: border-box;
 	align-items: center;
 	padding: 0.25rem 0.5rem;
 	border: $border;
 	border-radius: 5px;
-	box-shadow: $shadow;
 }
 
 .selectDiv {
 	display: flex;
 	flex-direction: column;
-	gap:0.5rem;
+	gap: 0.25rem;
 }
 
 .label {
-	font-weight: 800;
+	font-weight: bold;
 }

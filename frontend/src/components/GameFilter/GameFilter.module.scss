@@ -1,5 +1,94 @@
 @import 'src/styles/variables';
+
 .filterDiv {
 	padding: $margin-small;
 	gap: $margin-small;
+}
+
+.icon {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+.filterMarker {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	border-bottom: 1px solid $text-dark;
+	padding-bottom: 0.5rem;
+	margin-bottom: 1rem;
+
+	span {
+		font-weight: bold;
+		font-size: $text-big;
+	}
+}
+
+.label {
+	font-weight: bold;
+}
+
+.betweenPickerDiv {
+	margin: 1rem 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.dateInputDiv {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+
+	input {
+		width: 10rem;
+	}
+
+	p {
+		font-weight: bold;
+	}
+}
+
+.playtimeInputDiv {
+	display: flex;
+	gap: 0.25rem;
+	align-items: center;
+
+	p {
+		font-weight: bold;
+	}
+
+	input {
+		// Making these smaller makes the right side of the placeholder text cut off
+		width: 5.3rem;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	input {
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+}
+
+.playerCountInput {
+	input {
+		width: 7.1rem;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	input {
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
 }
