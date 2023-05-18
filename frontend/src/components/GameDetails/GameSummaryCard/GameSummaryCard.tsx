@@ -79,6 +79,10 @@ const RemoveGame = ({ gameId }: { gameId: string }) => {
 	const handleRemoveGame = () => {
 		if (isLoading) return;
 
+		const isSure = confirm('Are you sure you want to remove this game?');
+
+		if (!isSure) return;
+
 		toast.promise(
 			mutateAsync(gameId),
 			{
