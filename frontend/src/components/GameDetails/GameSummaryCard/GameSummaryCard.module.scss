@@ -34,3 +34,27 @@
 	bottom: 1rem;
 	right: 1rem;
 }
+
+.removeGame {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	width: 1rem;
+	fill: black;
+	transition: all 150ms ease-out;
+
+	&:hover {
+		cursor: pointer;
+		fill: $color-warning;
+	}
+}
+
+.removeDisabled {
+	filter: opacity(50%);
+	cursor: default !important;
+
+	&:hover {
+		cursor: default !important;
+		fill: black !important;
+	}
+}

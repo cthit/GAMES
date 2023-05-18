@@ -1,5 +1,7 @@
 import { useUser } from '@/src/hooks/api/auth';
+import { useGameOwner, useGameRemover } from '@/src/hooks/api/games';
 import { useChangePlayStatus } from '@/src/hooks/api/useChangePlayStatus';
+import TrashCanIcon from '@/src/icons/TrashCan';
 import { FC } from 'react';
 import { toast } from 'react-toastify';
 import Button from '../../Forms/Button/Button';
@@ -28,6 +30,7 @@ const GameSummaryCard: FC<GameSummaryCardProps> = ({
 				<p className={styles.description}>{description}</p>
 			</div>
 			<MarkAsPlayed gameId={gameId} played={played} />
+			<RemoveGame gameId={gameId} />
 		</div>
 	);
 };
@@ -64,6 +67,39 @@ const MarkAsPlayed = ({
 			onClick={handleMarkAsPlayed}
 			disabled={isLoading}
 			className={styles.markAsPlayed}
+		/>
+	);
+};
+
+const RemoveGame = ({ gameId }: { gameId: string }) => {
+	const { data } = useUser();
+	const { mutateAsync, isLoading } = useGameRemover('/');
+	const { data: gameOwner } = useGameOwner(gameId);
+
+	const handleRemoveGame = () => {
+		if (isLoading) return;
+
+		toast.promise(
+			mutateAsync(gameId),
+			{
+				pending: 'Removing game...',
+				success: 'Removed game!',
+				error: 'Could not remove game!'
+			},
+			{
+				position: 'bottom-right'
+			}
+		);
+	};
+
+	if (data?.gameOwnerId !== gameOwner) return null;
+
+	return (
+		<TrashCanIcon
+			onClick={handleRemoveGame}
+			className={`${styles.removeGame} ${
+				isLoading ? styles.removeDisabled : ''
+			}`}
 		/>
 	);
 };

@@ -1,6 +1,7 @@
 import { isValidDateObject } from '@/src/utils/validation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
 import { useDebounce } from '../useDebounce';
 
 export interface Game {
@@ -77,21 +78,25 @@ export const useGame = (gameId: string) => {
 	});
 };
 
-export const useGameRemover = () => {
+export const useGameRemover = (redirect: string = '') => {
+	const router = useRouter();
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: (id: string) => axios.delete(`/api/v1/games/${id}`),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['gamesList']);
+			if (redirect) router.push(redirect);
 		}
 	});
 };
 
 export const useGameOwner = (gameId: string) => {
-	return useQuery<{ gameOwner: string }, AxiosError>({
+	return useQuery<string, AxiosError>({
 		queryKey: ['gameOwner', gameId],
 		queryFn: () =>
-			axios.get(`/api/v1/games/${gameId}/owner`).then((res) => res.data)
+			axios
+				.get(`/api/v1/games/${gameId}/owner`)
+				.then((res) => res.data.gameOwner)
 	});
 };

@@ -1,12 +1,12 @@
 import { useUser } from '@/src/hooks/api/auth';
 import { useBorrow, useBorrowRequest } from '@/src/hooks/api/borrow';
 import { useGameOwner } from '@/src/hooks/api/games';
-import { FC } from 'react';
-import * as z from 'zod';
-import { FieldErrors, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import FormInput from '../Forms/FormInput/FormInput';
+import { FC } from 'react';
+import { FieldErrors, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import * as z from 'zod';
+import FormInput from '../Forms/FormInput/FormInput';
 
 interface BorrowGameProps {
 	game?: string;
@@ -164,7 +164,7 @@ const BorrowGame: FC<BorrowGameProps> = ({ game }) => {
 				onClick={handleSubmit(requestBorrowHandler, invalidFormHandler)}
 			/>
 
-			{user.gameOwnerId === gameOwner.gameOwner ? (
+			{user.gameOwnerId === gameOwner ? (
 				<input
 					type="submit"
 					value="Borrow immediately"
