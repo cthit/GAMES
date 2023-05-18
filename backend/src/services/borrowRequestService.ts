@@ -89,16 +89,16 @@ export const respondBorrowRequest = async (
 	return approved ? BorrowState.Approved : BorrowState.Rejected;
 };
 
-
 export const getActiveBorrowRequests = async (account: User) => {
-	const organizationMemberships = await prisma.organizationMember.findMany({ //Get all the orgz where login is admin
+	const organizationMemberships = await prisma.organizationMember.findMany({
+		//Get all the orgz where login is admin
 		where: {
 			userId: account.id,
-			isAdmin: true,
+			isAdmin: true
 		},
 		select: {
-			organizationId: true,
-		},
+			organizationId: true
+		}
 	});
 
 	const organizationIds = organizationMemberships.map(
@@ -111,36 +111,37 @@ export const getActiveBorrowRequests = async (account: User) => {
 
 			OR: [
 				{
-					game: { //Get requests for games in orgz where login is admin
+					game: {
+						//Get requests for games in orgz where login is admin
 						GameOwner: {
-							ownerType: "ORGANIZATION",
+							ownerType: 'ORGANIZATION',
 							ownerId: {
-								in: organizationIds,
-							},
-						},
-					},
+								in: organizationIds
+							}
+						}
+					}
 				},
 				{
-					game: { //Get requests for games login owns
+					game: {
+						//Get requests for games login owns
 						GameOwner: {
-							ownerType: "USER",
-							ownerId: account.id,
-						},
-					},
-				},
-			],
+							ownerType: 'USER',
+							ownerId: account.id
+						}
+					}
+				}
+			]
 		},
 		include: {
 			game: {
 				select: {
-					name: true,
-				},
-			},
-		},
+					name: true
+				}
+			}
+		}
 	});
 	return borrowRequests;
 };
-
 
 const controlBorrowRequestStatus = async (
 	gameId: string,

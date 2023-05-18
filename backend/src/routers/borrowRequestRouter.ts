@@ -143,8 +143,9 @@ borrowRequestRouter.post(
 				},
 				'Body'
 			);
-		const requestResponse = `Request ${body.approved ? 'accepted' : 'rejected'
-			} successfully`;
+		const requestResponse = `Request ${
+			body.approved ? 'accepted' : 'rejected'
+		} successfully`;
 		res.status(200).json({ message: requestResponse });
 	}
 );
@@ -171,17 +172,12 @@ borrowRequestRouter.post(
  *
  * @apiUse ZodError
  */
-borrowRequestRouter.get(
-	'/list',
- isAuthenticated,
-	async (req, res) => {
-  const user = await getAccountFromCid((req.user as GammaUser).cid);
-  if(!user) return;
-		const requests = await getActiveBorrowRequests(user);
-		res.status(200).json(await formatBorrowRequests(requests));
-	}
-);
-
+borrowRequestRouter.get('/list', isAuthenticated, async (req, res) => {
+	const user = await getAccountFromCid((req.user as GammaUser).cid);
+	if (!user) return;
+	const requests = await getActiveBorrowRequests(user);
+	res.status(200).json(await formatBorrowRequests(requests));
+});
 
 const formatBorrowRequests = async (requests: any[]) => {
 	return await Promise.all(
