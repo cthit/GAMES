@@ -2,15 +2,24 @@
 
 .card {
 	box-shadow: $shadow;
-	padding: 1rem;
+	padding: 0.5rem 1rem;
 	border: $border;
 	border-radius: 5px;
+	width: 15.313rem;
+	overflow: hidden;
+}
+
+.gameImage {
+	width: 15.313rem;
+	height: 10.75rem;
+	object-fit: fill;
+	margin: -0.5rem -2rem 0 -1rem;
 }
 
 .icon {
 	width: 1rem;
 	display: inline;
-	margin-right: .25rem;
+	margin-right: 0.25rem;
 }
 
 .propText {
@@ -25,14 +34,13 @@
 
 .gameProps {
 	display: flex;
-	align-items: center;
+	flex-direction: column;
 }
 
 .leftProps {
 	flex-grow: 1;
 	margin-right: 2rem;
 }
-
 
 .starRatings {
 	unicode-bidi: bidi-override;
@@ -61,8 +69,8 @@
 	}
 
 	.emptyRatings {
-	  padding: 0;
-	  display: block;
-	  z-index: 0;
+		padding: 0;
+		display: block;
+		z-index: 0;
 	}
-  }
+}

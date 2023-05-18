@@ -11,23 +11,28 @@ interface GameCardProps {
 const GameCard: FC<GameCardProps> = ({ game }) => {
 	return (
 		<li className={styles.card}>
+			<img
+				className={styles.gameImage}
+				src="/images/game-default.png"
+				alt="Game cover"
+			/>
+
 			<h2>{game.name}</h2>
 
 			<GameRating game={game} />
 
 			<div className={styles.gameProps}>
 				<div className={styles.leftProps}>
-					<div className={styles.gameProp}>
-						<PersonIcon className={styles.icon} />
-						<p className={styles.propText}>
-							{game.playerMin == game.playerMax
-								? game.playerMax
-								: `${game.playerMin}-${game.playerMax}`}
-						</p>
-					</div>
+					<IconWithText
+						icon={PersonIcon}
+						text={
+							game.playerMin == game.playerMax
+								? `${game.playerMin}`
+								: `${game.playerMin}-${game.playerMax}`
+						}
+					/>
 
-					<ClockIcon className={styles.icon} />
-					<p className={styles.propText}>{game.playtimeMinutes} min</p>
+					<IconWithText icon={ClockIcon} text={`${game.playtimeMinutes} min`} />
 				</div>
 
 				<p style={{ fontWeight: 'bold' }}>{game.platformName}</p>
@@ -41,9 +46,11 @@ const GameRating: FC<GameCardProps> = ({ game }) => {
 	const ref = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
-		if (!ref.current) return;
+		if (!ref.current || !game.ratingAvg) return;
+
 		const starWidth = ref.current.offsetWidth;
 		const rating = game.ratingAvg / 5;
+
 		setRatingWidth(starWidth * rating);
 	}, [ref]);
 
@@ -63,6 +70,20 @@ const GameRating: FC<GameCardProps> = ({ game }) => {
 				</div>
 			</div>
 		</>
+	);
+};
+
+interface IconWithTextProps {
+	icon: FC<{ className?: string }>;
+	text: string;
+}
+
+const IconWithText: FC<IconWithTextProps> = ({ icon: Icon, text }) => {
+	return (
+		<div className={styles.gameProp}>
+			{<Icon className={styles.icon} />}
+			<p className={styles.propText}>{text}</p>
+		</div>
 	);
 };
 
