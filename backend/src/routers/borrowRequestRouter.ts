@@ -9,6 +9,8 @@ import {
 } from '../services/borrowRequestService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { GammaUser } from '../models/gammaModels.js';
+import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
+import { getAccountFromCid } from '../services/accountService.js';
 import { getAccountFromId } from '../services/accountService.js';
 import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 
@@ -141,7 +143,7 @@ borrowRequestRouter.post(
 				},
 				'Body'
 			);
-		let requestResponse = `Request ${
+		const requestResponse = `Request ${
 			body.approved ? 'accepted' : 'rejected'
 		} successfully`;
 		res.status(200).json({ message: requestResponse });
@@ -170,8 +172,10 @@ borrowRequestRouter.post(
  *
  * @apiUse ZodError
  */
-borrowRequestRouter.get('/list', async (_, res) => {
-	const requests = await getActiveBorrowRequests();
+borrowRequestRouter.get('/list', isAuthenticated, async (req, res) => {
+	const user = await getAccountFromCid((req.user as GammaUser).cid);
+	if (!user) throw new Error('User not found');
+	const requests = await getActiveBorrowRequests(user);
 	res.status(200).json(await formatBorrowRequests(requests));
 });
 
