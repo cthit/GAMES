@@ -143,7 +143,7 @@ borrowRequestRouter.post(
 				},
 				'Body'
 			);
-		let requestResponse = `Request ${body.approved ? 'accepted' : 'rejected'
+		const requestResponse = `Request ${body.approved ? 'accepted' : 'rejected'
 			} successfully`;
 		res.status(200).json({ message: requestResponse });
 	}
