@@ -174,7 +174,7 @@ borrowRequestRouter.post(
  */
 borrowRequestRouter.get('/list', isAuthenticated, async (req, res) => {
 	const user = await getAccountFromCid((req.user as GammaUser).cid);
-	if (!user) return;
+	if (!user) throw new Error('User not found');
 	const requests = await getActiveBorrowRequests(user);
 	res.status(200).json(await formatBorrowRequests(requests));
 });
