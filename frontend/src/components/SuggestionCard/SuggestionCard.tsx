@@ -33,7 +33,9 @@ const SuggestionCard: FC<SuggestionCardProps> = ({
 					<div className={styles.iconRow}>
 						<IconWithText
 							icon={PersonIcon}
-							text={`${playerMin}-${playerMax}`}
+							text={
+								playerMin == playerMax ? `${playerMin}-${playerMax}` : playerMin
+							}
 						/>
 						<IconWithText icon={ClockProps} text={`${playtimeMinutes} min`} />
 					</div>
