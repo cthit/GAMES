@@ -34,7 +34,7 @@ const SuggestionCard: FC<SuggestionCardProps> = ({
 						<IconWithText
 							icon={PersonIcon}
 							text={
-								playerMin == playerMax ? `${playerMin}-${playerMax}` : playerMin
+								playerMin == playerMax ? playerMin : `${playerMin}-${playerMax}`
 							}
 						/>
 						<IconWithText icon={ClockProps} text={`${playtimeMinutes} min`} />
