@@ -27,7 +27,7 @@ const GameFilter: FC<GameFilterProps> = ({
 	}
 
 	return (
-		<form className={styles.filterDiv}>
+		<div>
 			<h2 className={styles.filterMarker}>
 				<SliderIcon className={styles.icon} />
 				<span className={styles.titleText}>Filter</span>
@@ -65,7 +65,7 @@ const GameFilter: FC<GameFilterProps> = ({
 				value={filter.full.owner ? filter.full.owner : ''}
 			/>
 			<br />
-		</form>
+		</div>
 	);
 };
 

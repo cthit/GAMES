@@ -1,5 +1,13 @@
 @import 'src/styles/variables';
 
+.leftContainer {
+	display: flex;
+	flex-flow: column;
+	justify-content: space-between;
+	padding: 2rem;
+	gap: 2rem;
+}
+
 .gamesListHeader {
 	text-align: center;
 	margin-top: 1rem;
