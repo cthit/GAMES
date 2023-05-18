@@ -16,6 +16,7 @@
 
 	&:active {
 		box-shadow: none;
+		filter: brightness(0.8);
 	}
 
 	&:disabled {
