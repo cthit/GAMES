@@ -101,7 +101,7 @@ export const getGameById = async (gameId: string) => {
 };
 
 export const getExtendedGameById = async (id: string) => {
-	// I don't really like the game of this function, but it works
+	// I don't really like the name of this function, but it works
 	return await prisma.game.findUnique({
 		where: {
 			id
