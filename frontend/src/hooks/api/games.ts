@@ -1,6 +1,7 @@
 import { isValidDateObject } from '@/src/utils/validation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
 import { useDebounce } from '../useDebounce';
 
 export interface Game {
@@ -8,15 +9,15 @@ export interface Game {
 	name: string;
 	description: string;
 	platformName: string;
-	playtimeMinutes: string;
+	playtimeMinutes: number;
 	releaseDate: string;
 	isBorrowed: boolean;
-	playerMin: string;
-	playerMax: string;
+	playerMin: number;
+	playerMax: number;
 	location: string;
 	owner: string;
-	ratingAvg: string;
-	ratingUser: string;
+	ratingAvg: number | null;
+	ratingUser: number | null;
 	isPlayed: boolean;
 }
 
@@ -40,7 +41,7 @@ export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
 		  Object.keys(changedFilter).map((key) => key + '-' + changedFilter[key])
 		: [];
 
-	const query = useQuery<Game[], AxiosError>({
+	return useQuery<Game[], AxiosError>({
 		queryKey: ['gamesList', search, ...filterKeys],
 		queryFn: () =>
 			axios
@@ -63,25 +64,39 @@ export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
 				})
 				.then((res) => res.data)
 	});
-
-	return query;
 };
 
-export const useGameRemover = () => {
+export const useGame = (gameId: string) => {
+	return useQuery<Game, AxiosError>({
+		queryKey: ['game', gameId],
+		queryFn: () => {
+			// This is done here as we cannot conditionally call useQuery
+			if (!gameId) throw new AxiosError("Game ID can't be empty", '400');
+
+			return axios.get(`/api/v1/games/${gameId}`).then((res) => res.data);
+		}
+	});
+};
+
+export const useGameRemover = (redirect: string = '') => {
+	const router = useRouter();
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: (id: string) => axios.delete(`/api/v1/games/${id}`),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['gamesList']);
+			if (redirect) router.push(redirect);
 		}
 	});
 };
 
 export const useGameOwner = (gameId: string) => {
-	return useQuery<{ gameOwner: string }, AxiosError>({
+	return useQuery<string, AxiosError>({
 		queryKey: ['gameOwner', gameId],
 		queryFn: () =>
-			axios.get(`/api/v1/games/${gameId}/owner`).then((res) => res.data)
+			axios
+				.get(`/api/v1/games/${gameId}/owner`)
+				.then((res) => res.data.gameOwner)
 	});
 };
