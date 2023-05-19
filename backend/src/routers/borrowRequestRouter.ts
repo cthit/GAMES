@@ -17,7 +17,7 @@ import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js'
 const borrowRequestRouter = Router();
 
 const borrowRequestSchema = z.object({
-	gameId: z.string().min(1),
+	gameId: z.string().cuid2(),
 	borrowStart: z.string().datetime(),
 	borrowEnd: z.string().datetime()
 });
@@ -96,7 +96,7 @@ borrowRequestRouter.post(
 );
 
 const borrowRequestResponseSchema = z.object({
-	borrowId: z.string().min(1),
+	borrowId: z.string().cuid2(),
 	approved: z.boolean()
 });
 
