@@ -53,9 +53,6 @@ const GameRating: FC<GameCardProps> = ({ game }) => {
 	const [ratingWidth, setRatingWidth] = useState(0);
 	const ref = useRef<HTMLSpanElement>(null);
 
-	const [rating, setRating] = useState<string>(
-		game.ratingUser?.toString() || ''
-	);
 	const { mutate } = useAddRating();
 	const { data } = useUser();
 
@@ -66,7 +63,7 @@ const GameRating: FC<GameCardProps> = ({ game }) => {
 		const rating = game.ratingAvg / 5;
 
 		setRatingWidth(starWidth * rating);
-	}, [ref]);
+	}, [ref, game.ratingAvg]);
 
 	if (!game.ratingAvg) return <p>Not yet rated.</p>;
 

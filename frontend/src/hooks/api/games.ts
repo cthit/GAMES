@@ -32,7 +32,7 @@ interface Filter {
 	owner?: string;
 }
 
-export const usePublicGames = (searchTerm?: string, filter?: Filter) => {
+export const useGamesList = (searchTerm?: string, filter?: Filter) => {
 	const search = useDebounce(searchTerm ? searchTerm : undefined, 300); // Ternary to avoid empty string
 	const changedFilter = useDebounce(filter, 500);
 

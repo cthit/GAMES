@@ -4,6 +4,7 @@ import axios, { AxiosError } from 'axios';
 export const useBorrowRequestList = () => {
 	return useQuery<
 		{
+			id: string;
 			gameId: string;
 			name: string;
 			user: string;
@@ -43,9 +44,7 @@ export const useBorrowRequestRespond = () => {
 		unknown,
 		AxiosError,
 		{
-			gameId: string;
-			startDate: string;
-			endDate: string;
+			borrowId: string;
 			approved: boolean;
 		}
 	>({

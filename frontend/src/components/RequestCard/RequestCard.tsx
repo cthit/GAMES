@@ -5,6 +5,7 @@ import { useBorrowRequestRespond } from '@/src/hooks/api/borrow';
 import { toast } from 'react-toastify';
 
 interface BorrowRequest {
+	id: string;
 	gameId: string;
 	name: string;
 	user: string;
@@ -23,15 +24,13 @@ const RequestCard: FC<RequestCardProps> = ({ borrowRequest }) => {
 		mutateAsync: postDataAsync
 	} = useBorrowRequestRespond();
 
-	const { gameId, name, user, borrowStart, borrowEnd } = borrowRequest;
+	const { id, gameId, name, user, borrowStart, borrowEnd } = borrowRequest;
 
 	const respondToRequest = async (approved: boolean) => {
 		try {
 			await toast.promise(
 				postDataAsync({
-					gameId,
-					startDate: borrowStart,
-					endDate: borrowEnd,
+					borrowId: id,
 					approved
 				}),
 				{

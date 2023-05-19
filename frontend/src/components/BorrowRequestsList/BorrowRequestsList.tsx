@@ -6,6 +6,7 @@ import { useBorrowRequestList } from '@/src/hooks/api/borrow';
 interface BorrowRequestsListProps {}
 
 interface BorrowRequest {
+	id: string;
 	gameId: string;
 	name: string;
 	user: string;
