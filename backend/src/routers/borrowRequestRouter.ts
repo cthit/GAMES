@@ -128,51 +128,47 @@ borrowRequestRouter.post(
 		const body = req.body;
 		const status = await respondBorrowRequest(body.borrowId, body.approved);
 
-		if (status === BorrowState.NotValid)
-			return sendApiValidationError(
-				res,
-				{
-					path: 'borrowId',
-					message: 'The borrowId given is not valid'
-				},
-				'Body'
-			);
+		switch (status) {
+			case BorrowState.NotValid:
+				return sendApiValidationError(
+					res,
+					{
+						path: 'borrowId',
+						message: 'The borrowId given is not valid'
+					},
+					'Body'
+				);
 
-		if (status === BorrowState.Responded)
-			return sendApiValidationError(
-				res,
-				{
-					path: 'borrowId',
-					message: 'The request has already been responded to'
-				},
-				'Body'
-			);
+			case BorrowState.Responded:
+				return sendApiValidationError(
+					res,
+					{
+						path: 'borrowId',
+						message: 'The request has already been responded to'
+					},
+					'Body'
+				);
 
-		if (status === BorrowState.Overlapping)
-			return sendApiValidationError(
-				res,
-				{
-					path: 'borrowId',
-					message: 'The request overlaps with another approved request'
-				},
-				'Body'
-			);
+			case BorrowState.Overlapping:
+				return sendApiValidationError(
+					res,
+					{
+						path: 'borrowId',
+						message: 'The request overlaps with another approved request'
+					},
+					'Body'
+				);
 
-		if (status !== BorrowState.Success) {
-			return sendApiValidationError(
-				res,
-				{
-					path: 'borrowId',
-					message: 'The request is not valid'
-				},
-				'Body'
-			);
+			case BorrowState.Success:
+				const requestResponse = `Request ${
+					body.approved ? 'accepted' : 'rejected'
+				} successfully`;
+				res.status(200).json({ message: requestResponse });
+				break;
+
+			default:
+				throw new Error('Unknown borrow state');
 		}
-
-		const requestResponse = `Request ${
-			body.approved ? 'accepted' : 'rejected'
-		} successfully`;
-		res.status(200).json({ message: requestResponse });
 	}
 );
 
