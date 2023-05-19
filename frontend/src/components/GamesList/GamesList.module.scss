@@ -1,3 +1,13 @@
+@import 'src/styles/variables';
+
+.leftContainer {
+	display: flex;
+	flex-flow: column;
+	justify-content: space-between;
+	padding: 0 2rem 2rem 2rem;
+	gap: 2rem;
+}
+
 .gamesListHeader {
 	text-align: center;
 	margin-top: 1rem;
@@ -11,12 +21,40 @@
 	gap: 1rem;
 	list-style-type: none;
 	width: 100%;
+	flex: 1;
 }
 
-.gamesListSearchBar {
+.contentLayout {
 	width: 100%;
-	font-size: 1.5rem;
-	text-align: center;
-	padding: 6px;
-	margin-bottom: 24px;
+	margin-right: 2rem;
+}
+
+.searchRow {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: $margin-medium;
+}
+
+.addGame {
+	border: $border;
+	border-radius: 9999999rem; // Pill shaped
+	box-shadow: $shadow;
+	padding: 0.5rem 1rem;
+	font-weight: bold;
+	text-decoration: none;
+	color: $text-dark;
+	transition: all 200ms ease-out;
+	height: 2.25rem;
+	line-height: 1.15rem;
+
+	&:hover {
+		color: $text-bright;
+		background-color: $color-accent;
+		filter: brightness(1.2);
+	}
+
+	&:active {
+		filter: brightness(0.8);
+		box-shadow: none;
+	}
 }

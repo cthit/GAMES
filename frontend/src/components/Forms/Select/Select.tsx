@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react';
+import styles from './Select.module.scss';
 
 interface SelectProps {
 	label: string;
@@ -44,9 +45,9 @@ const Select: FC<SelectProps> = ({
 	}
 
 	return (
-		<>
-			<label htmlFor="label">{label}</label>
-			<select name="label" onChange={onChange} value={value}>
+		<div className={styles.selectDiv}>
+			<label htmlFor="label" className={styles.label}>{label}</label>
+			<select name="label" onChange={onChange} className={styles.selector} value={value}>
 				<option value="">{placeholder}</option>
 				{optionsAndValues.map(({ option, value }) => (
 					<option key={option} value={value}>
@@ -54,7 +55,7 @@ const Select: FC<SelectProps> = ({
 					</option>
 				))}
 			</select>
-		</>
+		</div>
 	);
 };
 
