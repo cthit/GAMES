@@ -43,9 +43,7 @@ export const useBorrowRequestRespond = () => {
 		unknown,
 		AxiosError,
 		{
-			gameId: string;
-			startDate: string;
-			endDate: string;
+			borrowId: string;
 			approved: boolean;
 		}
 	>({

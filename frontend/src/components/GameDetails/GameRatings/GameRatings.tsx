@@ -62,7 +62,8 @@ const StarPicker: FC<StarPickerProps> = ({
 	maxStars
 }) => {
 	const stars = useMemo(
-		() => Array.from({ length: maxStars }, (_, i) => i + 1),
+		// Reverses for CSS to work
+		() => Array.from({ length: maxStars }, (_, i) => i + 1).reverse(),
 		[maxStars]
 	);
 
@@ -70,14 +71,10 @@ const StarPicker: FC<StarPickerProps> = ({
 
 	return (
 		<div className={styles.starContainer}>
-			{/* 
-                The inverted logic, nr >= starCount is because of the hover CSS, which requires
-                the order to be in reverse.
-            */}
 			{stars.map((nr) => (
 				<StarIcon
 					key={nr}
-					className={`${styles.star} ${nr >= nrStars ? styles.selected : ''}`}
+					className={`${styles.star} ${nr <= nrStars ? styles.selected : ''}`}
 					onClick={() => setStarCount(nr)}
 				/>
 			))}

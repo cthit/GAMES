@@ -96,10 +96,8 @@ borrowRequestRouter.post(
 );
 
 const borrowRequestResponseSchema = z.object({
-	gameId: z.string().min(1),
-	approved: z.boolean(),
-	startDate: z.string().datetime(),
-	endDate: z.string().datetime()
+	borrowId: z.string().min(1),
+	approved: z.boolean()
 });
 
 /**
@@ -128,21 +126,49 @@ borrowRequestRouter.post(
 	validateRequestBody(borrowRequestResponseSchema),
 	async (req, res) => {
 		const body = req.body;
-		const status = await respondBorrowRequest(
-			body.gameId,
-			new Date(body.startDate),
-			new Date(body.endDate),
-			body.approved
-		);
-		if (status == BorrowState.NotValid)
+		const status = await respondBorrowRequest(body.borrowId, body.approved);
+
+		if (status === BorrowState.NotValid)
 			return sendApiValidationError(
 				res,
 				{
-					path: 'gameId',
-					message: 'The gameId given is not valid'
+					path: 'borrowId',
+					message: 'The borrowId given is not valid'
 				},
 				'Body'
 			);
+
+		if (status === BorrowState.Responded)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'borrowId',
+					message: 'The request has already been responded to'
+				},
+				'Body'
+			);
+
+		if (status === BorrowState.Overlapping)
+			return sendApiValidationError(
+				res,
+				{
+					path: 'borrowId',
+					message: 'The request overlaps with another approved request'
+				},
+				'Body'
+			);
+
+		if (status !== BorrowState.Success) {
+			return sendApiValidationError(
+				res,
+				{
+					path: 'borrowId',
+					message: 'The request is not valid'
+				},
+				'Body'
+			);
+		}
+
 		const requestResponse = `Request ${
 			body.approved ? 'accepted' : 'rejected'
 		} successfully`;
@@ -151,7 +177,7 @@ borrowRequestRouter.post(
 );
 
 /**
- * @api {post} /api/v1/borrow/request/list Get a list of pending borrow requests
+ * @api {get} /api/v1/borrow/request/list Get a list of pending borrow requests
  * @apiName ListPendingBorrowRequests
  * @apiGroup Requesting
  * @apiDescription Gets a list of pending borrow requests for the user
@@ -184,6 +210,7 @@ const formatBorrowRequests = async (requests: any[]) => {
 		requests.map(async (request) => {
 			const user = (await getAccountFromId(request.userId))?.cid;
 			return {
+				id: request.id,
 				gameId: request.gameId,
 				user,
 				borrowStart: request.borrowStart,
