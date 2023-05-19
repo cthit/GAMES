@@ -1,5 +1,5 @@
 import { useUser } from '@/src/hooks/api/auth';
-import { usePublicGames } from '@/src/hooks/api/games';
+import { useGamesList } from '@/src/hooks/api/games';
 import ClockIcon from '@/src/icons/Clock';
 import PersonIcon from '@/src/icons/Person';
 import Link from 'next/link';
@@ -15,7 +15,7 @@ interface GamesListProps {}
 const GamesList: FC<GamesListProps> = () => {
 	const [search, setSearch] = useState('');
 	const filter = useFilterState();
-	const { data, error, isLoading } = usePublicGames(search, filter.full);
+	const { data, error, isLoading } = useGamesList(search, filter.full);
 
 	const legendItems = [
 		{
