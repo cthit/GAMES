@@ -44,6 +44,8 @@
 	text-decoration: none;
 	color: $text-dark;
 	transition: all 200ms ease-out;
+	height: 2.25rem;
+	line-height: 1.15rem;
 
 	&:hover {
 		color: $text-bright;
