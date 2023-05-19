@@ -1,0 +1,60 @@
+@import 'src/styles/variables';
+
+.card {
+	border-radius: 5px;
+	border: $border;
+	box-shadow: $shadow;
+	flex: 5;
+	display: flex;
+	padding: 1rem;
+	gap: 1rem;
+	position: relative;
+}
+
+.picture {
+	width: 20rem;
+	height: 15rem;
+	object-fit: fill;
+	border-radius: 5px;
+	margin: 1rem;
+}
+
+.name {
+	color: $text-dark;
+	font-size: $text-big;
+	font-weight: bold;
+}
+
+.description {
+	margin-top: 1rem;
+}
+
+.markAsPlayed {
+	position: absolute;
+	bottom: 1rem;
+	right: 1rem;
+}
+
+.removeGame {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	width: 1rem;
+	fill: black;
+	transition: all 150ms ease-out;
+
+	&:hover {
+		cursor: pointer;
+		fill: $color-warning;
+	}
+}
+
+.removeDisabled {
+	filter: opacity(50%);
+	cursor: default !important;
+
+	&:hover {
+		cursor: default !important;
+		fill: black !important;
+	}
+}

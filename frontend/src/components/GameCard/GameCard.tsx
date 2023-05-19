@@ -2,10 +2,10 @@ import { useUser } from '@/src/hooks/api/auth';
 import { Game, useGameRemover } from '@/src/hooks/api/games';
 import { useAddRating } from '@/src/hooks/api/useAddRating';
 import { useChangePlayStatus } from '@/src/hooks/api/useChangePlayStatus';
+import Link from 'next/link';
 import { FC, useState } from 'react';
 import Select from '../Forms/Select/Select';
 import styles from './GameCard.module.scss';
-import Link from 'next/link';
 
 interface GameCardProps {
 	game: Game;
@@ -39,7 +39,9 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 };
 
 const GameRating: FC<GameCardProps> = ({ game }) => {
-	const [rating, setRating] = useState<string>(game.ratingUser);
+	const [rating, setRating] = useState<string>(
+		game.ratingUser?.toString() || ''
+	);
 	const { mutate } = useAddRating();
 	const { data } = useUser();
 

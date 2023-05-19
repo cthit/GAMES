@@ -1,10 +1,14 @@
+import { BorrowStatus, PlayStatus } from '@prisma/client';
 import { Router } from 'express';
 import { z } from 'zod';
 import {
 	validateRequestBody,
 	validateRequestQuery
 } from 'zod-express-middleware';
+import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 import { GammaUser } from '../models/gammaModels.js';
+import { StatusCode } from '../models/statusCodes.js';
+import { getAccountFromCid } from '../services/accountService.js';
 import {
 	getGameOwnerIdFromCid,
 	getGameOwnerNameFromId,
@@ -13,19 +17,15 @@ import {
 } from '../services/gameOwnerService.js';
 import {
 	createGame,
-	getGameById,
+	getExtendedGameById,
+	markGameAsNotPlayed,
 	markGameAsPlayed,
 	removeGame,
-	markGameAsNotPlayed,
 	searchAndFilterGames
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
 import { getAverageRating, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
-import { BorrowStatus } from '@prisma/client';
-import { getAccountFromCid } from '../services/accountService.js';
-import { PlayStatus } from '@prisma/client';
-import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 
 const gameRouter = Router();
 
@@ -94,7 +94,7 @@ gameRouter.get(
 			req.isAuthenticated() ? (req.user as GammaUser) : null
 		);
 
-		res.status(200).json(formattedGames);
+		res.status(StatusCode.Ok).json(formattedGames);
 	}
 );
 
@@ -172,53 +172,36 @@ const addGameSchema = z
  */
 gameRouter.post(
 	'/add',
+	isAuthenticated,
 	validateRequestBody(addGameSchema),
 	async (req, res) => {
-		try {
-			if (!req.user) {
-				return res
-					.status(401)
-					.json({ message: 'Must be logged in to add game' });
-			}
+		const body = req.body;
 
-			const body = req.body;
-
-			if (!(await platformExists(body.platform))) {
-				return sendApiValidationError(
-					res,
-					{
-						path: 'platform',
-						message: 'Platform does not exist'
-					},
-					'Body'
-				);
-			}
-
-			await createGame(
-				body.name,
-				body.description,
-				body.platform,
-				new Date(body.releaseDate),
-				body.playtime,
-				body.playerMin,
-				body.playerMax,
-				body.location,
-				// @ts-expect-error GammaUser not added to Request.user type
-				await getGameOwnerIdFromCid(req.user.cid)
+		if (!(await platformExists(body.platform))) {
+			return sendApiValidationError(
+				res,
+				{
+					path: 'platform',
+					message: 'Platform does not exist'
+				},
+				'Body'
 			);
-
-			res.status(200).json({ message: 'Game added' });
-		} catch (e) {
-			if (e instanceof Error) {
-				res
-					.status(400)
-					.json({ message: 'Something went wrong adding the game' });
-			} else {
-				res.status(500).json({
-					message: 'Uwu oopsie woopsie, the devs made a fucky wucky! Sowwy'
-				});
-			}
 		}
+
+		await createGame(
+			body.name,
+			body.description,
+			body.platform,
+			new Date(body.releaseDate),
+			body.playtime,
+			body.playerMin,
+			body.playerMax,
+			body.location,
+			// @ts-expect-error GammaUser not added to Request.user type
+			await getGameOwnerIdFromCid(req.user.cid)
+		);
+
+		res.status(StatusCode.Ok).json({ message: 'Game added' });
 	}
 );
 
@@ -243,24 +226,16 @@ gameRouter.post(
  * 	"message": "Must be logged in to remove game"
  * }
  */
-gameRouter.delete('/:id', async (req, res) => {
-	try {
-		if (!req.user) {
-			res.status(401).json({ message: 'Must be logged in to remove game' });
-			return;
-		}
+gameRouter.delete('/:id', isAuthenticated, async (req, res) => {
+	// @ts-ignore It is in fact a GammaUser
+	if (!isGameOwner(req.user, req.params.id))
+		return res
+			.status(StatusCode.Forbidden)
+			.json({ message: 'You do not own that game!' });
 
-		// @ts-ignore It is in fact a GammaUser
-		if (!isGameOwner(req.user, req.params.id))
-			return res.status(403).json({ message: 'You do not own that game!' });
+	await removeGame(req.params.id);
 
-		await removeGame(req.params.id);
-
-		res.status(200).json({ message: 'Game removed' });
-	} catch (e) {
-		if (e instanceof Error) res.status(400).json({ message: e.message });
-		else res.status(500).json({ message: 'Error removing game' });
-	}
+	res.status(StatusCode.Ok).json({ message: 'Game removed' });
 });
 
 /**
@@ -289,7 +264,7 @@ gameRouter.delete('/:id', async (req, res) => {
  */
 gameRouter.post('/markPlayed/:gameId', isAuthenticated, async (req, res) => {
 	await markGameAsPlayed(req.params.gameId, (req.user as GammaUser).cid);
-	res.status(200).json({ message: 'Game marked as played' });
+	res.status(StatusCode.Ok).json({ message: 'Game marked as played' });
 });
 
 /**
@@ -317,7 +292,7 @@ gameRouter.post('/markPlayed/:gameId', isAuthenticated, async (req, res) => {
  */
 gameRouter.post('/markNotPlayed/:gameId', isAuthenticated, async (req, res) => {
 	await markGameAsNotPlayed(req.params.gameId, (req.user as GammaUser).cid);
-	res.status(200).json({ message: 'Game marked as not played' });
+	res.status(StatusCode.Ok).json({ message: 'Game marked as not played' });
 });
 
 /**
@@ -351,7 +326,68 @@ gameRouter.get('/owners', async (req, res) => {
 		}))
 	);
 
-	res.status(200).json(formattedOwners);
+	res.status(StatusCode.Ok).json(formattedOwners);
+});
+
+/**
+ * @api {get} /api/v1/games/:gameId Get a game
+ * @apiName GetGame
+ * @apiGroup Games
+ * @apiDescription Gets a game by id
+ *
+ * @apiParam {String} gameId Id of the game
+ *
+ * @apiSuccess {String} id Id of the game
+ * @apiSuccess {String} name Name of the game
+ * @apiSuccess {String} description Description of the game
+ * @apiSuccess {String} platformName Name of the platform the game is played on
+ * @apiSuccess {String} releaseDate Date the game was released
+ * @apiSuccess {Number} playtimeMinutes Playtime of the game
+ * @apiSuccess {Number} playerMin Minimum amount of players
+ * @apiSuccess {Number} playerMax Maximum amount of players
+ * @apiSuccess {String} location Location of the game
+ * @apiSuccess {String} owner Name of the owner of the game
+ * @apiSuccess {Boolean} isBorrowed Whether the game is currently borrowed
+ * @apiSuccess {Number} ratingAvg Average rating of the game
+ * @apiSuccess {Number} ratingUser Rating of the game by the user
+ * @apiSuccess {Boolean} isPlayed Whether the game is played by the user
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ * 	"id": "clgkri8kk0000przwvkvbyj95",
+ * 	"name": "Game 1",
+ * 	"description": "Game 1 description",
+ * 	"platformName": "Steam",
+ * 	"releaseDate": "2023-04-13T00:00:00.000Z",
+ * 	"playtimeMinutes": 60,
+ * 	"playerMin": 1,
+ * 	"playerMax": 5,
+ * 	"location": "Hubben",
+ * 	"owner": "Game Owner 1",
+ * 	"isBorrowed": false,
+ * 	"ratingAvg": 4.5,
+ * 	"ratingUser": 4,
+ * 	"isPlayed": false
+ * }
+ */
+// This needs to be below /owners or that route will not work
+gameRouter.get('/:gameId', async (req, res) => {
+	const game = await getExtendedGameById(req.params.gameId);
+
+	if (!game)
+		return res.status(StatusCode.NotFound).json({ message: 'Game not found' });
+
+	// This should probably be changed in the future as we change the normal search
+	// to return less data for each game
+	const formattedGame = (
+		await formatGames(
+			[game],
+			req.isAuthenticated() ? (req.user as GammaUser) : null
+		)
+	).pop();
+
+	res.status(StatusCode.Ok).json(formattedGame);
 });
 
 /**
@@ -372,11 +408,12 @@ gameRouter.get('/owners', async (req, res) => {
  * @apiUse ZodError
  */
 gameRouter.get('/:gameId/owner', async (req, res) => {
-	const game = await getGameById(req.params.gameId);
+	const game = await getExtendedGameById(req.params.gameId);
 
-	if (!game) return res.status(404).json({ message: 'Game not found' });
+	if (!game)
+		return res.status(StatusCode.NotFound).json({ message: 'Game not found' });
 
-	return res.status(200).json({
+	return res.status(StatusCode.Ok).json({
 		gameOwner: game?.gameOwnerId
 	});
 });
