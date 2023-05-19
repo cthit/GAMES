@@ -1,12 +1,10 @@
+import { useUser } from '@/src/hooks/api/auth';
+import { Game } from '@/src/hooks/api/games';
+import { useAddRating } from '@/src/hooks/api/useAddRating';
 import ClockIcon from '@/src/icons/Clock';
 import PersonIcon from '@/src/icons/Person';
-import { FC, useEffect, useRef, useState } from 'react';
-import { useUser } from '@/src/hooks/api/auth';
-import { Game, useGameRemover } from '@/src/hooks/api/games';
-import { useAddRating } from '@/src/hooks/api/useAddRating';
-import { useChangePlayStatus } from '@/src/hooks/api/useChangePlayStatus';
 import Link from 'next/link';
-import Select from '../Forms/Select/Select';
+import { FC, useEffect, useRef, useState } from 'react';
 import styles from './GameCard.module.scss';
 
 interface GameCardProps {
@@ -15,39 +13,43 @@ interface GameCardProps {
 
 const GameCard: FC<GameCardProps> = ({ game }) => {
 	return (
-		<li className={styles.card}>
-			<img
-				className={styles.gameImage}
-				src="/images/game-default.png"
-				alt="Game cover"
-			/>
+		<Link href={`/game/${game.id}`} legacyBehavior>
+			<li className={styles.card}>
+				<img
+					className={styles.gameImage}
+					src="/images/game-default.png"
+					alt="Game cover"
+				/>
 
-			<h2>{game.name}</h2>
+				<h2>{game.name}</h2>
 
-			<GameRating game={game} />
+				<GameRating game={game} />
 
-			<div className={styles.gameProps}>
-				<div className={styles.leftProps}>
-					<IconWithText
-						icon={PersonIcon}
-						text={
-							game.playerMin == game.playerMax
-								? `${game.playerMin}`
-								: `${game.playerMin}-${game.playerMax}`
-						}
-					/>
+				<div className={styles.gameProps}>
+					<div className={styles.leftProps}>
+						<IconWithText
+							icon={PersonIcon}
+							text={
+								game.playerMin == game.playerMax
+									? `${game.playerMin}`
+									: `${game.playerMin}-${game.playerMax}`
+							}
+						/>
 
-					<IconWithText icon={ClockIcon} text={`${game.playtimeMinutes} min`} />
+						<IconWithText
+							icon={ClockIcon}
+							text={`${game.playtimeMinutes} min`}
+						/>
+					</div>
+
+					<p style={{ fontWeight: 'bold' }}>{game.platformName}</p>
 				</div>
-
-				<p style={{ fontWeight: 'bold' }}>{game.platformName}</p>
-			</div>
-		</li>
+			</li>
+		</Link>
 	);
 };
 
 const GameRating: FC<GameCardProps> = ({ game }) => {
-
 	const [ratingWidth, setRatingWidth] = useState(0);
 	const ref = useRef<HTMLSpanElement>(null);
 
@@ -58,7 +60,6 @@ const GameRating: FC<GameCardProps> = ({ game }) => {
 	const { data } = useUser();
 
 	if (!data) return <p>Average rating: {game.ratingAvg}</p>;
-
 
 	useEffect(() => {
 		if (!ref.current || !game.ratingAvg) return;

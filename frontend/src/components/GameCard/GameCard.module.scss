@@ -7,6 +7,13 @@
 	border-radius: 5px;
 	width: 15.313rem;
 	overflow: hidden;
+	transition: all 200ms ease-out;
+
+	&:hover {
+		cursor: pointer;
+		transform: translateY(-0.25rem);
+		box-shadow: 0px 4px 12px rgba($color-dark, 0.25); // Increase spread
+	}
 }
 
 .gameImage {
