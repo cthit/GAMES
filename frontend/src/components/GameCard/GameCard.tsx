@@ -59,8 +59,6 @@ const GameRating: FC<GameCardProps> = ({ game }) => {
 	const { mutate } = useAddRating();
 	const { data } = useUser();
 
-	if (!data) return <p>Average rating: {game.ratingAvg}</p>;
-
 	useEffect(() => {
 		if (!ref.current || !game.ratingAvg) return;
 
