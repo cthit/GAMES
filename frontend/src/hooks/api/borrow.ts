@@ -4,6 +4,7 @@ import axios, { AxiosError } from 'axios';
 export const useBorrowRequestList = () => {
 	return useQuery<
 		{
+			id: string;
 			gameId: string;
 			name: string;
 			user: string;
