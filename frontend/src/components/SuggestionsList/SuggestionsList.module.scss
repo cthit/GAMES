@@ -1,22 +1,8 @@
-.suggestionsListHeader {
-	text-align: center;
-	margin-top: 1rem;
-	margin-bottom: 0.5rem;
-}
-
 .suggestionsList {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	gap: 1rem;
+	gap: 2rem;
 	list-style-type: none;
 	width: 100%;
-}
-
-.suggestionsListSearchBar {
-	width: 100%;
-	font-size: 1.5rem;
-	text-align: center;
-	padding: 6px;
-	margin-bottom: 24px;
 }

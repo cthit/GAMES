@@ -1,7 +1,12 @@
-import { Game } from '@/src/hooks/api/games';
 import ClockIcon from '@/src/icons/Clock';
 import PersonIcon from '@/src/icons/Person';
 import { FC, useEffect, useRef, useState } from 'react';
+import { useUser } from '@/src/hooks/api/auth';
+import { Game, useGameRemover } from '@/src/hooks/api/games';
+import { useAddRating } from '@/src/hooks/api/useAddRating';
+import { useChangePlayStatus } from '@/src/hooks/api/useChangePlayStatus';
+import Link from 'next/link';
+import Select from '../Forms/Select/Select';
 import styles from './GameCard.module.scss';
 
 interface GameCardProps {
@@ -42,8 +47,18 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 };
 
 const GameRating: FC<GameCardProps> = ({ game }) => {
+
 	const [ratingWidth, setRatingWidth] = useState(0);
 	const ref = useRef<HTMLSpanElement>(null);
+
+	const [rating, setRating] = useState<string>(
+		game.ratingUser?.toString() || ''
+	);
+	const { mutate } = useAddRating();
+	const { data } = useUser();
+
+	if (!data) return <p>Average rating: {game.ratingAvg}</p>;
+
 
 	useEffect(() => {
 		if (!ref.current || !game.ratingAvg) return;

@@ -1,5 +1,62 @@
+@import 'src/styles/variables';
+
 .card {
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-	padding: 1rem;
+	border: $border;
 	border-radius: 5px;
+	box-shadow: $shadow;
+	display: flex;
+	width: 33rem;
+	height: 16.5rem;
+	overflow: hidden;
+}
+
+.image {
+	// Breaks with 50% or more, since platform names are too long
+	// change to 50% when platform icons are added
+	width: 48%;
+	height: 100%;
+	object-fit: fill;
+}
+
+.propBox {
+	padding: 1rem;
+}
+
+.title {
+	font-weight: bold;
+}
+
+.propRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	gap: 1rem;
+	flex-direction: row;
+	margin: 0.5rem 0;
+
+	p {
+		font-weight: bold;
+	}
+}
+
+.iconRow {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.iconWithText {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+
+	span {
+		font-weight: bold;
+	}
+}
+
+.icon {
+	width: 1rem;
+	height: 1rem;
 }

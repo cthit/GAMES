@@ -11,9 +11,9 @@ const Header: FC<HeaderProps> = () => {
 	return (
 		<header className={styles.header}>
 			<div className={styles.navigation}>
-				<a className={styles.title} href="/">
+				<Link className={styles.title} href="/">
 					G.A.M.E.S
-				</a>
+				</Link>
 				<nav className={styles.nav}>
 					<PublicLinks />
 

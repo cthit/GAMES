@@ -2,6 +2,7 @@ import { prisma } from '../prisma.js';
 import { BorrowStatus } from '@prisma/client';
 import { InternalBorrowStatus } from './borrowService.js';
 import { getAccountFromCid } from './accountService.js';
+import { User } from '@prisma/client';
 
 export enum BorrowState {
 	Pending,
@@ -88,11 +89,48 @@ export const respondBorrowRequest = async (
 	return approved ? BorrowState.Approved : BorrowState.Rejected;
 };
 
-// TODO: Only get requests for game manager once implemented
-export const getActiveBorrowRequests = async () => {
-	return await prisma.borrow.findMany({
+export const getActiveBorrowRequests = async (account: User) => {
+	const organizationMemberships = await prisma.organizationMember.findMany({
+		//Get all the orgz where login is admin
 		where: {
-			status: BorrowStatus.PENDING
+			userId: account.id,
+			isAdmin: true
+		},
+		select: {
+			organizationId: true
+		}
+	});
+
+	const organizationIds = organizationMemberships.map(
+		(membership) => membership.organizationId
+	);
+
+	const borrowRequests = await prisma.borrow.findMany({
+		where: {
+			status: BorrowStatus.PENDING,
+
+			OR: [
+				{
+					game: {
+						//Get requests for games in orgz where login is admin
+						GameOwner: {
+							ownerType: 'ORGANIZATION',
+							ownerId: {
+								in: organizationIds
+							}
+						}
+					}
+				},
+				{
+					game: {
+						//Get requests for games login owns
+						GameOwner: {
+							ownerType: 'USER',
+							ownerId: account.id
+						}
+					}
+				}
+			]
 		},
 		include: {
 			game: {
@@ -102,6 +140,7 @@ export const getActiveBorrowRequests = async () => {
 			}
 		}
 	});
+	return borrowRequests;
 };
 
 const controlBorrowRequestStatus = async (

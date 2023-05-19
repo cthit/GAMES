@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateRequestBody } from 'zod-express-middleware';
+import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 import { platformExists } from '../services/platformService.js';
 import {
 	createSuggestion,
@@ -80,6 +81,7 @@ const addSuggestionSchema = z
  */
 suggestRouter.post(
 	'/add',
+	isAuthenticated,
 	validateRequestBody(addSuggestionSchema),
 	async (req, res) => {
 		const body = req.body;
