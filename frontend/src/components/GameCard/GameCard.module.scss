@@ -1,7 +1,83 @@
 @import 'src/styles/variables';
 
 .card {
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-	padding: 1rem;
+	box-shadow: $shadow;
+	padding: 0.5rem 1rem;
+	border: $border;
 	border-radius: 5px;
+	width: 15.313rem;
+	overflow: hidden;
+	transition: all 200ms ease-out;
+
+	&:hover {
+		cursor: pointer;
+		transform: translateY(-0.25rem);
+		box-shadow: 0px 4px 12px rgba($color-dark, 0.25); // Increase spread
+	}
+}
+
+.gameImage {
+	width: 15.313rem;
+	height: 10.75rem;
+	object-fit: fill;
+	margin: -0.5rem -2rem 0 -1rem;
+}
+
+.icon {
+	width: 1rem;
+	display: inline;
+	margin-right: 0.25rem;
+}
+
+.propText {
+	display: inline;
+	font-weight: bold;
+}
+
+.gameProp {
+	margin-right: 0.5rem;
+	display: inline;
+}
+
+.gameProps {
+	display: flex;
+	flex-direction: column;
+}
+
+.leftProps {
+	flex-grow: 1;
+	margin-right: 2rem;
+}
+
+.starRatings {
+	unicode-bidi: bidi-override;
+	color: #ccc;
+	font-size: 128px;
+	position: relative;
+	margin: 0;
+	padding: 0;
+	-webkit-text-stroke-width: 1px;
+	-webkit-text-stroke-color: black;
+
+	.fillRatings {
+		color: $color-highlight;
+		padding: 0;
+		position: absolute;
+		z-index: 1;
+		display: block;
+		top: 0;
+		left: 0;
+		overflow: hidden;
+
+		// Allows us to grab the width of the span elements
+		span {
+			display: inline-block;
+		}
+	}
+
+	.emptyRatings {
+		padding: 0;
+		display: block;
+		z-index: 0;
+	}
 }

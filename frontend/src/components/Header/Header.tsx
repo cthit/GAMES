@@ -48,8 +48,6 @@ const ProtectedLinks = () => {
 
 	return (
 		<>
-			<StyledLink name="Add" href="/add" />
-
 			<StyledLink name="Add platform" href="/addplatform" />
 
 			<StyledLink name="Borrow requests" href="/borrowlist" />

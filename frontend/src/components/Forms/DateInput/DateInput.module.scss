@@ -1,0 +1,22 @@
+@import 'src/styles/variables';
+
+.dateDiv {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.label {
+	font-weight: bold;
+}
+
+.input {
+	width: 100%;
+	padding: 0.25rem 0.5rem;
+	border: $border;
+	border-radius: 5px;
+
+	&::placeholder {
+		color: $text-dark;
+	}
+}

@@ -1,18 +1,36 @@
 import { FC } from 'react';
+import styles from './NumberInput.module.scss';
 
-interface TextInputProps {
+interface NumberInputProps {
 	label: string;
-	type: 'text' | 'number';
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	value?: string;
+	placeholder?: string;
+	className?: string;
 }
 
-const NumberInput: FC<TextInputProps> = ({ label, onChange, value }) => {
+const NumberInput: FC<NumberInputProps> = ({
+	label,
+	onChange,
+	value,
+	placeholder,
+	className
+}) => {
 	return (
-		<>
-			<label htmlFor="label">{label}</label>
-			<input type="number" name="label" onChange={onChange} value={value} />
-		</>
+		<div className={`${styles.inputDiv} ${className ?? ''}`}>
+			<label className={styles.label} htmlFor={label}>
+				{label}
+			</label>
+
+			<input
+				className={styles.input}
+				type="number"
+				name={label}
+				onChange={onChange}
+				value={value}
+				placeholder={placeholder}
+			/>
+		</div>
 	);
 };
 

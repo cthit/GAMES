@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { FC } from "react";
+
 
 interface PersonProps {
 	className?: string;
@@ -20,3 +21,4 @@ const PersonIcon: FC<PersonProps> = ({ className }) => {
 };
 
 export default PersonIcon;
+
