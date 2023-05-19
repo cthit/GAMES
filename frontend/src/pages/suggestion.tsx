@@ -7,7 +7,7 @@ export const Home = () => {
 	return (
 		<>
 			<Head>
-				<title>SUGGESTIONS</title>
+				<title>GAMES | Suggestions</title>
 				<meta
 					name="description"
 					content="A service for finding and browsing games in different mediums and formats."
