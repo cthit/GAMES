@@ -38,6 +38,7 @@ const FormSelect: FC<SelectProps> = ({
 			<Controller
 				control={control}
 				defaultValue={defaultValue}
+
 				name={name}
 				render={({ field: { onChange, value, ref } }) => (
 					<Select

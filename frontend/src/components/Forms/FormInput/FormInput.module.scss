@@ -4,6 +4,7 @@
 	flex-direction: column;
 	margin: 0 $margin-small;
 	padding: $margin-small 0;
+	flex: 5;
 }
 
 .inputBox{
@@ -12,6 +13,7 @@
 	padding: $margin-smallest;
 	margin-top: $margin-smallest;
 	box-shadow: $shadow;
+	width:100%;
 
 }
 

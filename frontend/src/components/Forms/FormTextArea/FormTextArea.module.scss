@@ -13,7 +13,8 @@
 	padding: $margin-smallest;
 	margin-top: $margin-smallest;
 	box-shadow: $shadow;
-	resize: vertical;
+	resize: none;
+	height: 3rem;
 }
 
 .label {

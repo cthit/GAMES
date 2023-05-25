@@ -170,23 +170,7 @@ const AddGame: FC<AddGameProps> = ({ showSelf }) => {
 					error={errors.playtime?.message}
 				/>
 				<br />
-				<FormInput
-					label="Minimum number of players"
-					name="playerMin"
-					type="number"
-					register={register}
-					registerOptions={{ valueAsNumber: true }}
-					error={errors.playerMin?.message}
-				/>
-				<br />
-				<FormInput
-					label="Maximum number of players"
-					name="playerMax"
-					type="number"
-					register={register}
-					registerOptions={{ valueAsNumber: true }}
-					error={errors.playerMax?.message}
-				/>
+				<PlayerInput register={register} errors={errors} />
 				<br />
 				<FormInput
 					label="Location of the game"
@@ -205,3 +189,32 @@ const AddGame: FC<AddGameProps> = ({ showSelf }) => {
 };
 
 export default AddGame;
+
+interface PlayerInputProps {
+	register: any;
+	errors: FieldErrors<AddGameForm>;
+}
+const PlayerInput: FC<PlayerInputProps> = ({ register, errors }) => {
+	return (
+		<div className={styles.playerBox}>
+			<h3>Amount of players</h3>
+			<div className={styles.playerInput}>
+				<FormInput
+
+					name="playerMin"
+					type="number"
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMin?.message}
+				/>
+				<p className={styles.playerDivider}>-</p>
+				<FormInput
+
+					name="playerMax"
+					type="number"
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMax?.message}
+				/>
+			</div></div>);
+}
