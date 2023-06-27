@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { toast } from 'react-toastify';
 import FormInput from '../Forms/FormInput/FormInput';
 import FormTextArea from '../Forms/FormTextArea/FormTextArea';
-import FormSelect from '../Forms/FromSelect/FormSelect';
+import FormSelect from '../Forms/FormSelect/FormSelect';
 import { useAddGameSuggestion } from '@/src/hooks/api/useAddGameSuggestion';
 import { usePlatforms } from '@/src/hooks/api/usePlatforms';
 

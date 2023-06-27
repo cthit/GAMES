@@ -7,9 +7,12 @@ import { FieldErrors, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../Forms/FormInput/FormInput';
 import FormTextArea from '../Forms/FormTextArea/FormTextArea';
-import FormSelect from '../Forms/FromSelect/FormSelect';
+import FormSelect from '../Forms/FormSelect/FormSelect';
+import styles from './AddGame.module.scss';
 
-interface AddGameProps {}
+interface AddGameProps {
+	showSelf: (b: boolean) => void;
+}
 
 const addGameSchema = z
 	.object({
@@ -52,7 +55,7 @@ const addGameSchema = z
 
 type AddGameForm = z.infer<typeof addGameSchema>;
 
-const AddGame: FC<AddGameProps> = () => {
+const AddGame: FC<AddGameProps> = ({ showSelf }) => {
 	const { data, error, isLoading } = usePlatforms();
 
 	const {
@@ -114,7 +117,15 @@ const AddGame: FC<AddGameProps> = () => {
 
 	return (
 		<>
-			<form onSubmit={handleSubmit(submitHandler, invalidFormHandler)}>
+
+			<div className={styles.lightBox} onClick={() => {
+				showSelf(false);
+			}} />
+			<form className={styles.addGameContainer} onSubmit={() => {
+				handleSubmit(submitHandler, invalidFormHandler);
+			}}>
+				<h2 className={styles.title}>Add new game</h2>
+				<div className={styles.divider} />
 				<FormInput
 					label="Name of the game"
 					name="name"
@@ -123,15 +134,13 @@ const AddGame: FC<AddGameProps> = () => {
 					error={errors.name?.message}
 				/>
 				<br />
-
 				<FormTextArea
-					label="Description fo the game"
+					label="Description of the game"
 					register={register}
 					name="description"
 					error={errors.description?.message}
 				/>
 				<br />
-
 				<FormSelect
 					label="Platform"
 					options={data.map((platform) => {
@@ -143,7 +152,6 @@ const AddGame: FC<AddGameProps> = () => {
 					error={errors.platform?.message}
 				/>
 				<br />
-
 				<FormInput
 					label="Release date"
 					name="releaseDate"
@@ -153,7 +161,6 @@ const AddGame: FC<AddGameProps> = () => {
 					error={errors.releaseDate?.message}
 				/>
 				<br />
-
 				<FormInput
 					label="Expected playtime"
 					name="playtime"
@@ -163,27 +170,8 @@ const AddGame: FC<AddGameProps> = () => {
 					error={errors.playtime?.message}
 				/>
 				<br />
-
-				<FormInput
-					label="Minimum number of players"
-					name="playerMin"
-					type="number"
-					register={register}
-					registerOptions={{ valueAsNumber: true }}
-					error={errors.playerMin?.message}
-				/>
+				<PlayerInput register={register} errors={errors} />
 				<br />
-
-				<FormInput
-					label="Maximum number of players"
-					name="playerMax"
-					type="number"
-					register={register}
-					registerOptions={{ valueAsNumber: true }}
-					error={errors.playerMax?.message}
-				/>
-				<br />
-
 				<FormInput
 					label="Location of the game"
 					name="location"
@@ -191,14 +179,42 @@ const AddGame: FC<AddGameProps> = () => {
 					register={register}
 					error={errors.location?.message}
 				/>
-				<br />
 
 				{errors.root ? <p>Error: {errors.root.message}</p> : null}
 
-				<input type="submit" disabled={postLoading} value="Submit" />
+				<input className={styles.button} type="submit" disabled={postLoading} value="Submit" />
 			</form>
-		</>
+		</ >
 	);
 };
 
 export default AddGame;
+
+interface PlayerInputProps {
+	register: any;
+	errors: FieldErrors<AddGameForm>;
+}
+const PlayerInput: FC<PlayerInputProps> = ({ register, errors }) => {
+	return (
+		<div className={styles.playerBox}>
+			<h3>Amount of players</h3>
+			<div className={styles.playerInput}>
+				<FormInput
+
+					name="playerMin"
+					type="number"
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMin?.message}
+				/>
+				<p className={styles.playerDivider}>-</p>
+				<FormInput
+
+					name="playerMax"
+					type="number"
+					register={register}
+					registerOptions={{ valueAsNumber: true }}
+					error={errors.playerMax?.message}
+				/>
+			</div></div>);
+}

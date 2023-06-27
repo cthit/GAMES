@@ -4,6 +4,8 @@ import ClockIcon from '@/src/icons/Clock';
 import PersonIcon from '@/src/icons/Person';
 import Link from 'next/link';
 import { FC, useState } from 'react';
+import AddGame from '../AddGame/AddGame';
+import Button from '../Forms/Button/Button';
 import GameCard from '../GameCard/GameCard';
 import GameFilter from '../GameFilter/GameFilter';
 import GamesSearchBar from '../Games/GamesSearchBar/GamesSearchBar';
@@ -14,6 +16,7 @@ interface GamesListProps {}
 
 const GamesList: FC<GamesListProps> = () => {
 	const [search, setSearch] = useState('');
+	const [addGame, setAddGame] = useState(false);
 	const filter = useFilterState();
 	const { data, error, isLoading } = useGamesList(search, filter.full);
 
@@ -27,7 +30,9 @@ const GamesList: FC<GamesListProps> = () => {
 			icon: ClockIcon
 		}
 	];
-
+	const changeAddGameState = () => {
+		setAddGame(!addGame);
+	}
 	return (
 		<>
 			<div className={styles.leftContainer}>
@@ -37,7 +42,7 @@ const GamesList: FC<GamesListProps> = () => {
 			<div className={styles.contentLayout}>
 				<div className={styles.searchRow}>
 					<GamesSearchBar searchValue={search} setSearch={setSearch} />
-					<AddGameButton />
+					<AddGameButton changeAddGameState={changeAddGameState} />
 				</div>
 
 				{isLoading ? <p>Loading...</p> : null}
@@ -51,20 +56,24 @@ const GamesList: FC<GamesListProps> = () => {
 						))}
 					</ul>
 				) : null}
+				{addGame ? <AddGame showSelf={setAddGame} /> : null}
 			</div>
 		</>
 	);
 };
 
-const AddGameButton: FC = () => {
+interface AddGameButtonProps {
+	changeAddGameState: () => void;
+}
+const AddGameButton: FC<AddGameButtonProps> = ({ changeAddGameState }) => {
 	const { data } = useUser();
 
 	if (!data) return null;
 
 	return (
-		<Link className={styles.addGame} href="/add">
-			Add Game
-		</Link>
+		<>
+			<Button onClick={() => changeAddGameState()} label={"Add Game"} />
+		</>
 	);
 };
 

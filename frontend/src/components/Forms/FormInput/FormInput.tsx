@@ -1,5 +1,6 @@
 import React, { FC, InputHTMLAttributes } from 'react';
 import { UseFormRegister, RegisterOptions } from 'react-hook-form';
+import styles from './FormInput.module.scss';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 	name: string;
@@ -21,9 +22,9 @@ const FormInput: FC<InputProps> = ({
 	...rest
 }) => {
 	return (
-		<div className={wrapperClass}>
-			{label && <label htmlFor={name}>{label}</label>}
-			<input
+		<div className={styles.container}>
+			{label && <label htmlFor={name} className={styles.label} >{label}</label>}<br />
+			<input className={styles.inputBox}
 				aria-invalid={error ? 'true' : 'false'}
 				{...(register ? register(name, registerOptions) : {})}
 				{...rest}

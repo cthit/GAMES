@@ -1,0 +1,87 @@
+@import 'src/styles/variables';
+.addGameContainer {
+	border: $border;
+	border-radius:$margin-smallest;
+	display: flex;
+	flex-direction: column;
+	min-height: 20rem;
+	width: 20rem;
+	background-color: $color-bright;
+	position:absolute;
+	left:50%;
+	transform: translateX(-50%) translateY(-50%);
+	top:50%;
+	z-index:3;
+	padding: 1rem;
+}
+.button {
+	border: none;
+	border-radius: 999999rem; // Pill shaped
+	background-color: $color-accent;
+	color: $text-bright;
+	padding: 0.5rem 1rem;
+	box-shadow: $shadow;
+	cursor: pointer;
+	transition: all 200ms ease-in;
+	align-self: center;
+
+	&:hover {
+		filter: brightness(1.2);
+	}
+
+	&:active {
+		box-shadow: none;
+		filter: brightness(0.8);
+	}
+
+	&:disabled {
+		filter: brightness(0.8);
+		box-shadow: none;
+		cursor: default;
+	}
+}
+
+.lightBox {
+	background-color: rgba($color-dark, 0.5);
+	position: fixed;
+	top: 0;
+	left: 0;
+	right:0;
+	bottom: 0;
+	z-index: 2;
+}
+
+.title {
+	font-size: $text-big;
+	font-weight: bold;
+	align-self: center;
+}
+
+.divider {
+	height: 1px;
+	width: 100%;
+	margin-top: $margin-small;
+	background-color: $color-dark;
+}
+
+.playerInput {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	height:3rem;
+	/* max-width: 18rem; */
+}
+
+.playerDivider {
+	flex:1;
+	font-size: $text-big;
+	font-weight:bold;
+	text-align: center;
+}
+
+.playerBox {
+	display:flex;
+	flex-direction: column;
+	align-items: center;
+}

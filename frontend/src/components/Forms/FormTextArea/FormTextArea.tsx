@@ -1,5 +1,6 @@
 import React, { FC, TextareaHTMLAttributes } from 'react';
 import { UseFormRegister, FieldValues, RegisterOptions } from 'react-hook-form';
+import styles from './FormTextArea.module.scss';
 
 interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 	name: string;
@@ -7,7 +8,6 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 	error?: string;
 	register?: UseFormRegister<any>;
 	registerOptions?: RegisterOptions;
-	wrapperClass?: string;
 	className?: string;
 }
 
@@ -17,13 +17,12 @@ const FormTextArea: FC<TextAreaProps> = ({
 	name,
 	error,
 	label,
-	wrapperClass,
 	...rest
 }) => {
 	return (
-		<div className={wrapperClass}>
-			{label && <label htmlFor={name}>{label}</label>}
-			<textarea
+		<div className={styles.box}>
+			{label && <label className={styles.label} htmlFor={name}>{label}</label>}
+			<textarea className={styles.inputBox}
 				aria-invalid={error ? 'true' : 'false'}
 				{...(register ? register(name, registerOptions) : {})}
 				{...rest}

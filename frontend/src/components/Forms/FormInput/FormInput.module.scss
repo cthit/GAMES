@@ -1,0 +1,25 @@
+@import 'src/styles/variables';
+.container {
+	display: flex;
+	flex-direction: column;
+	margin: 0 $margin-small;
+	padding: $margin-small 0;
+	flex: 5;
+}
+
+.inputBox{
+	border:$border;
+	border-radius: $margin-smallest;
+	padding: $margin-smallest;
+	margin-top: $margin-smallest;
+	box-shadow: $shadow;
+	width:100%;
+
+}
+
+.label {
+	font-size: $text-normal;
+	font-weight: bold;
+	display:block;
+	align-self:center;
+}

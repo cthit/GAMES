@@ -7,6 +7,7 @@ import {
 	Control
 } from 'react-hook-form';
 import Option from 'react-select/dist/declarations/src/components/Option';
+import styles from './FormSelect.module.scss';
 
 interface Option {
 	value: string;
@@ -19,7 +20,6 @@ interface SelectProps extends Props {
 	error?: string;
 	options: Option[];
 	control?: Control<any, any>;
-	wrapperClass?: string;
 	value?: Option;
 }
 
@@ -29,19 +29,20 @@ const FormSelect: FC<SelectProps> = ({
 	label,
 	control,
 	options,
-	wrapperClass,
 	value: defaultValue,
 	...rest
 }) => {
 	return (
-		<div className={wrapperClass}>
-			{label && <label htmlFor={name}>{label}</label>}
+		<div className={styles.box}>
+			{label && <label className={styles.label} htmlFor={name}>{label}</label>}
 			<Controller
 				control={control}
 				defaultValue={defaultValue}
+
 				name={name}
 				render={({ field: { onChange, value, ref } }) => (
 					<Select
+						className={styles.inputBox}
 						ref={ref}
 						value={
 							Array.isArray(value)
