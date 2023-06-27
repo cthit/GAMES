@@ -60,4 +60,4 @@ jobs:
         with:
           context: ./backend
           push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ghcr.io/gasplund/games-backend:latest
+          tags: ghcr.io/cthit/games-backend:latest
