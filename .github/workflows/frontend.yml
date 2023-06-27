@@ -60,4 +60,4 @@ jobs:
         with:
           context: ./frontend
           push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ghcr.io/gasplund/games-frontend:latest
+          tags: ghcr.io/cthit/games-frontend:latest
