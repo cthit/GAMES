@@ -5,7 +5,8 @@ import {
 	InternalBorrowStatus,
 	borrowGame,
 	returnGame,
-	listBorrows
+	listBorrows,
+	listOwnGameBorrows
 } from '../services/borrowService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 import { GammaUser } from '../models/gammaModels.js';
@@ -15,6 +16,7 @@ import {
 } from '../services/accountService.js';
 import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 import { getGammaUser } from '../services/gammaService.js';
+import { getGameOwnerIdFromCid } from '../services/gameOwnerService.js';
 
 const borrowRouter = Router();
 
@@ -181,5 +183,33 @@ const formatBookings = async (bookings: any[]) => {
 		})
 	);
 };
+
+/**
+ * @api {get} /api/v1/borrow/list/ownGames List all booked borrows on games owned by caller
+ * @apiName ListOwnedBookedBorrows
+ * @apiGroup Borrowing
+ * @apiDescription Gets a list of all borrows that are currently booked on your games
+ *
+ * @apiSuccess {Object[]} bookings List of bookings
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * [
+ *   {
+ *     "name":"Sons of The Forest",
+ *     "user":"User",
+ *     "borrowStart":"2023-04-24T14:51:43.583Z",
+ *     "borrowEnd":"2023-04-25T14:51:43.583Z",
+ *     "returned":false
+ *   }
+ * ]
+ *
+ * @apiUse ZodError
+ */
+borrowRouter.get('/list/ownGames', isAuthenticated, async (req, res) => {
+	const gameOwnerId = await getGameOwnerIdFromCid((req.user as GammaUser).cid);
+	const borrows = await listOwnGameBorrows(gameOwnerId);
+	res.status(200).json(await formatBookings(borrows));
+});
 
 export default borrowRouter;
