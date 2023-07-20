@@ -24,7 +24,7 @@ import {
 	searchAndFilterGames
 } from '../services/gameService.js';
 import { platformExists } from '../services/platformService.js';
-import { getAverageRating, getUserRating } from '../services/ratingService.js';
+import { getAverageRating, getUserMotivation, getUserRating } from '../services/ratingService.js';
 import sendApiValidationError from '../utils/sendApiValidationError.js';
 
 const gameRouter = Router();
@@ -368,6 +368,7 @@ gameRouter.get('/owners', async (req, res) => {
  * 	"isBorrowed": false,
  * 	"ratingAvg": 4.5,
  * 	"ratingUser": 4,
+ * 	"motivation": "Good game",
  * 	"isPlayed": false
  * }
  */
@@ -445,6 +446,7 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 				isBorrowed,
 				ratingAvg: await getAverageRating(game.id),
 				ratingUser: user ? await getUserRating(game.id, user.cid) : null,
+				motivation: user ? await getUserMotivation(game.id, user.cid) : undefined,
 				isPlayed
 			};
 		})

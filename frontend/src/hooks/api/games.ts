@@ -18,6 +18,7 @@ export interface Game {
 	owner: string;
 	ratingAvg: number | null;
 	ratingUser: number | null;
+	motivationUser?: string;
 	isPlayed: boolean;
 }
 
