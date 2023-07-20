@@ -113,8 +113,7 @@ const Ratings = ({ gameId }: GameRatingsProps) => {
 const RatingCard = ({ rating }: { rating: Rating }) => {
 	const maxStars = 5
 	const stars = useMemo(
-		// Reverses for CSS to work
-		() => Array.from({ length: maxStars }, (_, i) => i + 1).reverse(),
+		() => Array.from({ length: maxStars }, (_, i) => i + 1),
 		[5])
 	const nrStars = rating.rating ? rating.rating : maxStars + 1;
 
