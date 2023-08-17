@@ -91,7 +91,8 @@ const StarPicker: FC<StarPickerProps> = ({
 };
 
 const Ratings = ({ gameId }: GameRatingsProps) => {
-	const { data, loading, error } = useApiGet("/rating/game/" + gameId);
+	const { data, loading, error }: { data: Rating[] | null, loading: boolean | null, error: any | null }
+		= useApiGet("/rating/game/" + gameId);
 
 	if (loading) return <p>Loading...</p>;
 
