@@ -101,7 +101,7 @@ const Ratings = ({ gameId }: GameRatingsProps) => {
 	if (!data) return <p>No game found</p>;
 	console.log(data)
 	return (
-		<div>
+		<div className={styles.ratings}>
 			{data.map((rating: Rating) => (
 				<RatingCard rating={rating} />
 			))}
