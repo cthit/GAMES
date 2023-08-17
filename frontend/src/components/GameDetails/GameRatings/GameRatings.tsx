@@ -1,12 +1,11 @@
 import { useUser } from '@/src/hooks/api/auth';
-import { useAddRating } from '@/src/hooks/api/useAddRating';
+import { useAddRating, Rating } from '@/src/hooks/api/useAddRating';
 import StarIcon from '@/src/icons/Star';
 import { FC, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import Button from '../../Forms/Button/Button';
 import styles from './GameRatings.module.scss';
 import TextArea from '../../Forms/TextArea/TextArea';
-import { Rating } from '@/src/hooks/api/useGameRatings';
 import { useApiGet } from '@/src/hooks/apiHooks';
 
 interface GameRatingsProps {
@@ -45,7 +44,7 @@ const GameRatings: FC<GameRatingsProps> = ({ gameId, userRating, userMotivation 
 
 	return (
 		<div className={styles.layout}>
-			<Ratings gameId={gameId} />
+			<Ratings gameId={gameId} userRating={null} />
 			<div className={styles.rateLayout}>
 			<StarPicker
 				starCount={starCount}
