@@ -16,6 +16,7 @@ export const useAddGame = () => {
 			playerMin: number;
 			playerMax: number;
 			location: string;
+			imagePath: string;
 		}
 	>({
 		mutationFn: (data) => axios.post('/api/v1/games/add', data),

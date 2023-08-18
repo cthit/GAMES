@@ -24,6 +24,7 @@ model Game {
     borrow          Borrow[]
     GameOwner       GameOwner?   @relation(fields: [gameOwnerId], references: [id], onDelete: Cascade)
     gameOwnerId     String?
+    imagePath       String?
     rating          Rating[]
 
     @@map("games")

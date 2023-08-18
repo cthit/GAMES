@@ -54,7 +54,7 @@ const GamePageContents = ({ gameId }: { gameId: string }) => {
 					description={data.description}
 					gameId={data.id}
 					played={data.isPlayed}
-					imgUrl="/images/game-default.png"
+					imgUrl={data.imagePath}
 				/>
 				<GamePropertiesCard
 					gameId={data.id}

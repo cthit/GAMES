@@ -43,7 +43,13 @@ const addGameSchema = z
 		location: z
 			.string({ required_error: 'A location is required' })
 			.min(1, 'A location is required')
-			.max(250, "Location can't be longer than 250 characters")
+			.max(250, "Location can't be longer than 250 characters"),
+		imagePath: z
+			.string({ required_error: 'A image path is required' })
+			.min(1, 'The image path can\'t be left empty')
+			.max(500, "The path to the image can't be longer than 500 characters")
+
+
 	})
 	.refine((data) => data.playerMax >= data.playerMin, {
 		message: 'Maximum players must be greater than or equal to Minimum players',
@@ -190,6 +196,15 @@ const AddGame: FC<AddGameProps> = () => {
 					type="text"
 					register={register}
 					error={errors.location?.message}
+				/>
+				<br />
+
+				<FormInput
+					label="Image of the game"
+					name="imagePath"
+					type="text"
+					register={register}
+					error={errors.imagePath?.message}
 				/>
 				<br />
 

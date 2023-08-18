@@ -19,6 +19,7 @@ export interface Game {
 	ratingAvg: number | null;
 	ratingUser: number | null;
 	isPlayed: boolean;
+	imagePath: string;
 }
 
 interface Filter {

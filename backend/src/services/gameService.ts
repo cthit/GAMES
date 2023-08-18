@@ -63,7 +63,8 @@ export const createGame = async (
 	playerMin: number,
 	playerMax: number,
 	location: string,
-	gameOwnerId: string
+	gameOwnerId: string,
+	imagePath: string
 ) => {
 	await prisma.game.create({
 		data: {
@@ -83,7 +84,8 @@ export const createGame = async (
 				connect: {
 					id: gameOwnerId
 				}
-			}
+			},
+			imagePath
 		}
 	});
 };
