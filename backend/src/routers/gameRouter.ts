@@ -202,9 +202,9 @@ gameRouter.post(
 			body.playerMin,
 			body.playerMax,
 			body.location,
-			body.imagePath,
 			// @ts-expect-error GammaUser not added to Request.user type
 			await getGameOwnerIdFromCid(req.user.cid)
+			body.imagePath,
 		);
 
 		res.status(StatusCode.Ok).json({ message: 'Game added' });
