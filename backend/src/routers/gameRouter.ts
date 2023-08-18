@@ -203,7 +203,7 @@ gameRouter.post(
 			body.playerMax,
 			body.location,
 			// @ts-expect-error GammaUser not added to Request.user type
-			await getGameOwnerIdFromCid(req.user.cid)
+			await getGameOwnerIdFromCid(req.user.cid),
 			body.imagePath,
 		);
 
@@ -436,8 +436,8 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 				}).length > 0;
 			const isPlayed = user
 				? game.playStatus.filter((status: PlayStatus) => {
-						return status.userId == uid;
-				  }).length > 0
+					return status.userId == uid;
+				}).length > 0
 				: false;
 			return {
 				id: game.id,
