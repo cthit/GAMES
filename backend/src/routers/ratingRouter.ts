@@ -4,15 +4,18 @@ import { validateRequestBody } from 'zod-express-middleware';
 import {
 	createRating,
 	getUserRating,
-	getAverageRating
+	getAverageRating,
+	getGameRatings
 } from '../services/ratingService.js';
 import { GammaUser } from '../models/gammaModels.js';
+import { isAuthenticated } from '../middleware/authenticationCheckMiddleware.js';
 
 const ratingRouter = Router();
 
 const rateSchema = z.object({
 	game: z.string().min(1).max(250),
-	rating: z.number().int().min(1).max(5)
+	rating: z.number().int().min(1).max(5),
+	motivation: z.string().min(1).max(1000).optional()
 });
 
 /**
@@ -20,6 +23,9 @@ const rateSchema = z.object({
  * @apiName RateGame
  * @apiGroup Rating
  * @apiDescription Gives a specific game a rating
+ *
+ * @apiBody {Number} rating Number between 0-5
+ * @apiBody {String} motivation Motivation of the rating
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -39,14 +45,12 @@ const rateSchema = z.object({
  */
 ratingRouter.post(
 	'/rate',
+	isAuthenticated,
 	validateRequestBody(rateSchema),
 	async (req, res) => {
-		if (!req.isAuthenticated()) {
-			res.status(401).json({ message: 'Must be logged in to rate game' });
-			return;
-		}
+
 		const user = req.user as GammaUser;
-		createRating(req.body.game, user.cid, req.body.rating);
+		createRating(req.body.game, user.cid, req.body.rating, req.body.motivation);
 		res.status(200).json({ message: 'Game rated successfully' });
 	}
 );
@@ -89,7 +93,7 @@ ratingRouter.get('/user/:gameId', async (req, res) => {
 });
 
 /**
- * @api {get} /api/v1/rating/game/[gameId] Get average Rating for Game
+ * @api {get} /api/v1/rating/game/average/[gameId] Get average Rating for Game
  * @apiParam {String} gameId ID of the game
  * @apiName GetAverageRating
  * @apiGroup Rating
@@ -106,9 +110,36 @@ ratingRouter.get('/user/:gameId', async (req, res) => {
  * @apiUse ZodError
  *
  */
-ratingRouter.get('/game/:gameId', async (req, res) => {
+ratingRouter.get('/game/average/:gameId', async (req, res) => {
 	let rating = await getAverageRating(req.params.gameId);
 	res.status(200).json({ rating: rating });
 });
+
+/**
+ * @api {get} /api/v1/rating/game/[gameId] Get all ratings and motivations for game
+ * @apiParam {String} gameId ID of the game
+ * @apiName GetRating
+ * @apiGroup Rating
+ * @apiDescription Gets all ratings of a game
+ *
+ * @apiSuccess {Object} rating Rating of the game
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *  [
+ * 	{
+ *   		"rating": 3,
+ * 		"motivation": "It's okay"
+ *  	}
+ * ]
+ *
+ * @apiUse ZodError
+ *
+ */
+ratingRouter.get('/game/:gameId', async (req, res) => {
+	let ratings = await getGameRatings(req.params.gameId);
+	console.log(ratings);
+	res.status(200).json(ratings);
+})
 
 export default ratingRouter;

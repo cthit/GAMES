@@ -142,6 +142,7 @@ model Rating {
     game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
     gameId String
     rating Int
+    motivation  String?
 
     @@id([userId, gameId])
     @@map("ratings")

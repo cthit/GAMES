@@ -2,9 +2,21 @@
 
 .layout {
 	display: flex;
+	padding: 1rem;
+	gap: 2rem;
+	margin: 1rem 2rem;
+
+}
+
+.rateLayout {
+	display: flex;
+	flex-direction: column;
 	gap: 1rem;
-	margin: auto;
+	flex:1;
+	padding: 1rem;
+
 	max-width: fit-content;
+	align-items: center;
 }
 
 .star {
@@ -28,4 +40,17 @@
 .starContainer {
 	display: flex;
 	flex-direction: row-reverse;
+}
+.ratingCard{
+	border: $border;
+	border-radius: 5px;
+	box-shadow: $shadow;
+	padding: 1rem;
+	margin: 1rem 0 1rem;
+	position:relative;
+}
+
+.ratings {
+	flex:5;
+	position:relative;
 }

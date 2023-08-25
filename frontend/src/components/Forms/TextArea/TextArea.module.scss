@@ -1,0 +1,26 @@
+@import 'src/styles/variables';
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	margin: 0 $margin-small;
+	padding: $margin-small 0;
+
+
+	textarea {
+	border:$border;
+	border-radius: $margin-smallest;
+	padding: $margin-smallest;
+	margin-top: $margin-smallest;
+	box-shadow: $shadow;
+	resize: vertical;
+
+}
+
+   label {
+	font-size: $text-normal;
+	font-weight: bold;
+	display:block;
+	align-self:center;
+}
+}
