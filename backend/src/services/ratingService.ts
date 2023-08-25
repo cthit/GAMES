@@ -15,7 +15,7 @@ export const createRating = async (
 	let userId = user.id;
 	const ratingData = {
 		rating: rating,
-		motivation: motivation ? motivation : undefined
+		motivation: motivation
 	}
 	await prisma.rating.upsert({
 		where: {
