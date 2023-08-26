@@ -40,7 +40,8 @@ const gamesQuerySchema = z.object({
 	playtimeMax: z.string().min(1).max(6).regex(isInt, intMessage).optional(),
 	playerCount: z.string().min(1).max(4).regex(isInt, intMessage).optional(),
 	owner: z.string().cuid2().optional(),
-	location: z.string().min(1).max(500).optional()
+	location: z.string().min(1).max(500).optional(),
+	imagePath: z.string().min(1).max(500).optional()
 });
 
 /**
@@ -58,6 +59,7 @@ const gamesQuerySchema = z.object({
  * @apiQuery {Number} playerCount Amount of players that should be able to play the games
  * @apiQuery {String} owner CUID of the owner of the games
  * @apiQuery {String} location Location of the games
+ * @apiQuery {String} imagePath Path to image of the games
  *
  * @apiSuccess {Object[]} games List of games
  *
@@ -78,6 +80,7 @@ const gamesQuerySchema = z.object({
  * 	  "isPlayed": "false",
  *    (nullable) "ratingAvg": 4.5,
  *    (nullable) "ratingUser": 4,
+ *   "imagePath": "https://example.com/image.png"
  *   }
  * ]
  */
@@ -124,7 +127,8 @@ const addGameSchema = z
 		playtime: z.number().int().min(1),
 		playerMin: z.number().int().min(1),
 		playerMax: z.number().int().min(1),
-		location: z.string().min(1).max(250)
+		location: z.string().min(1).max(250),
+		imagePath: z.string().min(1).max(500)
 	})
 	.refine((data) => data.playerMax >= data.playerMin, {
 		message: 'PlayerMax must be greater than or equal to PlayerMin',
@@ -145,6 +149,7 @@ const addGameSchema = z
  * @apiBody {Number} playerMin PlayerMin of the game
  * @apiBody {Number} playMax PlayerMax of the game
  * @apiBody {String} location Location of the game
+ * @apiBody {String} imagePath Path to image of the game
  *
  * @apiSuccess {String} message Message indicating success
  *
@@ -198,7 +203,8 @@ gameRouter.post(
 			body.playerMax,
 			body.location,
 			// @ts-expect-error GammaUser not added to Request.user type
-			await getGameOwnerIdFromCid(req.user.cid)
+			await getGameOwnerIdFromCid(req.user.cid),
+			body.imagePath,
 		);
 
 		res.status(StatusCode.Ok).json({ message: 'Game added' });
@@ -351,6 +357,7 @@ gameRouter.get('/owners', async (req, res) => {
  * @apiSuccess {Number} ratingAvg Average rating of the game
  * @apiSuccess {Number} ratingUser Rating of the game by the user
  * @apiSuccess {Boolean} isPlayed Whether the game is played by the user
+ * @apiSuccess {String} imagePath Path to image of the game
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
@@ -368,7 +375,8 @@ gameRouter.get('/owners', async (req, res) => {
  * 	"isBorrowed": false,
  * 	"ratingAvg": 4.5,
  * 	"ratingUser": 4,
- * 	"isPlayed": false
+ * 	"isPlayed": false,
+ * 	  "imagePath": "https://example.com/image.png"
  * }
  */
 // This needs to be below /owners or that route will not work
@@ -428,8 +436,8 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 				}).length > 0;
 			const isPlayed = user
 				? game.playStatus.filter((status: PlayStatus) => {
-						return status.userId == uid;
-				  }).length > 0
+					return status.userId == uid;
+				}).length > 0
 				: false;
 			return {
 				id: game.id,
@@ -445,7 +453,8 @@ const formatGames = async (games: any[], user: GammaUser | null) => {
 				isBorrowed,
 				ratingAvg: await getAverageRating(game.id),
 				ratingUser: user ? await getUserRating(game.id, user.cid) : null,
-				isPlayed
+				isPlayed,
+				imagePath: game.imagePath
 			};
 		})
 	);

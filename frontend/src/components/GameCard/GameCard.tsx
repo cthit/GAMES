@@ -17,7 +17,7 @@ const GameCard: FC<GameCardProps> = ({ game }) => {
 			<li className={styles.card}>
 				<img
 					className={styles.gameImage}
-					src="/images/game-default.png"
+					src={game.imagePath}
 					alt="Game cover"
 				/>
 
