@@ -73,6 +73,20 @@ export const useBorrowsList = () => {
 	);
 };
 
+export const useOwnBorrowsList = () => {
+	return useQuery<
+		{
+			gameName: string;
+			user: string;
+			borrowStart: string;
+			borrowEnd: string;
+		}[],
+		AxiosError
+	>(['ownBorrowsList'], () =>
+		axios.get('/api/v1/borrow/list/ownGames').then((res) => res.data)
+	);
+};
+
 export const useBorrow = () => {
 	return useMutation<
 		unknown,

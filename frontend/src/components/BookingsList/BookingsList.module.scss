@@ -1,3 +1,4 @@
+@import 'src/styles/variables';
 .bookingsList {
 	display: flex;
 	flex-wrap: wrap;
@@ -5,4 +6,17 @@
 	gap: 1rem;
 	list-style-type: none;
 	width: 100%;
+}
+
+.listPage {
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+	padding: 0 1rem 0  1rem;
+}
+
+.showOnBox {
+	font-size: $text-normal;
+	display:inline-block;
+
 }
